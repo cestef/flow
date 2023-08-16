@@ -2,12 +2,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, LogIn } from "lucide-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 
-import { Button } from "@/components/ui/button";
+import Flow from "@/components/canvas";
 import CanvasPanel from "@/components/canvas-panel";
-import Flow from "@/components/flow";
 import MembersPanel from "@/components/members-panel";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Button } from "@/components/ui/button";
 import { Panel } from "reactflow";
+
 export default () => {
 	const { data: session, status: sessionStatus } = useSession();
 	if (sessionStatus === "loading") {

@@ -2,8 +2,8 @@ import { Canvas, Edge, Node } from "@prisma/client";
 import { protectedProcedure, router } from "../trpc";
 
 import EventEmitter from "events";
-import { observable } from "@trpc/server/observable";
 import { prisma } from "@/lib/prisma";
+import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 
 const emitters = new Map<string, EventEmitter>();
@@ -91,29 +91,8 @@ export const canvasRouter = router({
 				select: {
 					id: true,
 					name: true,
-					nodes: {
-						select: {
-							id: true,
-							name: true,
-							x: true,
-							y: true,
-						},
-					},
-					edges: {
-						select: {
-							id: true,
-							from: {
-								select: {
-									id: true,
-								},
-							},
-							to: {
-								select: {
-									id: true,
-								},
-							},
-						},
-					},
+					nodes: true,
+					edges: true,
 					members: {
 						select: {
 							id: true,

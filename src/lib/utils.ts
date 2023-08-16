@@ -4,7 +4,7 @@ import { loggerLink } from "@trpc/client/links/loggerLink";
 import { createWSClient, wsLink } from "@trpc/client/links/wsLink";
 import { createTRPCNext } from "@trpc/next";
 import type { inferProcedureOutput } from "@trpc/server";
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { NextPageContext } from "next";
 import getConfig from "next/config";
 import superjson from "superjson";

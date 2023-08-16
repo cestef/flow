@@ -1,15 +1,15 @@
+import { ArrowDownLeft, Loader2, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { DialogFooter, DialogHeader } from "./ui/dialog";
-import { Loader2, Plus } from "lucide-react";
 
-import { Button } from "./ui/button";
-import ComboBox from "./combobox";
-import { Input } from "./ui/input";
 import { trpc } from "@/lib/utils";
-import { useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useStore } from "@/store";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import ComboBox from "./combobox";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 export default function CanvasPanel() {
 	const { data: session } = useSession();
@@ -37,9 +37,28 @@ export default function CanvasPanel() {
 			setCurrentCanvasId(canvases.data[0].id);
 		}
 	}, [canvases.data, currentCanvasId]);
-
+	const togglePanel = useStore((state) => state.toggleCanvasPanel);
+	const panelHidden = useStore((state) => state.canvasPanelHidden);
 	return (
-		<Card className="w-64">
+		<Card
+			className={`w-64 ${
+				panelHidden
+					? "transform -translate-x-[77%] translate-y-[70%]"
+					: "transform translate-x-0"
+			} transition-all duration-300 ease-in-out`}
+		>
+			<Button
+				size="icon"
+				className="absolute top-4 right-4"
+				variant="ghost"
+				onClick={() => togglePanel()}
+			>
+				<ArrowDownLeft
+					className={`w-4 h-4 ${
+						panelHidden ? "rotate-180" : ""
+					} transition-all duration-300 ease-in-out`}
+				/>
+			</Button>
 			<CardHeader>
 				<CardTitle>Canvas</CardTitle>
 			</CardHeader>
@@ -69,7 +88,7 @@ export default function CanvasPanel() {
 							/>
 						</>
 					) : (
-						<p>Sign in to create a canvas</p>
+						<p className="text-gray-400">Sign in to create a canvas</p>
 					)}
 				</div>
 
@@ -78,15 +97,17 @@ export default function CanvasPanel() {
 					onOpenChange={(e) => toggleCreateNewCanvas(e)}
 				>
 					<DialogTrigger asChild>
-						<Button
-							size="sm"
-							variant="secondary"
-							className="mt-4 w-full"
-							onClick={() => toggleCreateNewCanvas(true)}
-						>
-							<Plus className="mr-2 w-4 h-4" />
-							Create
-						</Button>
+						{session && (
+							<Button
+								size="sm"
+								variant="secondary"
+								className="mt-4 w-full"
+								onClick={() => toggleCreateNewCanvas(true)}
+							>
+								<Plus className="mr-2 w-4 h-4" />
+								Create
+							</Button>
+						)}
 					</DialogTrigger>
 
 					<DialogContent>

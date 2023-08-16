@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Node" ADD COLUMN     "height" DOUBLE PRECISION,
+ADD COLUMN     "width" DOUBLE PRECISION;

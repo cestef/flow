@@ -48,6 +48,7 @@
 		"tailwindcss": "3.3.3",
 		"tailwindcss-animate": "^1.0.6",
 		"throttle-debounce": "^5.0.0",
+		"use-debounce": "^9.0.4",
 		"ws": "^8.13.0",
 		"zod": "^3.22.0",
 		"zustand": "^4.4.1"

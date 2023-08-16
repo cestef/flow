@@ -1,9 +1,9 @@
 import { protectedProcedure, router } from "@/server/trpc";
 
 import EventEmitter from "events";
+import { prisma } from "@/lib//prisma";
 import { Node } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
-import { prisma } from "@/lib//prisma";
 import { z } from "zod";
 
 const emitters = new Map<string, EventEmitter>();
@@ -57,6 +57,7 @@ export const nodesRouter = router({
 				y: z.number(),
 				type: z.string(),
 				name: z.string(),
+				parentId: z.string().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -92,6 +93,11 @@ export const nodesRouter = router({
 						connect: {
 							id: input.canvasId,
 						},
+					},
+					parent: {
+						...(input.parentId === undefined
+							? {}
+							: { connect: { id: input.parentId } }),
 					},
 				},
 			});
@@ -146,7 +152,10 @@ export const nodesRouter = router({
 				id: z.string(),
 				x: z.number().optional(),
 				y: z.number().optional(),
+				width: z.number().optional(),
+				height: z.number().optional(),
 				name: z.string().optional(),
+				parentId: z.string().optional().nullable(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -175,16 +184,27 @@ export const nodesRouter = router({
 				throw new Error("User is not allowed to update node");
 			}
 
-			const res = prisma.node.update({
+			const res = await prisma.node.update({
 				where: {
 					id: input.id,
 				},
 				data: {
 					x: input.x,
 					y: input.y,
+					width: input.width,
+					height: input.height,
 					name: input.name,
+					parent: {
+						...(input.parentId === null
+							? { disconnect: true }
+							: input.parentId === undefined
+							? {}
+							: { connect: { id: input.parentId } }),
+					},
 				},
 			});
+
+			console.log(res);
 
 			emitter(node.canvas.id).emit("update", res);
 		}),

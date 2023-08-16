@@ -1,4 +1,15 @@
-import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuSeparator,
+	ContextMenuSub,
+	ContextMenuSubContent,
+	ContextMenuSubTrigger,
+	ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { Group, Trash, Workflow } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
 import {
 	Connection,
 	Edge,
@@ -14,29 +25,19 @@ import {
 	useNodesState,
 	useReactFlow,
 } from "reactflow";
-import {
-	ContextMenu,
-	ContextMenuContent,
-	ContextMenuItem,
-	ContextMenuSeparator,
-	ContextMenuShortcut,
-	ContextMenuSub,
-	ContextMenuSubContent,
-	ContextMenuSubTrigger,
-	ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import { Plus, TextCursorInput, Trash } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
+import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
+import GroupNode from "@/components/group-node";
 import CustomNode from "@/components/themed-node";
-import { throttle } from "throttle-debounce";
-import { trpc } from "@/lib/utils";
 import useConfirm from "@/lib/useConfirm";
-import { useSession } from "next-auth/react";
+import { trpc } from "@/lib/utils";
 import { useStore } from "@/store";
+import { useSession } from "next-auth/react";
+import { throttle } from "throttle-debounce";
 
 const nodeTypes = {
 	custom: CustomNode,
+	customGroup: GroupNode,
 };
 
 const Flow = ({
@@ -49,19 +50,58 @@ const Flow = ({
 	const [nodes, setNodes, onNodesChange] = useNodesState([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 	const canvasId = useStore((state) => state.currentCanvasId);
-	const currentCanvas = trpc.canvas.get.useQuery({ id: canvasId });
 	const remoteNodes = trpc.nodes.list.useQuery({ canvasId });
 	const remoteEdges = trpc.edges.list.useQuery({ canvasId });
+	// const store = useStoreApi();
+
+	const inGroup = useCallback(
+		(node: Node) => {
+			if (node.parentNode) return null;
+			// if (node.type === "customGroup") return null;
+			return nodes
+				.filter((e) => e.type === "customGroup")
+				.find((group) => {
+					const nodePos = node.position;
+					const groupPos = group.position;
+					const groupWidth = group.style?.width || group.width || 0;
+					const groupHeight = group.style?.height || group.height || 0;
+					const nodeWidth = node.style?.width || node.width || 0;
+					const nodeHeight = node.style?.height || node.height || 0;
+
+					return (
+						nodePos.x > groupPos.x &&
+						nodePos.x + +nodeWidth < groupPos.x + +groupWidth &&
+						nodePos.y > groupPos.y &&
+						nodePos.y + +nodeHeight < groupPos.y + +groupHeight
+					);
+				});
+		},
+		[nodes],
+	);
 
 	useEffect(() => {
 		if (remoteNodes.data) {
 			setNodes(
-				remoteNodes.data.map((node) => ({
-					id: node.id,
-					type: node.type,
-					data: { label: node.name },
-					position: { x: node.x, y: node.y },
-				})),
+				remoteNodes.data
+					.map((node) => ({
+						id: node.id,
+						type: node.type,
+						data: { label: node.name },
+						position: { x: node.x, y: node.y },
+						...(node.type === "customGroup" && {
+							style: {
+								width: node.width!,
+								height: node.height!,
+							},
+						}),
+						parentNode: node.parentId || undefined,
+						extent: node.parentId ? "parent" : undefined,
+					}))
+					.sort((a, b) => {
+						if (a.type === "customGroup" && b.type !== "customGroup") return -1;
+						if (a.type !== "customGroup" && b.type === "customGroup") return 1;
+						return 0;
+					}) as any,
 			);
 		}
 	}, [remoteNodes.data]);
@@ -157,17 +197,90 @@ const Flow = ({
 
 	const dragEndNode = trpc.nodes.dragEnd.useMutation();
 
-	const onNodeDragStop = (
-		event: React.MouseEvent,
-		node: Node,
-		nodes: Node[],
-	) => {
-		dragEndNode.mutate({
-			id: node.id,
-			x: node.position.x,
-			y: node.position.y,
-		});
-	};
+	const onNodeDrag = useCallback<(event: React.MouseEvent, node: Node) => void>(
+		(_, node) => {
+			const group = inGroup(node);
+			if (group) {
+				setNodes((nodes) =>
+					nodes.map((n) => {
+						if (n.id === group.id && !n.className?.includes("border-primary")) {
+							n.className =
+								"transition-colors duration-200 ease-in-out dark:bg-[rgba(255,255,255,0.2)] bg-[rgba(0,0,0,0.2)] rounded-md border-primary";
+							return n;
+						}
+						return n;
+					}),
+				);
+			} else {
+				setNodes((nodes) =>
+					nodes.map((n) => {
+						if (
+							n.type === "customGroup" &&
+							n.className?.includes("border-primary")
+						) {
+							n.className =
+								"transition-colors duration-200 ease-in-out rounded-md";
+							return n;
+						}
+						return n;
+					}),
+				);
+			}
+		},
+		[inGroup, setNodes],
+	);
+
+	const onNodeDragStop = useCallback<
+		(event: React.MouseEvent, node: Node) => void
+	>(
+		(_, node) => {
+			setNodes((nodes) =>
+				nodes.map((n) => {
+					if (
+						n.type === "customGroup" &&
+						n.className?.includes("border-primary")
+					) {
+						n.className =
+							"transition-colors duration-200 ease-in-out rounded-md";
+						return n;
+					}
+					return n;
+				}),
+			);
+			const group = inGroup(node);
+			if (group) {
+				const relativePosition = {
+					x: node.position.x - group.position.x,
+					y: node.position.y - group.position.y,
+				};
+				updateNode.mutate({
+					id: node.id,
+					parentId: group.id,
+					x: relativePosition.x,
+					y: relativePosition.y,
+				});
+				setNodes((nodes) =>
+					nodes.map((n) => {
+						if (n.id === node.id) {
+							return {
+								...n,
+								parentNode: group.id,
+								extent: "parent",
+								position: relativePosition,
+							};
+						}
+						return n;
+					}),
+				);
+			}
+			dragEndNode.mutate({
+				id: node.id,
+				x: node.position.x,
+				y: node.position.y,
+			});
+		},
+		[inGroup],
+	);
 
 	const addEdgeM = trpc.edges.add.useMutation();
 	const removeEdge = trpc.edges.delete.useMutation();
@@ -200,6 +313,7 @@ const Flow = ({
 		{
 			async onData(node) {
 				if (nodes.find((n) => n.id === node.id)) return;
+
 				setNodes((nodes) => [
 					...nodes,
 					{
@@ -207,6 +321,14 @@ const Flow = ({
 						type: node.type,
 						data: { label: node.name },
 						position: { x: node.x, y: node.y },
+						...(node.type === "customGroup" && {
+							style: {
+								width: node.width!,
+								height: node.height!,
+							},
+						}),
+						parentNode: node.parentId || undefined,
+						extent: node.parentId ? "parent" : undefined,
 					},
 				]);
 			},
@@ -230,6 +352,14 @@ const Flow = ({
 									x: node.x,
 									y: node.y,
 								},
+								...(node.type === "customGroup" && {
+									style: {
+										width: node.width!,
+										height: node.height!,
+									},
+								}),
+								parentNode: node.parentId || undefined,
+								extent: node.parentId ? "parent" : undefined,
 							};
 						}
 						return n;
@@ -247,6 +377,24 @@ const Flow = ({
 		},
 		{
 			async onData(node) {
+				if (node.type === "customGroup") {
+					setNodes((nodes) =>
+						nodes.map((n) => {
+							if (n.parentNode === node.id) {
+								return {
+									...n,
+									parentNode: undefined,
+									extent: undefined,
+									position: {
+										x: n.position.x + node.x,
+										y: n.position.y + node.y,
+									},
+								};
+							}
+							return n;
+						}),
+					);
+				}
 				setNodes((nodes) => nodes.filter((n) => n.id !== node.id));
 			},
 			onError(err) {
@@ -349,6 +497,26 @@ const Flow = ({
 		(state) => state.setContextMenuPosition,
 	);
 	const contextMenuPosition = useStore((state) => state.contextMenuPosition);
+	const snapToGrid = useStore((state) => state.snapToGrid);
+	const setSnapToGrid = useStore((state) => state.setSnapToGrid);
+	useEffect(() => {
+		const onKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Shift") {
+				setSnapToGrid(true);
+			}
+		};
+		const onKeyUp = (e: KeyboardEvent) => {
+			if (e.key === "Shift") {
+				setSnapToGrid(false);
+			}
+		};
+		window.addEventListener("keydown", onKeyDown);
+		window.addEventListener("keyup", onKeyUp);
+		return () => {
+			window.removeEventListener("keydown", onKeyDown);
+			window.removeEventListener("keyup", onKeyUp);
+		};
+	}, []);
 	const clearCanvas = trpc.canvas.clear.useMutation();
 	const { project } = useReactFlow();
 	const { confirm, modal } = useConfirm();
@@ -362,8 +530,9 @@ const Flow = ({
 				);
 
 				if (targetIsPane) {
+					console.log(event);
 					// we need to remove the wrapper bounds, in order to get the correct position
-					const { right, bottom, top, left } =
+					const { top, left } =
 						reactFlowWrapper.current!.getBoundingClientRect();
 					const position = project({
 						x: event.clientX - left,
@@ -381,10 +550,12 @@ const Flow = ({
 						edges={edges}
 						onNodesChange={onNodesChangeProxy}
 						onNodeDragStop={onNodeDragStop}
+						onNodeDrag={onNodeDrag}
 						onEdgesChange={onEdgesChangeProxy}
 						onConnect={onConnectProxy}
 						onNodesDelete={onNodesDelete}
 						nodeTypes={nodeTypes}
+						snapToGrid={snapToGrid}
 						fitView
 						proOptions={{
 							hideAttribution: true,
@@ -401,7 +572,7 @@ const Flow = ({
 				<ContextMenuContent>
 					<ContextMenuSub>
 						<ContextMenuSubTrigger>
-							<Plus className="mr-2 w-4 h-4" />
+							<Workflow className="mr-2 w-4 h-4" />
 							Add node
 						</ContextMenuSubTrigger>
 						<ContextMenuSubContent>
@@ -449,6 +620,21 @@ const Flow = ({
 							</ContextMenuItem>
 						</ContextMenuSubContent>
 					</ContextMenuSub>
+					<ContextMenuItem
+						onClick={() => {
+							createNode.mutate({
+								canvasId,
+								name: "customGroup",
+								x: contextMenuPosition.x,
+								y: contextMenuPosition.y,
+								type: "customGroup",
+							});
+						}}
+					>
+						<Group className="mr-2 w-4 h-4" />
+						Add Group
+					</ContextMenuItem>
+					<ContextMenuSeparator />
 					<ContextMenuItem
 						onClick={async () => {
 							const result = await confirm(

@@ -5,8 +5,8 @@ import {
 	persist,
 } from "zustand/middleware";
 
-import { create } from "zustand";
 import { z } from "zod";
+import { create } from "zustand";
 
 const ZStore = z.object({
 	createNewCanvas: z.object({
@@ -34,6 +34,9 @@ export const useStore = create(
 			chooseCanvas: {
 				opened: false,
 			},
+			canvasPanelHidden: false,
+			membersPanelHidden: false,
+			snapToGrid: false,
 		},
 		(set) => ({
 			toggleCreateNewCanvas: (opened?: boolean) =>
@@ -68,6 +71,15 @@ export const useStore = create(
 						opened: opened ?? !state.chooseCanvas.opened,
 					},
 				})),
+			toggleCanvasPanel: (hidden?: boolean) =>
+				set((state) => ({
+					canvasPanelHidden: hidden ?? !state.canvasPanelHidden,
+				})),
+			toggleMembersPanel: (hidden?: boolean) =>
+				set((state) => ({
+					membersPanelHidden: hidden ?? !state.membersPanelHidden,
+				})),
+			setSnapToGrid: (snapToGrid: boolean) => set({ snapToGrid }),
 		}),
 	),
 );

@@ -4,6 +4,7 @@ import { canvasRouter } from "./canvas";
 import { edgesRouter } from "./edges";
 import { membersRouter } from "./members";
 import { nodesRouter } from "./nodes";
+import { usersRouter } from "./users";
 
 export const appRouter = router({
 	health: publicProcedure.query(() => "ok"),
@@ -11,6 +12,7 @@ export const appRouter = router({
 	nodes: nodesRouter,
 	edges: edgesRouter,
 	members: membersRouter,
+  users: usersRouter,
 });
 
 // export type definition of API
