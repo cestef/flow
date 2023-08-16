@@ -1,4 +1,5 @@
 # Flow
+## ⚠️ This project is still in heavy development and is not ready for production use, expect bugs and breaking changes ⚠️
 
 **Collaborate with your friends and get started on projects right away !**
 
