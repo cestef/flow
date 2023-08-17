@@ -2,12 +2,19 @@
 	"name": "flow",
 	"version": "0.1.0",
 	"private": true,
+	"engines": {
+		"node": ">=18.0.0"
+	},
 	"scripts": {
 		"dev:wss": "cross-env PORT=3001 tsx watch src/server/dev.wsServer.ts --tsconfig tsconfig.server.json",
 		"dev:next": "next dev",
-		"dev": "pnpm prisma migrate dev && run-p dev:*",
-		"build": "next build",
-		"start": "next start",
+		"dev": "prisma migrate dev && run-p dev:*",
+		"prebuild": "prisma generate && prisma migrate deploy",
+		"build:1-next": "cross-env NODE_ENV=production next build",
+		"build:2-server": "tsc --project tsconfig.server.json",
+		"build": "run-s build:*",
+		"start": "cross-env NODE_ENV=production node dist/server/prodServer.js",
+		"postinstall": "prisma generate",
 		"lint": "next lint"
 	},
 	"dependencies": {
