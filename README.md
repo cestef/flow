@@ -6,9 +6,9 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/cestef/flow?style=social)
 ## ⚠️ This project is still in heavy development and is not ready for production use, expect bugs and breaking changes ⚠️
 
-
-<img src="assets/icon.png" width="auto" height="175px" style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 25px;">
-
+<p align="center">
+    <img src="assets/icon.png" width="auto" height="175px">
+</p>
 
 **Collaborate with your friends and get started on projects right away, in real-time.**
 
