@@ -15,6 +15,7 @@
 		"build": "run-s build:*",
 		"start:ws": "node dist/server/prod.wsServer.js",
 		"start:next": "next start",
+		"start": "run-p start:*",
 		"postinstall": "pnpm prisma generate",
 		"lint": "next lint"
 	},
