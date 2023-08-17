@@ -1,10 +1,19 @@
 # Flow
+
+
+![GitHub license](https://img.shields.io/github/license/cestef/flow)
+![GitHub issues](https://img.shields.io/github/issues/cestef/flow)
+![GitHub Repo stars](https://img.shields.io/github/stars/cestef/flow?style=social)
 ## ⚠️ This project is still in heavy development and is not ready for production use, expect bugs and breaking changes ⚠️
 
-**Collaborate with your friends and get started on projects right away !**
+
+<img src="assets/icon.png" width="auto" height="175px" style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 25px;">
+
+
+**Collaborate with your friends and get started on projects right away, in real-time.**
 
 Flow is a web application that allows you to create and share canvases consisting of nodes and groups that can be connected to each other. It is built with [Next.js](https://nextjs.org/), [tRPC](https://trpc.io/), [Prisma](https://prisma.dev), [next-auth](https://next-auth.js.org/) and [react-flow](https://reactflow.dev/)
-## Running
+## Running Locally
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/en/) (v18.0.0 or higher)
@@ -46,6 +55,13 @@ You can now access the app at [localhost:3000](http://localhost:3000)
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## Support
+
+If you need help with anything related to the project, feel free to join the [Discord server](https://discord.gg/CYQwAW2Yuq) and ask in the `#support` channel.
+
+[![Discord](https://img.shields.io/discord/1141658461403357184?color=7289DA&label=Discord&logo=discord&logoColor=white)](https://discord.gg/CYQwAW2Yuq)
+
 
 ## License
 
