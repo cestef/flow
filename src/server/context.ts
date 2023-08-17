@@ -15,6 +15,7 @@ export const createContext = async (
 		| NodeHTTPCreateContextFnOptions<IncomingMessage, ws>
 		| trpcNext.CreateNextContextOptions,
 ) => {
+	console.log("opts", opts);
 	const session = await getSession(opts);
 
 	console.log("createContext for", session?.user?.name ?? "unknown user");
