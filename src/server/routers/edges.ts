@@ -1,10 +1,10 @@
-import { protectedProcedure, router } from "@/server/trpc";
+import { protectedProcedure, router } from "../trpc";
 
-import { Edge } from "@prisma/client";
 import EventEmitter from "events";
+import { Edge } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
-import { prisma } from "@/lib//prisma";
 import { z } from "zod";
+import { prisma } from "../../lib/prisma";
 
 const emitters = new Map<string, EventEmitter>();
 

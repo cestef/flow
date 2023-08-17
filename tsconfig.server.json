@@ -1,16 +1,13 @@
 {
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
-		"module": "commonjs",
+		"module": "CommonJS",
+		"moduleResolution": "node",
 		"outDir": "dist",
 		"target": "ES2019",
 		"lib": ["ES2019", "DOM"],
 		"isolatedModules": false,
-		"noEmit": false,
-		"paths": {
-			// Fix for next-auth's exports
-			"next-auth/*": ["node_modules/next-auth/*"]
-		}
+		"noEmit": false
 	},
-	"include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx"]
+	"include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", "types/**/*.d.ts"]
 }

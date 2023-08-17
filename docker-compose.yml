@@ -1,0 +1,54 @@
+version: "3"
+services:
+    postgres:
+        image: postgres:latest
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DATABASE=postgres
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    nextjs-app:
+        build:
+            context: .
+            dockerfile: Dockerfile-nextjs
+        ports:
+            - "3000:3000"
+        environment:
+            - NODE_ENV=production
+            - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
+            - APP_URL="http://localhost:3000"
+            - WS_URL="ws://localhost:3001"
+            - NEXTAUTH_URL="http://localhost:3000/api/auth"
+            - NEXTAUTH_SECRET="CHANGE_THIS_TO_SOMETHING_RANDOM"
+            - GITHUB_ID="CHANGE_THIS_TO_YOUR_GITHUB_ID"
+            - GITHUB_SECRET="CHANGE_THIS_TO_YOUR_GITHUB_SECRET"
+        depends_on:
+            - postgres
+        volumes:
+            - /app/node_modules
+        command: ["pnpm", "start:next"]
+
+    ws-server:
+        environment:
+            - NODE_ENV=production
+            - PORT=3001
+        build:
+            context: .
+            dockerfile: Dockerfile-ws-server
+        ports:
+            - "3001:3001"
+        depends_on:
+            - postgres
+        volumes:
+            - /app/node_modules
+        command: ["pnpm", "start:ws"]
+
+volumes:
+    postgres-data:

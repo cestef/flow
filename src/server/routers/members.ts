@@ -1,9 +1,9 @@
 import { protectedProcedure, router } from "../trpc";
 
 import EventEmitter from "events";
-import { prisma } from "@/lib/prisma";
 import { observable } from "@trpc/server/observable";
 import { z } from "zod";
+import { prisma } from "../../lib/prisma";
 
 const emitters = new Map<string, EventEmitter>();
 
