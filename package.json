@@ -13,8 +13,8 @@
 		"build:next": "pnpm cross-env NODE_ENV=production next build",
 		"build:ws": "tsc --project tsconfig.server.json",
 		"build": "run-s build:*",
-		"start:ws": "pnpm cross-env PORT=4001 node dist/server/prod.wsServer.js",
-		"start:next": "pnpm cross-env PORT=4000 next start",
+		"start:ws": "pnpm cross-env PORT=3001 node dist/server/prod.wsServer.js",
+		"start:next": "pnpm cross-env PORT=3000 next start",
 		"start": "run-p start:*",
 		"postinstall": "pnpm prisma generate",
 		"lint": "next lint"
