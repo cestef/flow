@@ -28,7 +28,6 @@ jobs:
               with:
                   context: .
                   file: ./Dockerfile-nextjs
-                  platforms: linux/amd64,linux/arm64
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
                   push: true
@@ -40,7 +39,6 @@ jobs:
               with:
                   context: .
                   file: ./Dockerfile-ws-server
-                  platforms: linux/amd64,linux/arm64
                   push: true
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
