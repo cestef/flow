@@ -18,8 +18,6 @@ const server = http.createServer((req, res) => {
 		res.end();
 		return;
 	}
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	const parsedUrl = parse(req.url!, true);
 });
 const wss = new ws.Server({ server });
 const handler = applyWSSHandler({ wss, router: appRouter, createContext });
