@@ -15,42 +15,21 @@ services:
         networks:
             - flow-network
 
-    next:
+    app:
         build:
             context: .
-            dockerfile: Dockerfile-nextjs
+            dockerfile: Dockerfile
         ports:
             - "3000:3000"
+            - "3001:3001"
         env_file:
             - .env
         depends_on:
             - postgres
-        # volumes:
-        #     - /app/node_modules
         networks:
             - flow-network
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:3000"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-
-    ws:
-        env_file:
-            - .env
-        build:
-            context: .
-            dockerfile: Dockerfile-ws-server
-        ports:
-            - "3001:3001"
-        depends_on:
-            - postgres
-        # volumes:
-        # - /app/node_modules
-        networks:
-            - flow-network
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:3001"]
             interval: 10s
             timeout: 5s
             retries: 5
