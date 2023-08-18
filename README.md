@@ -3,6 +3,7 @@
 
 ![GitHub license](https://img.shields.io/github/license/cestef/flow)
 ![GitHub issues](https://img.shields.io/github/issues/cestef/flow)
+![Github Workflow Status](https://img.shields.io/github/actions/workflow/status/cestef/flow/ci.yml)
 ![GitHub Repo stars](https://img.shields.io/github/stars/cestef/flow?style=social)
 ## ⚠️ This project is still in heavy development and is not ready for production use, expect bugs and breaking changes ⚠️
 
