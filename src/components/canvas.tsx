@@ -28,7 +28,7 @@ import {
 import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
 import GroupNode from "@/components/group-node";
-import CustomNode from "@/components/themed-node";
+import DefaultNode from "@/components/nodes/default-node";
 import useConfirm from "@/lib/useConfirm";
 import { trpc } from "@/lib/utils";
 import { useStore } from "@/store";
@@ -36,8 +36,17 @@ import { useSession } from "next-auth/react";
 import { throttle } from "throttle-debounce";
 
 const nodeTypes = {
-	custom: CustomNode,
+	customDefault: DefaultNode,
+	customInput: DefaultNode,
+	customOutput: DefaultNode,
 	customGroup: GroupNode,
+};
+
+export const NODES_TYPES = {
+	DEFAULT: "customDefault",
+	INPUT: "customInput",
+	OUTPUT: "customOutput",
+	GROUP: "customGroup",
 };
 
 const Flow = ({
@@ -584,7 +593,7 @@ const Flow = ({
 										name: "Default",
 										x: contextMenuPosition.x,
 										y: contextMenuPosition.y,
-										type: "default",
+										type: NODES_TYPES.DEFAULT,
 									});
 								}}
 							>
@@ -598,7 +607,7 @@ const Flow = ({
 										name: "Input",
 										x: contextMenuPosition.x,
 										y: contextMenuPosition.y,
-										type: "input",
+										type: NODES_TYPES.INPUT,
 									});
 								}}
 							>
@@ -609,14 +618,14 @@ const Flow = ({
 								onClick={() => {
 									createNode.mutate({
 										canvasId,
-										name: "Custom",
+										name: "Output",
 										x: contextMenuPosition.x,
 										y: contextMenuPosition.y,
-										type: "custom",
+										type: NODES_TYPES.OUTPUT,
 									});
 								}}
 							>
-								Custom
+								Output
 							</ContextMenuItem>
 						</ContextMenuSubContent>
 					</ContextMenuSub>

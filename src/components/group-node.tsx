@@ -13,6 +13,7 @@ import {
 import { trpc } from "@/lib/utils";
 import { useStore } from "@/store";
 import { memo } from "react";
+import { NODES_TYPES } from "./canvas";
 
 const GroupNode = ({
 	data,
@@ -90,7 +91,7 @@ const GroupNode = ({
 									name: "Default",
 									x: contextMenuPosition.x,
 									y: contextMenuPosition.y,
-									type: "default",
+									type: NODES_TYPES.DEFAULT,
 									parentId: id,
 								});
 							}}
@@ -105,7 +106,7 @@ const GroupNode = ({
 									name: "Input",
 									x: contextMenuPosition.x,
 									y: contextMenuPosition.y,
-									type: "input",
+									type: NODES_TYPES.INPUT,
 									parentId: id,
 								});
 							}}
@@ -117,16 +118,15 @@ const GroupNode = ({
 							onClick={() => {
 								createNode.mutate({
 									canvasId,
-									name: "Custom",
-									// relative position to xPos and yPos
+									name: "Output",
 									x: contextMenuPosition.x,
 									y: contextMenuPosition.y,
-									type: "custom",
+									type: NODES_TYPES.OUTPUT,
 									parentId: id,
 								});
 							}}
 						>
-							Custom
+							Output
 						</ContextMenuItem>
 					</ContextMenuSubContent>
 				</ContextMenuSub>

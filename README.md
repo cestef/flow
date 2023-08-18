@@ -10,7 +10,7 @@
     <img src="assets/icon.png" width="auto" height="175px">
 </p>
 
-**Collaborate with your friends and get started on projects right away, in real-time.**
+**Collaborate with your teammates and get started on projects right away, in real-time.**
 
 Flow is a web application that allows you to create and share canvases consisting of nodes and groups that can be connected to each other. It is built with [Next.js](https://nextjs.org/), [tRPC](https://trpc.io/), [Prisma](https://prisma.dev), [next-auth](https://next-auth.js.org/) and [react-flow](https://reactflow.dev/)
 ## Running Locally

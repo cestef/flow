@@ -5,12 +5,12 @@ import {
 	ContextMenuContent,
 	ContextMenuItem,
 	ContextMenuTrigger,
-} from "./ui/context-menu";
+} from "../ui/context-menu";
 
 import { trpc } from "@/lib/utils";
 import { memo } from "react";
 
-function ThemedNode({
+function DefaultNode({
 	data,
 	selected,
 	id,
@@ -100,4 +100,4 @@ function ThemedNode({
 	);
 }
 
-export default memo(ThemedNode);
+export default memo(DefaultNode);
