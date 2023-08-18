@@ -10,7 +10,7 @@ WORKDIR /app
 FROM base AS build
 COPY . /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN --mount=type=cache,id=pnpm,target=/app/.next/cache pnpm run build
+RUN --mount=type=cache,id=pnpm,target=/app/.next/cache pnpm run build:next
 
 FROM base
 
