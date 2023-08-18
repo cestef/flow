@@ -10,9 +10,6 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v3
-            - name: Get Tag
-              id: var
-              run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v2
             - name: Set up Docker Buildx
@@ -31,9 +28,6 @@ jobs:
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
                   push: true
-                  tags: |
-                      ghcr.io/cestef/app:latest
-                      ghcr.io/cestef/app:${{ steps.var.outputs.tag }}
             - name: Build and push ws-server
               uses: docker/build-push-action@v4
               with:
@@ -42,6 +36,3 @@ jobs:
                   push: true
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
-                  tags: |
-                      ghcr.io/cestef/ws-server:latest
-                      ghcr.io/cestef/ws-server:${{ steps.var.outputs.tag }}
