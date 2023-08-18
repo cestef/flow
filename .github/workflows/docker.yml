@@ -29,6 +29,8 @@ jobs:
                   context: .
                   file: ./Dockerfile-nextjs
                   platforms: linux/amd64,linux/arm64
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
                   push: true
                   tags: |
                       ghcr.io/cestef/app:latest
@@ -40,6 +42,8 @@ jobs:
                   file: ./Dockerfile-ws-server
                   platforms: linux/amd64,linux/arm64
                   push: true
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
                   tags: |
                       ghcr.io/cestef/ws-server:latest
                       ghcr.io/cestef/ws-server:${{ steps.var.outputs.tag }}
