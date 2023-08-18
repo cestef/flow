@@ -27,8 +27,10 @@ import {
 } from "reactflow";
 import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
-import GroupNode from "@/components/group-node";
 import DefaultNode from "@/components/nodes/default-node";
+import GroupNode from "@/components/nodes/group-node";
+import InputNode from "@/components/nodes/input-node";
+import OutputNode from "@/components/nodes/output-node";
 import useConfirm from "@/lib/useConfirm";
 import { trpc } from "@/lib/utils";
 import { useStore } from "@/store";
@@ -37,8 +39,8 @@ import { throttle } from "throttle-debounce";
 
 const nodeTypes = {
 	customDefault: DefaultNode,
-	customInput: DefaultNode,
-	customOutput: DefaultNode,
+	customInput: InputNode,
+	customOutput: OutputNode,
 	customGroup: GroupNode,
 };
 
@@ -56,7 +58,29 @@ const Flow = ({
 }) => {
 	const { data: session } = useSession();
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
-	const [nodes, setNodes, onNodesChange] = useNodesState([]);
+	const [nodes, _setNodes, onNodesChange] = useNodesState([]);
+	const setNodes = useCallback<typeof _setNodes>(
+		(nodes) => {
+			if (typeof nodes === "function") {
+				_setNodes((n) => {
+					const newNodes = n.sort((a, b) => {
+						if (a.type === "customGroup" && b.type !== "customGroup") return -1;
+						if (a.type !== "customGroup" && b.type === "customGroup") return 1;
+						return 0;
+					});
+					return nodes(newNodes);
+				});
+			} else {
+				const newNodes = nodes.sort((a, b) => {
+					if (a.type === "customGroup" && b.type !== "customGroup") return -1;
+					if (a.type !== "customGroup" && b.type === "customGroup") return 1;
+					return 0;
+				});
+				_setNodes(newNodes);
+			}
+		},
+		[_setNodes],
+	);
 	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 	const canvasId = useStore((state) => state.currentCanvasId);
 	const remoteNodes = trpc.nodes.list.useQuery({ canvasId });

@@ -8,12 +8,12 @@ import {
 	ContextMenuSubContent,
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
-} from "./ui/context-menu";
+} from "../ui/context-menu";
 
 import { trpc } from "@/lib/utils";
 import { useStore } from "@/store";
 import { memo } from "react";
-import { NODES_TYPES } from "./canvas";
+import { NODES_TYPES } from "../canvas";
 
 const GroupNode = ({
 	data,
@@ -39,6 +39,7 @@ const GroupNode = ({
 			<ContextMenuTrigger>
 				<>
 					<NodeResizer
+						handleClassName="h-3 w-3 rounded-md bg-primary"
 						color="#fff"
 						isVisible={selected}
 						minWidth={100}
