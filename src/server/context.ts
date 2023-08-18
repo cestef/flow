@@ -16,14 +16,14 @@ export const createContext = async (
 		| trpcNext.CreateNextContextOptions,
 ) => {
 	// console.log("opts", opts);
-	if (process.env.DOCKER === "true") {
-		console.log(
-			"Running in docker, setting NEXTAUTH_URL to",
-			process.env.NEXTAUTH_URL_INTERNAL,
-		);
-		console.log("Current NEXTAUTH_URL", process.env.NEXTAUTH_URL);
-		process.env.NEXTAUTH_URL = process.env.NEXTAUTH_URL_INTERNAL;
-	}
+	// if (process.env.DOCKER === "true") {
+	// 	console.log(
+	// 		"Running in docker, setting NEXTAUTH_URL to",
+	// 		process.env.NEXTAUTH_URL_INTERNAL,
+	// 	);
+	// 	console.log("Current NEXTAUTH_URL", process.env.NEXTAUTH_URL);
+	// 	process.env.NEXTAUTH_URL = process.env.NEXTAUTH_URL_INTERNAL;
+	// }
 	const session = await getSession(opts);
 
 	console.log("createContext for", session?.user?.name ?? "unknown user");

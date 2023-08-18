@@ -29,7 +29,11 @@ services:
         #     - /app/node_modules
         networks:
             - flow-network
-        command: ["pnpm", "start:next"]
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
     ws:
         env_file:
@@ -45,7 +49,11 @@ services:
         # - /app/node_modules
         networks:
             - flow-network
-        command: ["pnpm", "start:ws"]
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3001"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
     postgres-data:
