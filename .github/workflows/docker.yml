@@ -33,8 +33,8 @@ jobs:
                   platforms: linux/amd64,linux/arm64
                   push: true
                   tags: |
-                      ghcr.io/user/app:latest
-                      ghcr.io/user/app:${{ steps.var.outputs.tag }}
+                      ghcr.io/cestef/app:latest
+                      ghcr.io/cestef/app:${{ steps.var.outputs.tag }}
             - name: Build and push ws-server
               uses: docker/build-push-action@v4
               with:
@@ -43,5 +43,5 @@ jobs:
                   platforms: linux/amd64,linux/arm64
                   push: true
                   tags: |
-                      ghcr.io/user/ws-server:latest
-                      ghcr.io/user/ws-server:${{ steps.var.outputs.tag }}
+                      ghcr.io/cestef/ws-server:latest
+                      ghcr.io/cestef/ws-server:${{ steps.var.outputs.tag }}
