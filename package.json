@@ -9,14 +9,12 @@
 		"dev:wss": "pnpm cross-env PORT=3001 tsx watch src/server/dev.wsServer.ts --tsconfig tsconfig.server.json",
 		"dev:next": "next dev",
 		"dev": "prisma migrate dev && run-p dev:*",
-		"prebuild": "prisma generate && prisma migrate deploy",
-		"build:next": "pnpm cross-env NODE_ENV=production next build",
-		"build:ws": "tsc --project tsconfig.server.json",
+		"build:next": "prisma generate && pnpm cross-env NODE_ENV=production next build",
+		"build:ws": "prisma generate && tsc --project tsconfig.server.json",
 		"build": "run-s build:*",
 		"start:ws": "pnpm cross-env PORT=3001 node dist/server/prod.wsServer.js",
-		"start:next": "pnpm cross-env PORT=3000 next start",
+		"start:next": "prisma migrate deploy && pnpm cross-env PORT=3000 next start",
 		"start": "run-p start:*",
-		"postinstall": "pnpm prisma generate",
 		"lint": "next lint"
 	},
 	"dependencies": {

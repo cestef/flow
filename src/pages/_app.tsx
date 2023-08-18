@@ -3,13 +3,13 @@ import "reactflow/dist/style.css";
 
 import { SessionProvider, getSession } from "next-auth/react";
 
+import { Toaster } from "@/components/ui/toaster";
+import { trpc } from "@/lib/utils";
+import { Session } from "next-auth";
+import { ThemeProvider } from "next-themes";
 import { AppType } from "next/app";
 import React from "react";
 import { ReactFlowProvider } from "reactflow";
-import { Session } from "next-auth";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/toaster";
-import { trpc } from "@/lib/utils";
 
 const MyApp: AppType<{ session: Session | null }> = ({
 	Component,
