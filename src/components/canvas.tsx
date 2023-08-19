@@ -50,6 +50,8 @@ export const NODES_TYPES = {
 	GROUP: "customGroup",
 };
 
+const UPDATE_THROTTLE = 100;
+
 const Flow = ({
 	children,
 }: {
@@ -204,7 +206,7 @@ const Flow = ({
 	const updateNode = trpc.nodes.update.useMutation();
 
 	const updateNodePositionThrottled = useCallback(
-		throttle(10, (change: NodePositionChange) => {
+		throttle(UPDATE_THROTTLE, (change: NodePositionChange) => {
 			dragUpdateNode.mutate({
 				id: change.id,
 				x: change.position!.x,

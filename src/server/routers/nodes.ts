@@ -472,6 +472,9 @@ export const nodesRouter = router({
 					node: Node;
 					userId: string;
 				}) => {
+					if (event.userId === ctx.user.id) {
+						return;
+					}
 					observer.next(event);
 				};
 
@@ -562,6 +565,9 @@ export const nodesRouter = router({
 				userId: string;
 			}>((observer) => {
 				const onDragUpdate = (event: { node: Node; userId: string }) => {
+					if (event.userId === ctx.user.id) {
+						return;
+					}
 					observer.next(event);
 				};
 
