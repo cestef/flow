@@ -114,7 +114,7 @@ function DefaultNode({
 							}}
 						/>
 					) : (
-						<p className="text-sm font-medium text-stone-100">{data.label}</p>
+						<p className="text-sm font-medium ">{data.label}</p>
 					)}
 
 					{getHandles()}
