@@ -56,6 +56,20 @@ jobs:
                   path: /tmp/digests/*
                   if-no-files-found: error
                   retention-days: 1
+            - name: Discord notification
+              uses: sarisia/actions-status-discord@v1
+              if: always()
+              env:
+                  DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+              with:
+                  title: ${{ github.workflow }} - ${{ matrix.os }}
+                  status: ${{ job.status }}
+                  content: |
+                      - Image: `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}`
+                      - Digest: `${{ steps.build.outputs.digest }}`
+                      - Platform: `${{ matrix.platform }}`
+                      - OS: `${{ matrix.os }}`
+                      - Commit: `${{ github.sha }}`
 
     merge:
         runs-on: ubuntu-latest
@@ -88,3 +102,12 @@ jobs:
             - name: Inspect image
               run: |
                   docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+            - uses: sarisia/actions/conclusion@main
+              id: ghapi
+
+            - uses: sarisia/actions-status-discord@61114b793b460ee85fe38ad3fccc78c7ead38d55
+              if: always()
+              with:
+                  webhook: ${{ secrets.DISCORD_WEBHOOK }}
+                  status: ${{ steps.ghapi.outputs.conclusion }}
+                  title: ${{ github.workflow }} - conclusion
