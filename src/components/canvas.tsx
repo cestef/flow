@@ -8,6 +8,7 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { CommandTypes, useStore } from "@/store";
 import { Group, Trash, Workflow } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import {
@@ -33,8 +34,8 @@ import InputNode from "@/components/nodes/input-node";
 import OutputNode from "@/components/nodes/output-node";
 import useConfirm from "@/lib/useConfirm";
 import { trpc } from "@/lib/utils";
-import { useStore } from "@/store";
 import { useSession } from "next-auth/react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { throttle } from "throttle-debounce";
 
 const nodeTypes = {
@@ -337,7 +338,14 @@ const Flow = ({
 		}
 	};
 
-	const createNode = trpc.nodes.add.useMutation();
+	const createNode = trpc.nodes.add.useMutation({
+		onSuccess: (data) => {
+			doCommand({
+				type: CommandTypes.CREATE_NODE,
+				payload: data.id,
+			});
+		},
+	});
 
 	trpc.nodes.onAdd.useSubscription(
 		{
@@ -550,9 +558,30 @@ const Flow = ({
 			window.removeEventListener("keyup", onKeyUp);
 		};
 	}, []);
+
 	const clearCanvas = trpc.canvas.clear.useMutation();
 	const { project } = useReactFlow();
 	const { confirm, modal } = useConfirm();
+
+	const undo = useStore((state) => state.undo);
+	const redo = useStore((state) => state.redo);
+	const doCommand = useStore((state) => state.do);
+
+	useHotkeys(["ctrl+z", "meta+z"], undoProxy);
+	useHotkeys(["ctrl+shift+z", "meta+shift+z"], redoProxy);
+
+	const commandHistory = useStore((state) => state.history);
+
+	function undoProxy() {
+		if (commandHistory.past.length === 0) return;
+		undo();
+	}
+
+	function redoProxy() {
+		if (commandHistory.future.length === 0) return;
+		redo();
+	}
+
 	return (
 		<div
 			ref={reactFlowWrapper}

@@ -4,6 +4,7 @@ import "reactflow/dist/style.css";
 import { SessionProvider, getSession } from "next-auth/react";
 
 import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { trpc } from "@/lib/utils";
 import { Session } from "next-auth";
 import { ThemeProvider } from "next-themes";
@@ -20,7 +21,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
 			<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 				<ReactFlowProvider>
 					<Toaster />
-					<Component {...pageProps} />
+					<TooltipProvider>
+						<Component {...pageProps} />
+					</TooltipProvider>
 				</ReactFlowProvider>
 			</ThemeProvider>
 		</SessionProvider>

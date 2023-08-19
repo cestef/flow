@@ -161,7 +161,7 @@ export default function MembersPanel() {
 						</Dialog>
 
 						{(currentCanvas.data?.members.some((e) => e.id === session?.user.id)
-							? [currentCanvas.data?.owner]
+							? [currentCanvas.data?.owner, ...currentCanvas.data.members]
 							: currentCanvas.data?.members ?? []
 						).map((member) => (
 							<div className="relative" key={member.id}>

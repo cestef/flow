@@ -103,6 +103,8 @@ export const nodesRouter = router({
 			});
 
 			emitter(input.canvasId).emit("add", node);
+
+			return node;
 		}),
 
 	onAdd: protectedProcedure
@@ -568,5 +570,182 @@ export const nodesRouter = router({
 					emitter(input.canvasId).off("dragUpdate", onDragUpdate);
 				};
 			});
+		}),
+	duplicate: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				offsetX: z.number().optional(),
+				offsetY: z.number().optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const node = await prisma.node.findUnique({
+				where: {
+					id: input.id,
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+				},
+			});
+
+			if (!node) {
+				throw new Error("Node not found");
+			}
+
+			if (
+				node.canvas.owner.id !== ctx.user.id &&
+				!node.canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to duplicate node");
+			}
+
+			const res = await prisma.node.create({
+				data: {
+					x: node.x + (input.offsetX ?? 0),
+					y: node.y + (input.offsetY ?? 0),
+					type: node.type,
+					name: node.name,
+					canvas: {
+						connect: {
+							id: node.canvas.id,
+						},
+					},
+					parent: {
+						connect: {
+							id: node.parentId ?? undefined,
+						},
+					},
+				},
+			});
+
+			emitter(node.canvas.id).emit("add", res);
+
+			return res;
+		}),
+	duplicateMany: protectedProcedure
+		.input(
+			z.object({
+				ids: z.array(z.string()),
+				offsetX: z.number().optional(),
+				offsetY: z.number().optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const nodes = await prisma.node.findMany({
+				where: {
+					id: {
+						in: input.ids,
+					},
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+				},
+			});
+
+			if (!nodes) {
+				throw new Error("Nodes not found");
+			}
+
+			const canvas = nodes[0].canvas;
+
+			if (
+				canvas.owner.id !== ctx.user.id &&
+				!canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to duplicate nodes");
+			}
+			const insertNodes = nodes.map((node) =>
+				prisma.node.create({
+					data: {
+						canvasId: node.canvas.id,
+						parentId: node.parentId ?? undefined,
+						x: node.x + (input.offsetX ?? 0),
+						y: node.y + (input.offsetY ?? 0),
+						type: node.type,
+						name: node.name,
+					},
+				}),
+			);
+
+			const res = await prisma.$transaction(insertNodes);
+
+			res.forEach((node) => {
+				emitter(node.canvasId).emit("add", node);
+			});
+
+			return res;
+		}),
+	updateMany: protectedProcedure
+		.input(
+			z.object({
+				nodes: z.array(
+					z.object({
+						id: z.string(),
+						x: z.number().optional(),
+						y: z.number().optional(),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const nodes = await prisma.node.findMany({
+				where: {
+					id: {
+						in: input.nodes.map((node) => node.id),
+					},
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+				},
+			});
+
+			if (!nodes) {
+				throw new Error("Nodes not found");
+			}
+
+			const canvas = nodes[0].canvas;
+
+			if (
+				canvas.owner.id !== ctx.user.id &&
+				!canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to update nodes");
+			}
+
+			const updateNodes = input.nodes.map((node) =>
+				prisma.node.update({
+					where: {
+						id: node.id,
+					},
+					data: {
+						x: node.x,
+						y: node.y,
+					},
+				}),
+			);
+
+			const res = await prisma.$transaction(updateNodes);
+
+			res.forEach((node) => {
+				emitter(node.canvasId).emit("update", node);
+			});
+
+			return res;
 		}),
 });

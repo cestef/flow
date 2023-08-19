@@ -2,10 +2,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, LogIn } from "lucide-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 
+import ActionsPanel from "@/components/actions-panel";
 import Flow from "@/components/canvas";
 import CanvasPanel from "@/components/canvas-panel";
 import MembersPanel from "@/components/members-panel";
-import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Panel } from "reactflow";
 
@@ -22,7 +22,7 @@ export default () => {
 		<div className="h-screen">
 			<Flow>
 				<Panel position="top-left" className="pl-4 pt-4">
-					<ModeToggle />
+					<ActionsPanel />
 				</Panel>
 				<Panel position="top-right" className="pr-4 pt-4">
 					{session ? (

@@ -1,4 +1,4 @@
-import { Trash, Unlink } from "lucide-react";
+import { Copy, Trash, Unlink } from "lucide-react";
 import { Handle, Position, useStore } from "reactflow";
 import {
 	ContextMenu,
@@ -14,7 +14,15 @@ function DefaultNode({
 	data,
 	selected,
 	id,
-}: { data: { label: string }; selected: boolean; id: string }) {
+	xPos,
+	yPos,
+}: {
+	data: { label: string };
+	selected: boolean;
+	id: string;
+	xPos: number;
+	yPos: number;
+}) {
 	const parent = useStore((s) => {
 		const node = s.nodeInternals.get(id);
 
@@ -27,6 +35,7 @@ function DefaultNode({
 	const getNodes = useStore((s) => s.getNodes);
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const updateNode = trpc.nodes.update.useMutation();
+	const duplicateNode = trpc.nodes.duplicate.useMutation();
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
@@ -49,6 +58,18 @@ function DefaultNode({
 				</div>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
+				<ContextMenuItem
+					onClick={() =>
+						duplicateNode.mutate({
+							id,
+							offsetX: 2,
+							offsetY: 2,
+						})
+					}
+				>
+					<Copy className="w-4 h-4 mr-2" />
+					Duplicate
+				</ContextMenuItem>
 				<ContextMenuItem
 					onClick={() =>
 						deleteNode.mutate({
