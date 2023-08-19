@@ -4,7 +4,6 @@ export default function Document() {
 	return (
 		<Html lang="en">
 			<Head>
-				<title>Flow</title>
 				<meta
 					name="description"
 					content="Flow is a collaborative diagramming tool"

@@ -9,6 +9,7 @@ import { trpc } from "@/lib/utils";
 import { Session } from "next-auth";
 import { ThemeProvider } from "next-themes";
 import { AppType } from "next/app";
+import Head from "next/head";
 import React from "react";
 import { ReactFlowProvider } from "reactflow";
 
@@ -22,6 +23,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
 				<ReactFlowProvider>
 					<Toaster />
 					<TooltipProvider>
+						<Head>
+							<title>My new cool app</title>
+						</Head>
 						<Component {...pageProps} />
 					</TooltipProvider>
 				</ReactFlowProvider>
