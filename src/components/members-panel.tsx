@@ -20,7 +20,7 @@ import { Input } from "./ui/input";
 export default function MembersPanel() {
 	const { data: session } = useSession();
 	const currentCanvasId = useStore((state) => state.currentCanvasId);
-	const createCanvas = trpc.canvas.add.useMutation();
+	// const createCanvas = trpc.canvas.add.useMutation();
 	const currentCanvas = trpc.canvas.get.useQuery(
 		{ id: currentCanvasId },
 		{ enabled: !!currentCanvasId },
@@ -161,7 +161,12 @@ export default function MembersPanel() {
 						</Dialog>
 
 						{(currentCanvas.data?.members.some((e) => e.id === session?.user.id)
-							? [currentCanvas.data?.owner, ...currentCanvas.data.members]
+							? [
+									currentCanvas.data?.owner,
+									...currentCanvas.data.members.filter(
+										(e) => e.id !== session?.user.id,
+									),
+							  ]
 							: currentCanvas.data?.members ?? []
 						).map((member) => (
 							<div className="relative" key={member.id}>
@@ -170,7 +175,10 @@ export default function MembersPanel() {
 									<Crown className="text-yellow-400 w-4 h-4 absolute -top-3 left-1/2 transform -translate-x-1/2" />
 								)}
 								<Avatar
-									className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+									className={`${
+										currentCanvas.data?.owner.id === session?.user.id &&
+										"cursor-pointer  hover:opacity-80 transition-opacity duration-200"
+									}`}
 									onClick={async () => {
 										if (member.id === session?.user.id) return;
 										if (currentCanvas.data?.owner.id !== session?.user.id)
