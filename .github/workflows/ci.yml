@@ -64,7 +64,7 @@ jobs:
               with:
                   title: ${{ github.workflow }} - ${{ matrix.os }}
                   status: ${{ job.status }}
-                  content: |
+                  description: |
                       - Image: `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}`
                       - Digest: `${{ steps.build.outputs.digest }}`
                       - Platform: `${{ matrix.platform }}`
