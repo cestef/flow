@@ -1,4 +1,5 @@
-import { Copy, Trash, Unlink } from "lucide-react";
+import { Copy, TextCursor, Trash, Unlink } from "lucide-react";
+import { memo, useState } from "react";
 import { Handle, Position, useStore } from "reactflow";
 import {
 	ContextMenu,
@@ -8,8 +9,8 @@ import {
 } from "../ui/context-menu";
 
 import { trpc } from "@/lib/utils";
-import { memo } from "react";
 import { NODES_TYPES } from "../canvas";
+import { Input } from "../ui/input";
 
 function DefaultNode({
 	data,
@@ -74,6 +75,10 @@ function DefaultNode({
 				);
 		}
 	};
+	const [editing, setEditing] = useState<{
+		[id: string]: { value: string; status: boolean };
+	}>({});
+
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
@@ -82,11 +87,54 @@ function DefaultNode({
 						selected ? "border-primary" : "border-stone-400"
 					}`}
 				>
-					{data.label} {id}
+					{editing[id]?.status ? (
+						<Input
+							value={editing[id].value}
+							onChange={(ev) =>
+								setEditing((e) => ({
+									...e,
+									[id]: {
+										...e[id],
+										value: ev.target.value,
+									},
+								}))
+							}
+							onBlur={() => {
+								setEditing((e) => ({
+									...e,
+									[id]: {
+										...e[id],
+										status: false,
+									},
+								}));
+								updateNode.mutate({
+									id,
+									name: editing[id].value,
+								});
+							}}
+						/>
+					) : (
+						<p className="text-sm font-medium text-stone-100">{data.label}</p>
+					)}
+
 					{getHandles()}
 				</div>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
+				<ContextMenuItem
+					onClick={() =>
+						setEditing((e) => ({
+							...e,
+							[id]: {
+								status: true,
+								value: data.label,
+							},
+						}))
+					}
+				>
+					<TextCursor className="w-4 h-4 mr-2" />
+					Rename
+				</ContextMenuItem>
 				<ContextMenuItem
 					onClick={() =>
 						duplicateNode.mutate({

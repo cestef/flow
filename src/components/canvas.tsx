@@ -387,6 +387,10 @@ const Flow = ({
 						if (n.id === node.id) {
 							return {
 								...n,
+								data: {
+									...n.data,
+									label: node.name,
+								},
 								position: {
 									x: node.x,
 									y: node.y,
