@@ -1,21 +1,21 @@
 import { ArrowDownRight, Crown, Plus } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 
 import useConfirm from "@/lib/useConfirm";
 import { trpc } from "@/lib/utils";
 import { useStore } from "@/store";
 import { useSession } from "next-auth/react";
 import { useDebounce } from "use-debounce";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 export default function MembersPanel() {
 	const { data: session } = useSession();

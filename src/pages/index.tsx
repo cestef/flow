@@ -1,16 +1,14 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, LogIn } from "lucide-react";
-import { signIn, signOut, useSession } from "next-auth/react";
-
-import ActionsPanel from "@/components/actions-panel";
 import Flow from "@/components/canvas";
-import CanvasPanel from "@/components/canvas-panel";
-import MembersPanel from "@/components/members-panel";
-import { Button } from "@/components/ui/button";
+import ActionsPanel from "@/components/panels/actions-panel";
+import CanvasPanel from "@/components/panels/canvas-panel";
+import MembersPanel from "@/components/panels/members-panel";
+import UserPanel from "@/components/panels/user-panel";
+import { Loader2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { Panel } from "reactflow";
 
 export default () => {
-	const { data: session, status: sessionStatus } = useSession();
+	const { status: sessionStatus } = useSession();
 	if (sessionStatus === "loading") {
 		return (
 			<div className="flex justify-center items-center h-screen">
@@ -25,23 +23,7 @@ export default () => {
 					<ActionsPanel />
 				</Panel>
 				<Panel position="top-right" className="pr-4 pt-4">
-					{session ? (
-						<div className="flex items-center">
-							<Avatar
-								className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
-								onClick={() => signOut()}
-							>
-								<AvatarImage src={session.user.image} />
-								<AvatarFallback>
-									{session.user.name.slice(0, 2).toUpperCase()}
-								</AvatarFallback>
-							</Avatar>
-						</div>
-					) : (
-						<Button size="icon" onClick={() => signIn()}>
-							<LogIn />
-						</Button>
-					)}
+					<UserPanel />
 				</Panel>
 				<Panel position="bottom-left">
 					<CanvasPanel />

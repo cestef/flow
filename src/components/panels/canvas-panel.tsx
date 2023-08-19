@@ -1,15 +1,20 @@
 import { ArrowDownLeft, Loader2, Plus } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { DialogFooter, DialogHeader } from "./ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+	Dialog,
+	DialogContent,
+	DialogTitle,
+	DialogTrigger,
+} from "../ui/dialog";
+import { DialogFooter, DialogHeader } from "../ui/dialog";
 
 import { trpc } from "@/lib/utils";
 import { useStore } from "@/store";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-import ComboBox from "./combobox";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import ComboBox from "../combobox";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 export default function CanvasPanel() {
 	const { data: session } = useSession();

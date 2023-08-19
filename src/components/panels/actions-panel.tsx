@@ -16,17 +16,17 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+} from "../ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 import { trpc } from "@/lib/utils";
 import { useStore } from "@/store";
 import { useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useStore as useStoreFlow } from "reactflow";
-import { ModeToggle } from "./mode-toggle";
-import { Button } from "./ui/button";
-import Keyboard from "./ui/keyboard";
+import { ModeToggle } from "../mode-toggle";
+import { Button } from "../ui/button";
+import Keyboard from "../ui/keyboard";
 
 const elk = new ELK();
 
