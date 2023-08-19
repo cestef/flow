@@ -8,7 +8,7 @@
 ## ⚠️ This project is still in heavy development and is not ready for production use, expect bugs and breaking changes ⚠️
 
 <p align="center">
-    <img src="assets/icon.png" width="auto" height="175px">
+    <img src="assets/banner_rounded.png" width="auto" height="250px">
 </p>
 
 **Collaborate with your teammates and get started on projects right away, in real-time.**
