@@ -24,7 +24,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
 					<Toaster />
 					<TooltipProvider>
 						<Head>
-							<title>My new cool app</title>
+							<title>Flow</title>
 						</Head>
 						<Component {...pageProps} />
 					</TooltipProvider>
