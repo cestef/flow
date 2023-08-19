@@ -30,8 +30,6 @@ import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
 import DefaultNode from "@/components/nodes/default-node";
 import GroupNode from "@/components/nodes/group-node";
-import InputNode from "@/components/nodes/input-node";
-import OutputNode from "@/components/nodes/output-node";
 import useConfirm from "@/lib/useConfirm";
 import { trpc } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -40,8 +38,8 @@ import { throttle } from "throttle-debounce";
 
 const nodeTypes = {
 	customDefault: DefaultNode,
-	customInput: InputNode,
-	customOutput: OutputNode,
+	customInput: DefaultNode,
+	customOutput: DefaultNode,
 	customGroup: GroupNode,
 };
 

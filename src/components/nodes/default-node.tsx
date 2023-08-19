@@ -9,6 +9,7 @@ import {
 
 import { trpc } from "@/lib/utils";
 import { memo } from "react";
+import { NODES_TYPES } from "../canvas";
 
 function DefaultNode({
 	data,
@@ -16,12 +17,14 @@ function DefaultNode({
 	id,
 	xPos,
 	yPos,
+	type,
 }: {
 	data: { label: string };
 	selected: boolean;
 	id: string;
 	xPos: number;
 	yPos: number;
+	type: string;
 }) {
 	const parent = useStore((s) => {
 		const node = s.nodeInternals.get(id);
@@ -36,6 +39,41 @@ function DefaultNode({
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const updateNode = trpc.nodes.update.useMutation();
 	const duplicateNode = trpc.nodes.duplicate.useMutation();
+	const getHandles = () => {
+		switch (type) {
+			case NODES_TYPES.INPUT:
+				return (
+					<Handle
+						type="source"
+						position={Position.Bottom}
+						className="bg-green-500 w-6 h-3 rounded-sm"
+					/>
+				);
+			case NODES_TYPES.OUTPUT:
+				return (
+					<Handle
+						type="target"
+						position={Position.Top}
+						className="bg-red-500 w-6 h-3 rounded-sm"
+					/>
+				);
+			default:
+				return (
+					<>
+						<Handle
+							type="target"
+							position={Position.Top}
+							className="bg-red-500 w-6 h-3 rounded-sm"
+						/>
+						<Handle
+							type="source"
+							position={Position.Bottom}
+							className="bg-green-500 w-6 h-3 rounded-sm"
+						/>
+					</>
+				);
+		}
+	};
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
@@ -45,16 +83,7 @@ function DefaultNode({
 					}`}
 				>
 					{data.label} {id}
-					<Handle
-						type="target"
-						position={Position.Top}
-						className="bg-red-500 w-6 h-3 rounded-sm"
-					/>
-					<Handle
-						type="source"
-						position={Position.Bottom}
-						className="bg-green-500 w-6 h-3 rounded-sm"
-					/>
+					{getHandles()}
 				</div>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
