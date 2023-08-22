@@ -40,7 +40,7 @@ import Keyboard from "../ui/keyboard";
 function downloadImage(dataUrl: string) {
 	const a = document.createElement("a");
 
-	a.setAttribute("download", "reactflow.png");
+	a.setAttribute("download", `flow-export-${new Date().toISOString()}.png`);
 	a.setAttribute("href", dataUrl);
 	a.click();
 }
@@ -180,9 +180,17 @@ export default function ActionsPanel() {
 			0.5,
 			2,
 		);
+		let realTheme = theme;
+		if (theme === "system") {
+			if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+				realTheme = "dark";
+			} else {
+				realTheme = "light";
+			}
+		}
 
 		toPng(document.querySelector(".react-flow__viewport") as HTMLElement, {
-			backgroundColor: theme === "dark" ? "#020817" : "#fff",
+			backgroundColor: realTheme === "dark" ? "#020817" : "#fff",
 			width: imageWidth,
 			height: imageHeight,
 			style: {
@@ -207,6 +215,10 @@ export default function ActionsPanel() {
 	useHotkeys(["ctrl+s", "meta+s"], (e) => {
 		e.preventDefault();
 		setSettingsOpen(!settingsOpen);
+	});
+	useHotkeys(["ctrl+e", "meta+e"], (e) => {
+		e.preventDefault();
+		download();
 	});
 	const { fitView, getNodes } = useReactFlow();
 	return (
@@ -323,7 +335,9 @@ export default function ActionsPanel() {
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent>
-							<p>Export to image</p>
+							<>
+								Export to image <Keyboard keys={["E"]} modifiers={["⌘"]} />
+							</>
 						</TooltipContent>
 					</Tooltip>
 				</div>
