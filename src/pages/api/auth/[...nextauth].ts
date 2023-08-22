@@ -1,8 +1,8 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 
-import GithubProvider from "next-auth/providers/github";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import GithubProvider from "next-auth/providers/github";
 
 export const authOptions: NextAuthOptions = {
 	providers: [
@@ -12,16 +12,18 @@ export const authOptions: NextAuthOptions = {
 			profile(profile) {
 				return {
 					id: profile.id,
+					login: profile.login,
 					name: profile.name,
 					email: profile.email,
 					image: profile.avatar_url,
-				};
+				} as any;
 			},
 		}),
 	],
 	callbacks: {
 		session: async ({ session, user }) => {
 			session.user.id = user.id;
+			session.user.login = user.login;
 			return Promise.resolve(session);
 		},
 	},

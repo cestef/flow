@@ -52,6 +52,7 @@ export const usersRouter = router({
 					OR: [
 						{ email: input.emailOrName },
 						{ name: { search: input.emailOrName } },
+						{ login: input.emailOrName },
 						{ id: input.id },
 					],
 				},
