@@ -33,7 +33,7 @@ export const subscribe = ({
 						type: node.type,
 						data: { label: node.name },
 						position: { x: node.x, y: node.y },
-						...(node.type === "customGroup" && {
+						...((node.width || node.height) && {
 							style: {
 								width: node.width!,
 								height: node.height!,

@@ -13,7 +13,7 @@ import {
 import { useStore } from "@/lib/store";
 import { trpc } from "@/lib/utils";
 import { memo } from "react";
-import { NODES_TYPES } from "../canvas";
+import { NODES_TYPES } from "./default-node";
 
 const GroupNode = ({
 	data,
@@ -42,8 +42,8 @@ const GroupNode = ({
 						handleClassName="h-3 w-3 rounded-md bg-primary"
 						color="#fff"
 						isVisible={selected}
-						minWidth={100}
-						minHeight={30}
+						minWidth={200}
+						minHeight={240}
 						onResizeEnd={(event, params) => {
 							const { width, height, x, y } = params;
 							if (!id) return;

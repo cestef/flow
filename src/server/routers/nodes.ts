@@ -58,6 +58,8 @@ export const nodesRouter = router({
 				type: z.string(),
 				name: z.string(),
 				parentId: z.string().optional(),
+				height: z.number().optional(),
+				width: z.number().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -89,6 +91,8 @@ export const nodesRouter = router({
 					y: input.y,
 					type: input.type,
 					name: input.name,
+					height: input.height,
+					width: input.width,
 					canvas: {
 						connect: {
 							id: input.canvasId,

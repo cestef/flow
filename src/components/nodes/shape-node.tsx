@@ -1,6 +1,6 @@
 import { Copy, TextCursor, Trash, Unlink } from "lucide-react";
 import { memo, useState } from "react";
-import { Handle, Position, useStore } from "reactflow";
+import { Handle, NodeResizer, Position, useStore } from "reactflow";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -11,14 +11,16 @@ import {
 import { trpc } from "@/lib/utils";
 import { Input } from "../ui/input";
 
-export const NODES_TYPES = {
-	DEFAULT: "customDefault",
-	INPUT: "customInput",
-	OUTPUT: "customOutput",
-	GROUP: "customGroup",
+export const SHAPES = {
+	CIRCLE: "circle",
+	RECTANGLE: "rectangle",
+	ROUNDED_RECTANGLE: "rounded-rectangle",
+	TRIANGLE: "triangle",
+	DIAMOND: "diamond",
+	PARALLELOGRAM: "parallelogram",
 };
 
-function DefaultNode({
+function ShapeNode({
 	data,
 	selected,
 	id,
@@ -48,7 +50,7 @@ function DefaultNode({
 	const duplicateNode = trpc.nodes.duplicate.useMutation();
 	const getHandles = () => {
 		switch (type) {
-			case NODES_TYPES.INPUT:
+			case SHAPES.CIRCLE:
 				return (
 					<Handle
 						type="source"
@@ -56,31 +58,26 @@ function DefaultNode({
 						className="bg-green-500 w-6 h-3 rounded-sm"
 					/>
 				);
-			case NODES_TYPES.OUTPUT:
-				return (
-					<Handle
-						type="target"
-						position={Position.Top}
-						className="bg-red-500 w-6 h-3 rounded-sm"
-					/>
-				);
-			default:
-				return (
-					<>
-						<Handle
-							type="target"
-							position={Position.Top}
-							className="bg-red-500 w-6 h-3 rounded-sm"
-						/>
-						<Handle
-							type="source"
-							position={Position.Bottom}
-							className="bg-green-500 w-6 h-3 rounded-sm"
-						/>
-					</>
-				);
 		}
 	};
+
+	const getClassNames = () => {
+		switch (type) {
+			case SHAPES.CIRCLE:
+				return "w-full h-full bg-red-500 rounded-[50%]";
+			case SHAPES.RECTANGLE:
+				return "w-full h-full bg-blue-500";
+			case SHAPES.ROUNDED_RECTANGLE:
+				return "p-4 h-full w-full rounded-lg bg-green-500";
+			case SHAPES.TRIANGLE:
+				return "w-0 h-0 border-transparent border-b-4 border-l-4 border-r-4 border-orange-500";
+			case SHAPES.DIAMOND:
+				return "w-full h-full transform rotate-45 bg-yellow-500";
+			case SHAPES.PARALLELOGRAM:
+				return "w-full h-full skew-x-12 bg-purple-500";
+		}
+	};
+
 	const [editing, setEditing] = useState<{
 		[id: string]: { value: string; status: boolean };
 	}>({});
@@ -88,11 +85,34 @@ function DefaultNode({
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
-				<div
-					className={`px-4 py-2 shadow-md rounded-md bg-accent border-2 ${
-						selected ? "border-primary" : "border-stone-400"
-					}`}
-				>
+				<>
+					<NodeResizer
+						handleClassName="h-3 w-3 rounded-md bg-primary"
+						color="#fff"
+						isVisible={selected}
+						keepAspectRatio={[SHAPES.CIRCLE, SHAPES.DIAMOND].includes(type)}
+						minWidth={100}
+						minHeight={30}
+						onResizeEnd={(event, params) => {
+							const { width, height, x, y } = params;
+							if (!id) return;
+							updateNode.mutate({
+								id,
+								width,
+								height,
+								x,
+								y,
+							});
+						}}
+					/>
+					<div
+						className={`${getClassNames()} px-4 py-2 shadow-md rounded-md  ${
+							selected ? "border-primary" : "border-stone-400"
+						}`}
+					/>
+
+					{getHandles()}
+
 					{editing[id]?.status ? (
 						<Input
 							value={editing[id].value}
@@ -120,11 +140,11 @@ function DefaultNode({
 							}}
 						/>
 					) : (
-						<p className="text-sm font-medium ">{data.label}</p>
+						<p className="text-sm font-medium absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+							{data.label}
+						</p>
 					)}
-
-					{getHandles()}
-				</div>
+				</>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
 				<ContextMenuItem
@@ -204,4 +224,4 @@ function DefaultNode({
 	);
 }
 
-export default memo(DefaultNode);
+export default memo(ShapeNode);

@@ -1,3 +1,4 @@
+import DefaultNode, { NODES_TYPES } from "@/components/nodes/default-node";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -9,7 +10,7 @@ import {
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { getHelperLines, trpc } from "@/lib/utils";
-import { Group, Trash, Workflow } from "lucide-react";
+import { Group, Shapes, Trash, Workflow } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import {
 	Connection,
@@ -26,9 +27,9 @@ import {
 	useNodesState,
 	useReactFlow,
 } from "reactflow";
+import ShapeNode, { SHAPES } from "./nodes/shape-node";
 import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
-import DefaultNode from "@/components/nodes/default-node";
 import GroupNode from "@/components/nodes/group-node";
 import { useStore } from "@/lib/store";
 import { subscribe } from "@/lib/subscriptions";
@@ -38,17 +39,16 @@ import DefaultEdge from "./edges/default-edge";
 import HelperLines from "./helper-lines";
 
 const nodeTypes = {
-	customDefault: DefaultNode,
-	customInput: DefaultNode,
-	customOutput: DefaultNode,
 	customGroup: GroupNode,
-};
-
-export const NODES_TYPES = {
-	DEFAULT: "customDefault",
-	INPUT: "customInput",
-	OUTPUT: "customOutput",
-	GROUP: "customGroup",
+	[NODES_TYPES.DEFAULT]: DefaultNode,
+	[NODES_TYPES.INPUT]: DefaultNode,
+	[NODES_TYPES.OUTPUT]: DefaultNode,
+	[SHAPES.CIRCLE]: ShapeNode,
+	[SHAPES.RECTANGLE]: ShapeNode,
+	[SHAPES.ROUNDED_RECTANGLE]: ShapeNode,
+	[SHAPES.TRIANGLE]: ShapeNode,
+	[SHAPES.DIAMOND]: ShapeNode,
+	[SHAPES.PARALLELOGRAM]: ShapeNode,
 };
 
 const edgeTypes = {
@@ -130,7 +130,7 @@ const Flow = ({
 						type: node.type,
 						data: { label: node.name },
 						position: { x: node.x, y: node.y },
-						...(node.type === "customGroup" && {
+						...((node.width || node.height) && {
 							style: {
 								width: node.width!,
 								height: node.height!,
@@ -375,7 +375,7 @@ const Flow = ({
 		}
 	};
 
-	const createNode = trpc.nodes.add.useMutation({});
+	const createNode = trpc.nodes.add.useMutation();
 
 	const setContextMenuPosition = useStore(
 		(state) => state.setContextMenuPosition,
@@ -527,6 +527,94 @@ const Flow = ({
 							>
 								Output
 							</ContextMenuItem>
+							<ContextMenuSub>
+								<ContextMenuSubTrigger>
+									<Shapes className="mr-2 w-4 h-4" />
+									Shapes
+								</ContextMenuSubTrigger>
+								<ContextMenuSubContent>
+									<ContextMenuItem
+										inset
+										onClick={() => {
+											createNode.mutate({
+												canvasId,
+												name: "Rectangle",
+												x: contextMenuPosition.x,
+												y: contextMenuPosition.y,
+												type: SHAPES.RECTANGLE,
+												height: 100,
+												width: 200,
+											});
+										}}
+									>
+										Rectangle
+									</ContextMenuItem>
+									<ContextMenuItem
+										inset
+										onClick={() => {
+											createNode.mutate({
+												canvasId,
+												name: "Rounded Rectangle",
+												x: contextMenuPosition.x,
+												y: contextMenuPosition.y,
+												type: SHAPES.ROUNDED_RECTANGLE,
+												height: 100,
+												width: 200,
+											});
+										}}
+									>
+										Rounded Rectangle
+									</ContextMenuItem>
+									<ContextMenuItem
+										inset
+										onClick={() => {
+											createNode.mutate({
+												canvasId,
+												name: "Circle",
+												x: contextMenuPosition.x,
+												y: contextMenuPosition.y,
+												type: SHAPES.CIRCLE,
+												height: 100,
+												width: 100,
+											});
+										}}
+									>
+										Circle
+									</ContextMenuItem>
+									<ContextMenuItem
+										inset
+										onClick={() => {
+											createNode.mutate({
+												canvasId,
+												name: "Diamond",
+												x: contextMenuPosition.x,
+												y: contextMenuPosition.y,
+												type: SHAPES.DIAMOND,
+												height: 100,
+												width: 100,
+											});
+										}}
+									>
+										Diamond
+									</ContextMenuItem>
+									<ContextMenuItem
+										inset
+										onClick={() => {
+											createNode.mutate({
+												canvasId,
+												name: "Parallelogram",
+												x: contextMenuPosition.x,
+												y: contextMenuPosition.y,
+												type: SHAPES.PARALLELOGRAM,
+												height: 100,
+												width: 200,
+											});
+										}}
+									>
+										Parallelogram
+									</ContextMenuItem>
+								</ContextMenuSubContent>
+							</ContextMenuSub>
 						</ContextMenuSubContent>
 					</ContextMenuSub>
 					<ContextMenuItem
