@@ -1,11 +1,4 @@
-import {
-	BaseEdge,
-	EdgeLabelRenderer,
-	EdgeProps,
-	getBezierPath,
-} from "reactflow";
-
-import React from "react";
+import { BaseEdge, EdgeProps, getBezierPath } from "reactflow";
 
 export default function DefaultEdge({
 	id,
