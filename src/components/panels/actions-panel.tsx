@@ -6,12 +6,19 @@ import ELK, {
 import {
 	ClipboardCopy,
 	ClipboardPaste,
+	Download,
 	Maximize,
 	MoveHorizontal,
 	MoveVertical,
 	Settings2,
 } from "lucide-react";
-import { Node, useOnSelectionChange, useReactFlow } from "reactflow";
+import {
+	Node,
+	getRectOfNodes,
+	getTransformForBounds,
+	useOnSelectionChange,
+	useReactFlow,
+} from "reactflow";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -21,12 +28,25 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 import { useStore } from "@/lib/store";
 import { trpc } from "@/lib/utils";
+import { toPng } from "html-to-image";
+import { useTheme } from "next-themes";
 import { useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useStore as useStoreFlow } from "reactflow";
 import { ModeToggle } from "../mode-toggle";
 import { Button } from "../ui/button";
 import Keyboard from "../ui/keyboard";
+
+function downloadImage(dataUrl: string) {
+	const a = document.createElement("a");
+
+	a.setAttribute("download", "reactflow.png");
+	a.setAttribute("href", dataUrl);
+	a.click();
+}
+
+const imageWidth = 1024;
+const imageHeight = 768;
 
 const elk = new ELK();
 
@@ -112,6 +132,7 @@ export default function ActionsPanel() {
 		(state) => state.resetSelectedElements,
 	);
 	const updateManyNodes = trpc.nodes.updateMany.useMutation();
+	const { theme } = useTheme();
 	const { getLayoutedElements } = useLayoutedElements({
 		onLayouted: (nodes) => {
 			updateManyNodes.mutate({
@@ -150,6 +171,28 @@ export default function ActionsPanel() {
 		});
 	}, [clipboard]);
 
+	const download = useCallback(() => {
+		const nodesBounds = getRectOfNodes(getNodes());
+		const transform = getTransformForBounds(
+			nodesBounds,
+			imageWidth,
+			imageHeight,
+			0.5,
+			2,
+		);
+
+		toPng(document.querySelector(".react-flow__viewport") as HTMLElement, {
+			backgroundColor: theme === "dark" ? "#020817" : "#fff",
+			width: imageWidth,
+			height: imageHeight,
+			style: {
+				width: `${imageWidth}px`,
+				height: `${imageHeight}px`,
+				transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
+			},
+		}).then(downloadImage);
+	}, []);
+
 	useHotkeys(["ctrl+c", "meta+c"], copy);
 	useHotkeys(["ctrl+v", "meta+v"], paste);
 	const setSelected = useStore((state) => state.setSelected);
@@ -165,7 +208,7 @@ export default function ActionsPanel() {
 		e.preventDefault();
 		setSettingsOpen(!settingsOpen);
 	});
-	const { fitView } = useReactFlow();
+	const { fitView, getNodes } = useReactFlow();
 	return (
 		<DropdownMenu open={settingsOpen} onOpenChange={setSettingsOpen}>
 			<DropdownMenuTrigger>
@@ -271,6 +314,16 @@ export default function ActionsPanel() {
 						</TooltipTrigger>
 						<TooltipContent>
 							<p>Fit view</p>
+						</TooltipContent>
+					</Tooltip>
+					<Tooltip>
+						<TooltipTrigger>
+							<Button size="icon" onClick={download}>
+								<Download />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>Export to image</p>
 						</TooltipContent>
 					</Tooltip>
 				</div>
