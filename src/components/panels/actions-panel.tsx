@@ -163,7 +163,7 @@ export default function ActionsPanel() {
 	const setSettingsOpen = useStore((state) => state.setSettingsOpen);
 	useHotkeys(["ctrl+s", "meta+s"], (e) => {
 		e.preventDefault();
-		setSettingsOpen(true);
+		setSettingsOpen(!settingsOpen);
 	});
 	const { fitView } = useReactFlow();
 	return (
