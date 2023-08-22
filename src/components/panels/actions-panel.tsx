@@ -19,8 +19,8 @@ import {
 } from "../ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
+import { useStore } from "@/lib/store";
 import { trpc } from "@/lib/utils";
-import { useStore } from "@/store";
 import { useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useStore as useStoreFlow } from "reactflow";

@@ -67,6 +67,8 @@ export const useStore = create(
 				future: [] as Command[],
 			},
 			settingsOpen: false,
+			helperLineVertical: undefined as number | undefined,
+			helperLineHorizontal: undefined as number | undefined,
 		},
 		(set) => ({
 			toggleCreateNewCanvas: (opened?: boolean) =>
@@ -154,6 +156,10 @@ export const useStore = create(
 					};
 				}),
 			setSettingsOpen: (settingsOpen: boolean) => set({ settingsOpen }),
+			setHelperLineVertical: (helperLineVertical: number | undefined) =>
+				set({ helperLineVertical }),
+			setHelperLineHorizontal: (helperLineHorizontal: number | undefined) =>
+				set({ helperLineHorizontal }),
 		}),
 	),
 );

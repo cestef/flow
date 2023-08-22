@@ -9,9 +9,9 @@ import {
 	DialogTrigger,
 } from "../ui/dialog";
 
+import { useStore } from "@/lib/store";
 import useConfirm from "@/lib/useConfirm";
 import { trpc } from "@/lib/utils";
-import { useStore } from "@/store";
 import { useSession } from "next-auth/react";
 import { useDebounce } from "use-debounce";
 import { Button } from "../ui/button";

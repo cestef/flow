@@ -10,8 +10,8 @@ import {
 	ContextMenuTrigger,
 } from "../ui/context-menu";
 
+import { useStore } from "@/lib/store";
 import { trpc } from "@/lib/utils";
-import { useStore } from "@/store";
 import { memo } from "react";
 import { NODES_TYPES } from "../canvas";
 

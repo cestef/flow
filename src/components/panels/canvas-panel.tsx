@@ -8,8 +8,8 @@ import {
 } from "../ui/dialog";
 import { DialogFooter, DialogHeader } from "../ui/dialog";
 
+import { useStore } from "@/lib/store";
 import { trpc } from "@/lib/utils";
-import { useStore } from "@/store";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import ComboBox from "../combobox";
