@@ -68,10 +68,14 @@ const useLayoutedElements = ({
 		const groups = nodes.filter((node) => node.type === "customGroup");
 		const groupNodes = nodes.filter((node) => node.type !== "customGroup");
 
+		const rootNodes = groupNodes.filter((node) => !node.parentNode);
+		console.log("rootNodes", rootNodes);
+		const rect = getRectOfNodes(rootNodes);
+		console.log("rect", rect);
 		groups.push({
 			id: "rootGroup",
-			width: 0,
-			height: 0,
+			width: rect.width,
+			height: rect.height,
 			position: { x: 0, y: 0 },
 			data: { label: "root" },
 		});
