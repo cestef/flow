@@ -162,6 +162,7 @@ export const nodesRouter = router({
 				height: z.number().optional(),
 				name: z.string().optional(),
 				parentId: z.string().optional().nullable(),
+				color: z.string().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -207,6 +208,7 @@ export const nodesRouter = router({
 							? {}
 							: { connect: { id: input.parentId } }),
 					},
+					color: input.color,
 				},
 			});
 

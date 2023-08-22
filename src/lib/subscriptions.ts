@@ -31,7 +31,7 @@ export const subscribe = ({
 					{
 						id: node.id,
 						type: node.type,
-						data: { label: node.name },
+						data: { label: node.name, color: node.color },
 						position: { x: node.x, y: node.y },
 						...((node.width || node.height) && {
 							style: {
@@ -63,6 +63,7 @@ export const subscribe = ({
 								data: {
 									...n.data,
 									label: node.name,
+									color: node.color,
 								},
 								position: {
 									x: node.x,

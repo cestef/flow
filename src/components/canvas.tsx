@@ -128,7 +128,7 @@ const Flow = ({
 					.map((node) => ({
 						id: node.id,
 						type: node.type,
-						data: { label: node.name },
+						data: { label: node.name, color: node.color },
 						position: { x: node.x, y: node.y },
 						...((node.width || node.height) && {
 							style: {
@@ -621,7 +621,7 @@ const Flow = ({
 						onClick={() => {
 							createNode.mutate({
 								canvasId,
-								name: "customGroup",
+								name: "Group",
 								x: contextMenuPosition.x,
 								y: contextMenuPosition.y,
 								type: "customGroup",

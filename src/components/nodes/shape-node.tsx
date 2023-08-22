@@ -1,4 +1,4 @@
-import { Copy, TextCursor, Trash, Unlink } from "lucide-react";
+import { Copy, Pipette, TextCursor, Trash, Unlink } from "lucide-react";
 import { memo, useState } from "react";
 import { Handle, NodeResizer, Position, useStore } from "reactflow";
 import {
@@ -10,6 +10,7 @@ import {
 
 import { trpc } from "@/lib/utils";
 import { Input } from "../ui/input";
+import { GradientPicker } from "../ui/picker";
 
 export const SHAPES = {
 	CIRCLE: "circle",
@@ -20,6 +21,15 @@ export const SHAPES = {
 	PARALLELOGRAM: "parallelogram",
 };
 
+const DEFAULT_COLORS = {
+	[SHAPES.CIRCLE]: "#B4D455",
+	[SHAPES.RECTANGLE]: "#B4D455",
+	[SHAPES.ROUNDED_RECTANGLE]: "#B4D455",
+	[SHAPES.TRIANGLE]: "#B4D455",
+	[SHAPES.DIAMOND]: "#B4D455",
+	[SHAPES.PARALLELOGRAM]: "#B4D455",
+};
+
 function ShapeNode({
 	data,
 	selected,
@@ -28,13 +38,26 @@ function ShapeNode({
 	yPos,
 	type,
 }: {
-	data: { label: string };
+	data: { label: string; color: string };
 	selected: boolean;
 	id: string;
 	xPos: number;
 	yPos: number;
 	type: string;
 }) {
+	const { width, height } = useStore((s) => {
+		const node = s.nodeInternals.get(id);
+		if (!node) {
+			return {
+				width: 0,
+				height: 0,
+			};
+		}
+		return {
+			width: node.width,
+			height: node.height,
+		};
+	});
 	const parent = useStore((s) => {
 		const node = s.nodeInternals.get(id);
 
@@ -52,33 +75,58 @@ function ShapeNode({
 		switch (type) {
 			case SHAPES.CIRCLE:
 				return (
-					<Handle
-						type="source"
-						position={Position.Bottom}
-						className="bg-green-500 w-6 h-3 rounded-sm"
-					/>
+					<>
+						<Handle
+							type="source"
+							position={Position.Bottom}
+							className="bg-green-500 w-6 h-3 rounded-sm"
+						/>
+					</>
+				);
+			case SHAPES.DIAMOND:
+				return (
+					<>
+						<Handle
+							type="target"
+							position={Position.Top}
+							className="bg-red-500 w-6 h-3 rounded-sm"
+						/>
+						<Handle
+							type="source"
+							position={Position.Left}
+							className="bg-green-500 w-6 h-3 rounded-sm"
+						/>
+						<Handle
+							type="source"
+							position={Position.Right}
+							className="bg-green-500 w-6 h-3 rounded-sm"
+						/>
+					</>
 				);
 		}
 	};
 
-	const getClassNames = () => {
+	const getClassNames = (color: string) => {
 		switch (type) {
 			case SHAPES.CIRCLE:
-				return "w-full h-full bg-red-500 rounded-[50%]";
+				return `w-full h-full rounded-[50%] bg-[${color}]`;
 			case SHAPES.RECTANGLE:
-				return "w-full h-full bg-blue-500";
+				return `w-full h-full bg-[${color}]`;
 			case SHAPES.ROUNDED_RECTANGLE:
-				return "p-4 h-full w-full rounded-lg bg-green-500";
-			case SHAPES.TRIANGLE:
-				return "w-0 h-0 border-transparent border-b-4 border-l-4 border-r-4 border-orange-500";
-			case SHAPES.DIAMOND:
-				return "w-full h-full transform rotate-45 bg-yellow-500";
+				return `p-4 h-full w-full rounded-lg bg-[${color}]`;
+			case SHAPES.DIAMOND: {
+				return `w-full h-full bg-[${color}] rounded-md transform rotate-45 scale-[0.7]`;
+			}
 			case SHAPES.PARALLELOGRAM:
-				return "w-full h-full skew-x-12 bg-purple-500";
+				return `w-full h-full skew-x-12 bg-[${color}]`;
 		}
 	};
 
 	const [editing, setEditing] = useState<{
+		[id: string]: { value: string; status: boolean };
+	}>({});
+
+	const [picker, setPicker] = useState<{
 		[id: string]: { value: string; status: boolean };
 	}>({});
 
@@ -106,9 +154,12 @@ function ShapeNode({
 						}}
 					/>
 					<div
-						className={`${getClassNames()} px-4 py-2 shadow-md rounded-md  ${
-							selected ? "border-primary" : "border-stone-400"
-						}`}
+						className={`${getClassNames(
+							data.color || DEFAULT_COLORS[type],
+						)} px-4 py-2 shadow-md`}
+						style={{
+							background: data.color || DEFAULT_COLORS[type],
+						}}
 					/>
 
 					{getHandles()}
@@ -138,11 +189,40 @@ function ShapeNode({
 									name: editing[id].value,
 								});
 							}}
+							className="text-sm font-medium absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
 						/>
 					) : (
 						<p className="text-sm font-medium absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
 							{data.label}
 						</p>
+					)}
+					{picker[id]?.status && (
+						<GradientPicker
+							background={picker[id].value}
+							setBackground={(color) => {
+								const sanitized = sanitizeColor(color);
+								setPicker((e) => ({
+									...e,
+									[id]: {
+										...e[id],
+										value: sanitized,
+									},
+								}));
+								updateNode.mutate({
+									id,
+									color: sanitized,
+								});
+							}}
+							onSubmit={() => {
+								setPicker((e) => ({
+									...e,
+									[id]: {
+										...e[id],
+										status: false,
+									},
+								}));
+							}}
+						/>
 					)}
 				</>
 			</ContextMenuTrigger>
@@ -160,6 +240,20 @@ function ShapeNode({
 				>
 					<TextCursor className="w-4 h-4 mr-2" />
 					Rename
+				</ContextMenuItem>
+				<ContextMenuItem
+					onClick={() =>
+						setPicker((e) => ({
+							...e,
+							[id]: {
+								status: true,
+								value: data.color || DEFAULT_COLORS[type],
+							},
+						}))
+					}
+				>
+					<Pipette className="w-4 h-4 mr-2" />
+					Color
 				</ContextMenuItem>
 				<ContextMenuItem
 					onClick={() =>
@@ -225,3 +319,11 @@ function ShapeNode({
 }
 
 export default memo(ShapeNode);
+
+const sanitizeColor = (color: string) => {
+	// Prevents from inputing images
+	if (color.includes("url")) {
+		return "";
+	}
+	return color;
+};

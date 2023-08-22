@@ -1,5 +1,5 @@
-import { Trash, Workflow } from "lucide-react";
-import { Handle, NodeResizer, Position, useReactFlow } from "reactflow";
+import { TextCursor, Trash, Workflow } from "lucide-react";
+import { memo, useState } from "react";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -12,7 +12,8 @@ import {
 
 import { useStore } from "@/lib/store";
 import { trpc } from "@/lib/utils";
-import { memo } from "react";
+import { NodeResizer } from "reactflow";
+import { Input } from "../ui/input";
 import { NODES_TYPES } from "./default-node";
 
 const GroupNode = ({
@@ -34,6 +35,9 @@ const GroupNode = ({
 	const setContextMenuPosition = useStore(
 		(state) => state.setContextMenuPosition,
 	);
+	const [editing, setEditing] = useState<{
+		[id: string]: { value: string; status: boolean };
+	}>({});
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
@@ -72,12 +76,55 @@ const GroupNode = ({
 							setContextMenuPosition(relativeX, relativeY);
 						}}
 					>
-						{data.label} {id}
+						{editing[id]?.status ? (
+							<Input
+								value={editing[id].value}
+								onChange={(ev) =>
+									setEditing((e) => ({
+										...e,
+										[id]: {
+											...e[id],
+											value: ev.target.value,
+										},
+									}))
+								}
+								onBlur={() => {
+									setEditing((e) => ({
+										...e,
+										[id]: {
+											...e[id],
+											status: false,
+										},
+									}));
+									updateNode.mutate({
+										id,
+										name: editing[id].value,
+									});
+								}}
+							/>
+						) : (
+							<p className="text-sm font-medium">{data.label}</p>
+						)}
 					</div>
 					{/* <Handle type="source" position={Position.Bottom} /> */}
 				</>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
+				<ContextMenuItem
+					onClick={() =>
+						setEditing((e) => ({
+							...e,
+							[id]: {
+								status: true,
+								value: data.label,
+							},
+						}))
+					}
+				>
+					<TextCursor className="w-4 h-4 mr-2" />
+					Rename
+				</ContextMenuItem>
+
 				<ContextMenuSub>
 					<ContextMenuSubTrigger>
 						<Workflow className="mr-2 w-4 h-4" />

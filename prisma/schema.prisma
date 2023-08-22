@@ -87,6 +87,7 @@ model Node {
     y         Float
     width     Float?
     height    Float?
+    color     String?
     parentId  String?
     parent    Node?    @relation("Parent", fields: [parentId], references: [id])
     children  Node[]   @relation("Parent")

@@ -132,11 +132,14 @@ export function getHelperLines(
 
 	return nodes
 		.filter((node) => node.id !== nodeA.id)
+		.filter((node) => node.parentNode === nodeA.parentNode)
 		.reduce<GetHelperLinesResult>((result, nodeB) => {
+			const parentNodeB = nodes.find((node) => node.id === nodeB.parentNode);
+
 			const nodeBBounds = {
-				left: nodeB.position.x,
+				left: nodeB.position.x + (parentNodeB?.position.x ?? 0),
 				right: nodeB.position.x + (nodeB.width ?? 0),
-				top: nodeB.position.y,
+				top: nodeB.position.y + (parentNodeB?.position.y ?? 0),
 				bottom: nodeB.position.y + (nodeB.height ?? 0),
 				width: nodeB.width ?? 0,
 				height: nodeB.height ?? 0,
