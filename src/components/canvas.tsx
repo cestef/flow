@@ -8,7 +8,8 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { CommandTypes, useStore } from "@/store";
+import { CommandTypes, useStore } from "@/lib/store";
+import { getHelperLines, trpc } from "@/lib/utils";
 import { Group, Trash, Workflow } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import {
@@ -30,11 +31,12 @@ import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
 import DefaultNode from "@/components/nodes/default-node";
 import GroupNode from "@/components/nodes/group-node";
+import { subscribe } from "@/lib/subscriptions";
 import useConfirm from "@/lib/useConfirm";
-import { trpc } from "@/lib/utils";
-import { useSession } from "next-auth/react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { throttle } from "throttle-debounce";
+import DefaultEdge from "./edges/default-edge";
+import HelperLines from "./helper-lines";
 
 const nodeTypes = {
 	customDefault: DefaultNode,
@@ -50,6 +52,14 @@ export const NODES_TYPES = {
 	GROUP: "customGroup",
 };
 
+const edgeTypes = {
+	customDefault: DefaultEdge,
+};
+
+export const EDGE_TYPES = {
+	DEFAULT: "customDefault",
+};
+
 const UPDATE_THROTTLE = 100;
 
 const Flow = ({
@@ -57,7 +67,6 @@ const Flow = ({
 }: {
 	children?: React.ReactNode;
 }) => {
-	const { data: session } = useSession();
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
 	const [nodes, _setNodes, onNodesChange] = useNodesState([]);
 	const setNodes = useCallback<typeof _setNodes>(
@@ -216,7 +225,35 @@ const Flow = ({
 		[],
 	);
 
+	const setHelperLineHorizontal = useStore(
+		(state) => state.setHelperLineHorizontal,
+	);
+	const setHelperLineVertical = useStore(
+		(state) => state.setHelperLineVertical,
+	);
+
 	const onNodesChangeProxy = (nodeChanges: NodeChange[]) => {
+		setHelperLineHorizontal(undefined);
+		setHelperLineVertical(undefined);
+		if (
+			nodeChanges.length === 1 &&
+			nodeChanges[0].type === "position" &&
+			nodeChanges[0].dragging &&
+			nodeChanges[0].position
+		) {
+			const helperLines = getHelperLines(nodeChanges[0], nodes);
+
+			// if we have a helper line, we snap the node to the helper line position
+			// this is being done by manipulating the node position inside the change object
+			nodeChanges[0].position.x =
+				helperLines.snapPosition.x ?? nodeChanges[0].position.x;
+			nodeChanges[0].position.y =
+				helperLines.snapPosition.y ?? nodeChanges[0].position.y;
+
+			// if helper lines are returned, we set them so that they can be displayed
+			setHelperLineHorizontal(helperLines.horizontal);
+			setHelperLineVertical(helperLines.vertical);
+		}
 		for (const change of nodeChanges) {
 			if (change.type === "position") {
 				if (!change.position || !change.dragging) return;
@@ -347,197 +384,6 @@ const Flow = ({
 		},
 	});
 
-	trpc.nodes.onAdd.useSubscription(
-		{
-			canvasId,
-		},
-		{
-			async onData(node) {
-				if (nodes.find((n) => n.id === node.id)) return;
-
-				setNodes((nodes) => [
-					...nodes,
-					{
-						id: node.id,
-						type: node.type,
-						data: { label: node.name },
-						position: { x: node.x, y: node.y },
-						...(node.type === "customGroup" && {
-							style: {
-								width: node.width!,
-								height: node.height!,
-							},
-						}),
-						parentNode: node.parentId || undefined,
-						extent: node.parentId ? "parent" : undefined,
-					},
-				]);
-			},
-			onError(err) {
-				console.log(err);
-			},
-		},
-	);
-	trpc.nodes.onUpdate.useSubscription(
-		{
-			canvasId,
-		},
-		{
-			async onData(node) {
-				setNodes((nodes) =>
-					nodes.map((n) => {
-						if (n.id === node.id) {
-							return {
-								...n,
-								data: {
-									...n.data,
-									label: node.name,
-								},
-								position: {
-									x: node.x,
-									y: node.y,
-								},
-								...(node.type === "customGroup" && {
-									style: {
-										width: node.width!,
-										height: node.height!,
-									},
-								}),
-								parentNode: node.parentId || undefined,
-								extent: node.parentId ? "parent" : undefined,
-							};
-						}
-						return n;
-					}),
-				);
-			},
-			onError(err) {
-				console.log(err);
-			},
-		},
-	);
-	trpc.nodes.onDelete.useSubscription(
-		{
-			canvasId,
-		},
-		{
-			async onData(node) {
-				if (node.type === "customGroup") {
-					setNodes((nodes) =>
-						nodes.map((n) => {
-							if (n.parentNode === node.id) {
-								return {
-									...n,
-									parentNode: undefined,
-									extent: undefined,
-									position: {
-										x: n.position.x + node.x,
-										y: n.position.y + node.y,
-									},
-								};
-							}
-							return n;
-						}),
-					);
-				}
-				setNodes((nodes) => nodes.filter((n) => n.id !== node.id));
-			},
-			onError(err) {
-				console.log(err);
-			},
-		},
-	);
-
-	trpc.nodes.onDragStart.useSubscription(
-		{
-			canvasId,
-		},
-		{
-			async onData(node) {},
-		},
-	);
-	trpc.nodes.onDragUpdate.useSubscription(
-		{
-			canvasId,
-		},
-		{
-			async onData({ node, userId }) {
-				if (userId === session?.user.id) return;
-				// Update node position
-				setNodes((nodes) =>
-					nodes.map((n) => {
-						if (n.id === node.id) {
-							// console.log(n.position, { x: node.x, y: node.y });
-							return {
-								...n,
-								position: {
-									x: node.x,
-									y: node.y,
-								},
-							};
-						}
-						return n;
-					}),
-				);
-			},
-		},
-	);
-	trpc.nodes.onDragEnd.useSubscription(
-		{
-			canvasId,
-		},
-		{
-			async onData(node) {},
-		},
-	);
-
-	trpc.edges.onAdd.useSubscription(
-		{
-			canvasId,
-		},
-		{
-			async onData({ edge, userId }) {
-				if (userId === session?.user.id) return;
-				if (edges.find((e) => e.id === edge.id)) return;
-				setEdges((edges) => [
-					...edges,
-					{
-						id: edge.id,
-						source: edge.fromId,
-						target: edge.toId,
-					},
-				]);
-			},
-			onError(err) {
-				console.log(err);
-			},
-		},
-	);
-	trpc.edges.onDelete.useSubscription(
-		{
-			canvasId,
-		},
-		{
-			async onData({ edge, userId }) {
-				if (userId === session?.user.id) return;
-				setEdges((edges) => edges.filter((e) => e.id !== edge.id));
-			},
-			onError(err) {
-				console.log(err);
-			},
-		},
-	);
-
-	trpc.canvas.onClear.useSubscription(undefined, {
-		async onData() {
-			setEdges([]);
-			setNodes([]);
-		},
-		onError(err) {
-			console.log(err);
-		},
-	});
-
 	const setContextMenuPosition = useStore(
 		(state) => state.setContextMenuPosition,
 	);
@@ -586,6 +432,16 @@ const Flow = ({
 		redo();
 	}
 
+	const helperLineHorizontal = useStore((state) => state.helperLineHorizontal);
+	const helperLineVertical = useStore((state) => state.helperLineVertical);
+
+	subscribe({
+		setEdges,
+		setNodes,
+		nodes,
+		edges,
+	});
+
 	return (
 		<div
 			ref={reactFlowWrapper}
@@ -620,8 +476,9 @@ const Flow = ({
 						onEdgesChange={onEdgesChangeProxy}
 						onConnect={onConnectProxy}
 						onNodesDelete={onNodesDelete}
-						nodeTypes={nodeTypes}
 						snapToGrid={snapToGrid}
+						nodeTypes={nodeTypes}
+						edgeTypes={edgeTypes}
 						fitView
 						proOptions={{
 							hideAttribution: true,
@@ -631,7 +488,10 @@ const Flow = ({
 						{/* <MiniMapStyled /> */}
 						{/* <ControlsStyled position="bottom-right" /> */}
 						<BackgroundStyled />
-
+						<HelperLines
+							horizontal={helperLineHorizontal}
+							vertical={helperLineVertical}
+						/>
 						{children}
 					</ReactFlowStyled>
 				</ContextMenuTrigger>
