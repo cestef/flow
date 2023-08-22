@@ -55,11 +55,10 @@ const useLayoutedElements = ({
 }: {
 	onLayouted?: (nodes: Node[]) => void;
 }) => {
-	const { getNodes, setNodes, getEdges, fitView } = useReactFlow();
+	const { getNodes, getEdges, fitView } = useReactFlow();
 	const defaultOptions: LayoutOptions = {
 		"elk.algorithm": "layered",
 		"elk.layered.spacing.nodeNodeBetweenLayers": "100",
-		"elk.spacing.nodeNode": "80",
 	};
 
 	const getLayoutedElements = useCallback((options: LayoutOptions) => {
@@ -76,8 +75,8 @@ const useLayoutedElements = ({
 			id: "rootGroup",
 			width: rect.width,
 			height: rect.height,
-			position: { x: 0, y: 0 },
-			data: { label: "root" },
+			position: { x: rect.x, y: rect.y },
+			data: {},
 		});
 
 		console.log("groups", groups);
