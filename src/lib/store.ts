@@ -1,35 +1,8 @@
 import { Edge, Node } from "reactflow";
-import {
-	combine,
-	createJSONStorage,
-	devtools,
-	persist,
-} from "zustand/middleware";
 
 import { z } from "zod";
 import { create } from "zustand";
-
-const ZStore = z.object({
-	createNewCanvas: z.object({
-		opened: z.boolean(),
-		name: z.string(),
-	}),
-});
-
-export enum CommandTypes {
-	CREATE_NODE = "CREATE_NODE",
-	CREATE_EDGE = "CREATE_EDGE",
-	DELETE_NODE = "DELETE_NODE",
-	DELETE_EDGE = "DELETE_EDGE",
-	MOVE_NODE = "MOVE_NODE",
-	RESIZE_NODE = "RESIZE_NODE",
-	CLEAR_CANVAS = "CLEAR_CANVAS",
-}
-
-export interface Command {
-	type: CommandTypes;
-	payload: any;
-}
+import { combine } from "zustand/middleware";
 
 export const useStore = create(
 	combine(
@@ -53,6 +26,7 @@ export const useStore = create(
 			canvasPanelHidden: false,
 			membersPanelHidden: false,
 			snapToGrid: false,
+			snapLines: false,
 			clipboard: {
 				nodes: [] as Node[],
 				edges: [] as Edge[],
@@ -60,11 +34,6 @@ export const useStore = create(
 			selected: {
 				nodes: [] as Node[],
 				edges: [] as Edge[],
-			},
-			history: {
-				past: [] as Command[],
-				present: {} as Command,
-				future: [] as Command[],
 			},
 			settingsOpen: false,
 			helperLineVertical: undefined as number | undefined,
@@ -118,48 +87,12 @@ export const useStore = create(
 			setSelected: (nodes: Node[], edges: Edge[]) =>
 				set({ selected: { nodes, edges } }),
 			clearSelected: () => set({ selected: { nodes: [], edges: [] } }),
-			do: (command: Command) =>
-				set((state) => {
-					const { past, present } = state.history;
-					return {
-						history: {
-							past: [...past, present],
-							present: command,
-							future: [],
-						},
-					};
-				}),
-			undo: () =>
-				set((state) => {
-					const { past, present, future } = state.history;
-					const previous = past[past.length - 1];
-					const newPast = past.slice(0, past.length - 1);
-					return {
-						history: {
-							past: newPast,
-							present: previous,
-							future: [present, ...future],
-						},
-					};
-				}),
-			redo: () =>
-				set((state) => {
-					const { past, present, future } = state.history;
-					const next = future[0];
-					const newFuture = future.slice(1);
-					return {
-						history: {
-							past: [...past, present],
-							present: next,
-							future: newFuture,
-						},
-					};
-				}),
 			setSettingsOpen: (settingsOpen: boolean) => set({ settingsOpen }),
 			setHelperLineVertical: (helperLineVertical: number | undefined) =>
 				set({ helperLineVertical }),
 			setHelperLineHorizontal: (helperLineHorizontal: number | undefined) =>
 				set({ helperLineHorizontal }),
+			setSnapLines: (snapLines: boolean) => set({ snapLines }),
 		}),
 	),
 );

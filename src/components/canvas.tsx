@@ -8,7 +8,6 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { CommandTypes, useStore } from "@/lib/store";
 import { getHelperLines, trpc } from "@/lib/utils";
 import { Group, Trash, Workflow } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
@@ -31,9 +30,9 @@ import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
 import DefaultNode from "@/components/nodes/default-node";
 import GroupNode from "@/components/nodes/group-node";
+import { useStore } from "@/lib/store";
 import { subscribe } from "@/lib/subscriptions";
 import useConfirm from "@/lib/useConfirm";
-import { useHotkeys } from "react-hotkeys-hook";
 import { throttle } from "throttle-debounce";
 import DefaultEdge from "./edges/default-edge";
 import HelperLines from "./helper-lines";
@@ -375,14 +374,7 @@ const Flow = ({
 		}
 	};
 
-	const createNode = trpc.nodes.add.useMutation({
-		onSuccess: (data) => {
-			doCommand({
-				type: CommandTypes.CREATE_NODE,
-				payload: data.id,
-			});
-		},
-	});
+	const createNode = trpc.nodes.add.useMutation({});
 
 	const setContextMenuPosition = useStore(
 		(state) => state.setContextMenuPosition,
@@ -412,25 +404,6 @@ const Flow = ({
 	const clearCanvas = trpc.canvas.clear.useMutation();
 	const { project } = useReactFlow();
 	const { confirm, modal } = useConfirm();
-
-	const undo = useStore((state) => state.undo);
-	const redo = useStore((state) => state.redo);
-	const doCommand = useStore((state) => state.do);
-
-	useHotkeys(["ctrl+z", "meta+z"], undoProxy);
-	useHotkeys(["ctrl+shift+z", "meta+shift+z"], redoProxy);
-
-	const commandHistory = useStore((state) => state.history);
-
-	function undoProxy() {
-		if (commandHistory.past.length === 0) return;
-		undo();
-	}
-
-	function redoProxy() {
-		if (commandHistory.future.length === 0) return;
-		redo();
-	}
 
 	const helperLineHorizontal = useStore((state) => state.helperLineHorizontal);
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
