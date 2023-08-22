@@ -238,7 +238,8 @@ const Flow = ({
 			nodeChanges.length === 1 &&
 			nodeChanges[0].type === "position" &&
 			nodeChanges[0].dragging &&
-			nodeChanges[0].position
+			nodeChanges[0].position &&
+			snapLines
 		) {
 			const helperLines = getHelperLines(nodeChanges[0], nodes);
 
@@ -382,15 +383,24 @@ const Flow = ({
 	const contextMenuPosition = useStore((state) => state.contextMenuPosition);
 	const snapToGrid = useStore((state) => state.snapToGrid);
 	const setSnapToGrid = useStore((state) => state.setSnapToGrid);
+	const snapLines = useStore((state) => state.snapLines);
+	const setSnapLines = useStore((state) => state.setSnapLines);
+
 	useEffect(() => {
 		const onKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Shift") {
 				setSnapToGrid(true);
 			}
+			if (e.key === "Control") {
+				setSnapLines(true);
+			}
 		};
 		const onKeyUp = (e: KeyboardEvent) => {
 			if (e.key === "Shift") {
 				setSnapToGrid(false);
+			}
+			if (e.key === "Control") {
+				setSnapLines(false);
 			}
 		};
 		window.addEventListener("keydown", onKeyDown);
