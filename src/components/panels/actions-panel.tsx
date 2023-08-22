@@ -64,53 +64,69 @@ const useLayoutedElements = ({
 
 	const getLayoutedElements = useCallback((options: LayoutOptions) => {
 		const layoutOptions: LayoutOptions = { ...defaultOptions, ...options };
+		const nodes = getNodes();
+		const groups = nodes.filter((node) => node.type === "customGroup");
+		const groupNodes = nodes.filter((node) => node.type !== "customGroup");
+
+		groups.push({
+			id: "rootGroup",
+			width: 0,
+			height: 0,
+			position: { x: 0, y: 0 },
+			data: { label: "root" },
+		});
+
+		console.log("groups", groups);
+		console.log("groupNodes", groupNodes);
 		const graph: ElkNode = {
 			id: "root",
 			layoutOptions: layoutOptions,
-			children: getNodes() as ElkNode[],
-			edges: getEdges().map((edge) => {
-				const { source, target, ...rest } = edge;
-				return {
-					...rest,
-					id: edge.id,
-					sources: [source],
-					targets: [target],
-				} as ElkExtendedEdge;
-			}),
+			children: groups.map((group) => ({
+				id: group.id,
+				width: group.width || +(group.style?.width || 0),
+				height: group.height || +(group.style?.height || 0),
+				layoutOptions: layoutOptions,
+				children: groupNodes
+					.filter((node) => (node.parentNode || "rootGroup") === group.id)
+					.map((node) => ({
+						id: node.id,
+						width: node.width || 0,
+						height: node.height || 0,
+						layoutOptions: layoutOptions,
+					})),
+			})),
+			edges: getEdges().map((edge) => ({
+				id: edge.id,
+				sources: [edge.source],
+				targets: [edge.target],
+			})),
 		};
 
 		elk.layout(graph).then(({ children }) => {
-			// By mutating the children in-place we saves ourselves from creating a
-			// needless copy of the nodes array.
-			children?.forEach((node) => {
-				node.x = node.x;
-				node.y = node.y;
-			});
+			const nodes = children?.reduce((result, current) => {
+				if (current.id !== "rootGroup") {
+					result.push({
+						id: current.id,
+						position: { x: current.x, y: current.y },
+						data: { label: current.id },
+						style: { width: current.width, height: current.height },
+					});
+				}
 
-			setNodes(
-				(children || []).map(
-					(node) =>
-						({
-							...node,
-							position: {
-								x: node.x,
-								y: node.y,
-							},
-						}) as Node,
-				),
-			);
-			onLayouted?.(
-				(children || []).map(
-					(node) =>
-						({
-							...node,
-							position: {
-								x: node.x,
-								y: node.y,
-							},
-						}) as Node,
-				),
-			);
+				current.children?.forEach((child) =>
+					result.push({
+						id: child.id,
+						position: { x: child.x, y: child.y },
+						data: { label: child.id },
+						style: { width: child.width, height: child.height },
+						parentNode: current.id === "rootGroup" ? undefined : current.id,
+					}),
+				);
+
+				return result;
+			}, [] as any[]);
+			console.log("nodes", nodes);
+			onLayouted?.(nodes as any[]);
 			window.requestAnimationFrame(() => {
 				setTimeout(() => {
 					fitView();
@@ -220,6 +236,10 @@ export default function ActionsPanel() {
 		e.preventDefault();
 		download();
 	});
+	useHotkeys(["ctrl+f", "meta+f"], (e) => {
+		e.preventDefault();
+		fitView();
+	});
 	const { fitView, getNodes } = useReactFlow();
 	return (
 		<DropdownMenu open={settingsOpen} onOpenChange={setSettingsOpen}>
@@ -325,7 +345,9 @@ export default function ActionsPanel() {
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent>
-							<p>Fit view</p>
+							<p>
+								Fit view <Keyboard keys={["F"]} modifiers={["⌘"]} />
+							</p>
 						</TooltipContent>
 					</Tooltip>
 					<Tooltip>

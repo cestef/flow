@@ -730,7 +730,9 @@ export const nodesRouter = router({
 			if (!nodes) {
 				throw new Error("Nodes not found");
 			}
-
+			if (nodes.length === 0) {
+				return [];
+			}
 			const canvas = nodes[0].canvas;
 
 			if (
