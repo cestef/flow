@@ -1,4 +1,5 @@
 import { useStore, useTemporalStore } from "@/lib/store";
+import { nodesEqual, trpc } from "@/lib/utils";
 import ELK, {
 	ElkExtendedEdge,
 	ElkNode,
@@ -28,7 +29,6 @@ import {
 } from "../ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-import { trpc } from "@/lib/utils";
 import { toPng } from "html-to-image";
 import { useTheme } from "next-themes";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -248,10 +248,11 @@ export default function ActionsPanel() {
 	const { undo, redo } = useTemporalStore((s) => s);
 	useHotkeys(["ctrl+z", "meta+z"], (e) => {
 		e.preventDefault();
+		const oldNodes = useStore.getState().nodes;
 		undo();
 		const newNodes = useStore.getState().nodes;
 		// const newEdges = useStore.getState().edges;
-
+		if (nodesEqual(oldNodes, newNodes)) return;
 		updateManyNodes.mutate({
 			nodes: newNodes.map((node) => ({
 				id: node.id,

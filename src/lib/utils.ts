@@ -316,3 +316,45 @@ export const shallowDiff = <T extends Record<string, unknown>>(
 		};
 	}, a);
 };
+
+export const nodesEqual = (a: Node[], b: Node[]) => {
+	const diffs = a.map((node) => {
+		const currentNode = b.find((n) => n.id === node.id);
+		if (!currentNode) return false;
+		const diff = {
+			name:
+				node.data?.label !== currentNode.data?.label
+					? currentNode.data?.label
+					: undefined,
+			color:
+				node.data?.color !== currentNode.data?.color
+					? currentNode.data?.color
+					: undefined,
+			x:
+				node.position.x !== currentNode.position.x
+					? currentNode.position.x
+					: undefined,
+			y:
+				node.position.y !== currentNode.position.y
+					? currentNode.position.y
+					: undefined,
+			width:
+				+(node.style?.width || 0) !== +(currentNode.style?.width || 0)
+					? +(currentNode.style?.width || 0)
+					: undefined,
+			height:
+				+(node.style?.height || 0) !== +(currentNode.style?.height || 0)
+					? +(currentNode.style?.height || 0)
+					: undefined,
+			parentId:
+				node.parentNode !== currentNode.parentNode
+					? currentNode.parentNode
+					: undefined,
+		};
+		return diff;
+	});
+	const hasChanges = diffs.map((diff) =>
+		Object.values(diff).some((v) => v !== undefined),
+	);
+	return !hasChanges.some((v) => v);
+};

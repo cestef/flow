@@ -8,13 +8,13 @@ import {
 	applyEdgeChanges,
 	applyNodeChanges,
 } from "reactflow";
+import { nodesEqual, shallowMerge } from "./utils";
 
 import { temporal } from "zundo";
 import { create } from "zustand";
 import { combine } from "zustand/middleware";
 import { shallow } from "zustand/shallow";
 import { createWithEqualityFn } from "zustand/traditional";
-import { shallowMerge } from "./utils";
 
 export const useStore = createWithEqualityFn(
 	temporal(
@@ -185,45 +185,7 @@ export const useStore = createWithEqualityFn(
 		),
 		{
 			equality: (a, b) => {
-				const diffs = a.nodes.map((node, i) => {
-					const currentNode = b.nodes.find((n) => n.id === node.id);
-					if (!currentNode) return false;
-					const diff = {
-						name:
-							node.data?.label !== currentNode.data?.label
-								? currentNode.data?.label
-								: undefined,
-						color:
-							node.data?.color !== currentNode.data?.color
-								? currentNode.data?.color
-								: undefined,
-						x:
-							node.position.x !== currentNode.position.x
-								? currentNode.position.x
-								: undefined,
-						y:
-							node.position.y !== currentNode.position.y
-								? currentNode.position.y
-								: undefined,
-						width:
-							+(node.style?.width || 0) !== +(currentNode.style?.width || 0)
-								? +(currentNode.style?.width || 0)
-								: undefined,
-						height:
-							+(node.style?.height || 0) !== +(currentNode.style?.height || 0)
-								? +(currentNode.style?.height || 0)
-								: undefined,
-						parentId:
-							node.parentNode !== currentNode.parentNode
-								? currentNode.parentNode
-								: undefined,
-					};
-					return diff;
-				});
-				const hasChanges = diffs.map((diff) =>
-					Object.values(diff).some((v) => v !== undefined),
-				);
-				return !hasChanges.some((v) => v);
+				return nodesEqual(a.nodes, b.nodes);
 			},
 			partialize(state) {
 				return {
