@@ -174,10 +174,21 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 					name: true,
 				},
 			},
+			maxUses: true,
+			uses: true,
+			expires: true,
 		},
 	});
 
 	if (!invite) {
+		return { notFound: true };
+	}
+
+	if (invite.maxUses && invite.uses >= invite.maxUses) {
+		return { notFound: true };
+	}
+
+	if (invite.expires && new Date(invite.expires) < new Date()) {
 		return { notFound: true };
 	}
 
