@@ -1,5 +1,9 @@
-import DefaultNode, { NODES_TYPES } from "@/components/nodes/default-node";
-import { StoreState, useStore } from "@/lib/store";
+import {
+	UPDATE_THROTTLE,
+	edgeTypes,
+	flowSelector,
+	nodeTypes,
+} from "@/lib/constants";
 import { getHelperLines, isNodeInGroupBounds, trpc } from "@/lib/utils";
 import { useCallback, useEffect, useRef } from "react";
 import {
@@ -10,57 +14,14 @@ import {
 	NodePositionChange,
 	useReactFlow,
 } from "reactflow";
-import ShapeNode, { SHAPES } from "./nodes/shape-node";
 import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
-import GroupNode from "@/components/nodes/group-node";
+import { useStore } from "@/lib/store";
 import { subscribe } from "@/lib/subscriptions";
 import { useSearchParams } from "next/navigation";
 import { throttle } from "throttle-debounce";
 import CanvasContext from "./canvas-context";
-import DefaultEdge from "./edges/default-edge";
 import HelperLines from "./helper-lines";
-
-const nodeTypes = {
-	customGroup: GroupNode,
-	[NODES_TYPES.DEFAULT]: DefaultNode,
-	[NODES_TYPES.INPUT]: DefaultNode,
-	[NODES_TYPES.OUTPUT]: DefaultNode,
-	[SHAPES.CIRCLE]: ShapeNode,
-	[SHAPES.RECTANGLE]: ShapeNode,
-	[SHAPES.ROUNDED_RECTANGLE]: ShapeNode,
-	[SHAPES.TRIANGLE]: ShapeNode,
-	[SHAPES.DIAMOND]: ShapeNode,
-	[SHAPES.PARALLELOGRAM]: ShapeNode,
-};
-
-const edgeTypes = {
-	customDefault: DefaultEdge,
-};
-
-export const EDGE_TYPES = {
-	DEFAULT: "customDefault",
-};
-
-const UPDATE_THROTTLE = (1 / 60) * 1000; // 60fps
-
-export const flowSelector = (state: StoreState) => ({
-	nodes: state.nodes,
-	edges: state.edges,
-	setNodes: state.setNodes,
-	setEdges: state.setEdges,
-	onNodesChange: state.onNodesChange,
-	onEdgesChange: state.onEdgesChange,
-	onConnect: state.onConnect,
-	updateNode: state.updateNode,
-	addNode: state.addNode,
-	findNode: state.findNode,
-	deleteNode: state.deleteNode,
-	addEdge: state.addEdge,
-	deleteEdge: state.deleteEdge,
-	findAndUpdateNode: state.findAndUpdateNode,
-	// updateEdge: state.updateEdge,
-});
 
 const Flow = ({
 	children,

@@ -1,3 +1,4 @@
+import { DEFAULT_COLORS, SHAPES } from "@/lib/constants";
 import { Copy, Pipette, TextCursor, Trash, Unlink } from "lucide-react";
 import { memo, useState } from "react";
 import { Handle, NodeResizer, Position, useStore } from "reactflow";
@@ -12,30 +13,10 @@ import { trpc } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { GradientPicker } from "../ui/picker";
 
-export const SHAPES = {
-	CIRCLE: "circle",
-	RECTANGLE: "rectangle",
-	ROUNDED_RECTANGLE: "rounded-rectangle",
-	TRIANGLE: "triangle",
-	DIAMOND: "diamond",
-	PARALLELOGRAM: "parallelogram",
-};
-
-const DEFAULT_COLORS = {
-	[SHAPES.CIRCLE]: "#B4D455",
-	[SHAPES.RECTANGLE]: "#B4D455",
-	[SHAPES.ROUNDED_RECTANGLE]: "#B4D455",
-	[SHAPES.TRIANGLE]: "#B4D455",
-	[SHAPES.DIAMOND]: "#B4D455",
-	[SHAPES.PARALLELOGRAM]: "#B4D455",
-};
-
 function ShapeNode({
 	data,
 	selected,
 	id,
-	xPos,
-	yPos,
 	type,
 }: {
 	data: { label: string; color: string };

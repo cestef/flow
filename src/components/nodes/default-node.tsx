@@ -8,15 +8,9 @@ import {
 	ContextMenuTrigger,
 } from "../ui/context-menu";
 
+import { NODES_TYPES } from "@/lib/constants";
 import { trpc } from "@/lib/utils";
 import { Input } from "../ui/input";
-
-export const NODES_TYPES = {
-	DEFAULT: "customDefault",
-	INPUT: "customInput",
-	OUTPUT: "customOutput",
-	GROUP: "customGroup",
-};
 
 function DefaultNode({
 	data,

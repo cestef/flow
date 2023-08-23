@@ -1,3 +1,4 @@
+import { NODES_TYPES, SHAPES } from "@/lib/constants";
 import { Group, Shapes, Trash, Workflow } from "lucide-react";
 import {
 	ContextMenu,
@@ -13,8 +14,6 @@ import {
 import { useStore } from "@/lib/store";
 import useConfirm from "@/lib/useConfirm";
 import { trpc } from "@/lib/utils";
-import { NODES_TYPES } from "./nodes/default-node";
-import { SHAPES } from "./nodes/shape-node";
 
 export default function CanvasContext({
 	children,
