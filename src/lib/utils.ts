@@ -382,3 +382,51 @@ export const isNodeInGroupBounds = (node: Node, nodes: Node[]): Node | null => {
 			}) || null
 	);
 };
+
+export const formatRemoteData = (data: any, order = false): Node[] => {
+	const formatted = data.map((node: any) => ({
+		id: node.id,
+		type: node.type,
+		data: {
+			label: node.name,
+			color: node.color,
+			debouncedPosition: {
+				x: node.x,
+				y: node.y,
+			},
+		},
+		position: { x: node.x, y: node.y },
+		...((node.width || node.height) && {
+			style: {
+				width: node.width!,
+				height: node.height!,
+			},
+		}),
+		parentNode: node.parentId || undefined,
+		extent: node.parentId ? "parent" : undefined,
+	})) as Node[];
+
+	// children nodes need to be added before parent nodes
+	if (order) {
+		interface TreeNode {
+			node: Node;
+			children: TreeNode[];
+		}
+		const traverse = (node: Node): TreeNode => {
+			const children = formatted.filter((n) => n.parentNode === node.id);
+			return {
+				node,
+				children: children.map(traverse),
+			};
+		};
+		const tree = traverse(formatted.find((n) => !n.parentNode)!);
+
+		const flatten = (tree: TreeNode): Node[] => {
+			return [tree.node, ...tree.children.flatMap(flatten)];
+		};
+
+		return flatten(tree);
+	}
+
+	return formatted;
+};

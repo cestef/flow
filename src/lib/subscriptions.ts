@@ -1,7 +1,8 @@
-import { flowSelector } from "@/components/canvas";
+import { formatRemoteData, trpc } from "./utils";
+
 import { useSession } from "next-auth/react";
+import { flowSelector } from "./constants";
 import { useStore } from "./store";
-import { trpc } from "./utils";
 
 export const subscribe = () => {
 	const canvasId = useStore((state) => state.currentCanvasId);
@@ -25,27 +26,8 @@ export const subscribe = () => {
 		{
 			async onData(node) {
 				if (nodes.find((n) => n.id === node.id)) return;
-				addNode({
-					id: node.id,
-					type: node.type,
-					data: {
-						label: node.name,
-						color: node.color,
-						debouncedPosition: {
-							x: node.x,
-							y: node.y,
-						},
-					},
-					position: { x: node.x, y: node.y },
-					...((node.width || node.height) && {
-						style: {
-							width: node.width!,
-							height: node.height!,
-						},
-					}),
-					parentNode: node.parentId || undefined,
-					extent: node.parentId ? "parent" : undefined,
-				});
+				const [formatted] = formatRemoteData([node]);
+				addNode(formatted);
 			},
 			onError(err) {
 				console.log(err);
@@ -58,25 +40,8 @@ export const subscribe = () => {
 		},
 		{
 			async onData(node) {
-				updateNode({
-					id: node.id,
-					data: {
-						label: node.name,
-						color: node.color,
-					},
-					position: {
-						x: node.x,
-						y: node.y,
-					},
-					...(node.type === "customGroup" && {
-						style: {
-							width: node.width!,
-							height: node.height!,
-						},
-					}),
-					parentNode: node.parentId || undefined,
-					extent: node.parentId ? "parent" : undefined,
-				});
+				const [formatted] = formatRemoteData([node]);
+				updateNode(formatted);
 			},
 			onError(err) {
 				console.log(err);

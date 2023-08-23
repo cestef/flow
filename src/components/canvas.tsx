@@ -4,7 +4,12 @@ import {
 	flowSelector,
 	nodeTypes,
 } from "@/lib/constants";
-import { getHelperLines, isNodeInGroupBounds, trpc } from "@/lib/utils";
+import {
+	formatRemoteData,
+	getHelperLines,
+	isNodeInGroupBounds,
+	trpc,
+} from "@/lib/utils";
 import { useCallback, useEffect, useRef } from "react";
 import {
 	Connection,
@@ -57,35 +62,7 @@ const Flow = ({
 
 	useEffect(() => {
 		if (remoteNodes.data) {
-			setNodes(
-				remoteNodes.data
-					.map((node) => ({
-						id: node.id,
-						type: node.type,
-						data: {
-							label: node.name,
-							color: node.color,
-							debouncedPosition: {
-								x: node.x,
-								y: node.y,
-							},
-						},
-						position: { x: node.x, y: node.y },
-						...((node.width || node.height) && {
-							style: {
-								width: node.width!,
-								height: node.height!,
-							},
-						}),
-						parentNode: node.parentId || undefined,
-						extent: node.parentId ? "parent" : undefined,
-					}))
-					.sort((a, b) => {
-						if (a.type === "customGroup" && b.type !== "customGroup") return -1;
-						if (a.type !== "customGroup" && b.type === "customGroup") return 1;
-						return 0;
-					}) as any,
-			);
+			setNodes(formatRemoteData(remoteNodes.data, true));
 		}
 	}, [remoteNodes.data]);
 
