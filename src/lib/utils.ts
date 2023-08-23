@@ -1,4 +1,5 @@
 import type { AppRouter } from "@/server/routers/_app";
+import { createTRPCProxyClient } from "@trpc/client";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { loggerLink } from "@trpc/client/links/loggerLink";
 import { createWSClient, wsLink } from "@trpc/client/links/wsLink";
@@ -83,6 +84,11 @@ export const trpc = createTRPCNext<AppRouter>({
 	 * @link https://trpc.io/docs/ssr
 	 */
 	ssr: true,
+});
+
+export const trcpProxyClient = createTRPCProxyClient<AppRouter>({
+	links: [getEndingLink(undefined)],
+	transformer: superjson,
 });
 
 // export const transformer = superjson;
@@ -289,11 +295,24 @@ export const shallowMerge = <T extends Record<string, unknown>>(
 	}, a);
 };
 
-export const shallowEqual = <T extends Record<string, unknown>>(
+export const shallowDiff = <T extends Record<string, unknown>>(
 	a: T,
-	b: T,
-): boolean => {
-	return Object.entries(a).every(([key, value]) => {
-		return b[key as keyof T] === value;
-	});
+	b: Partial<T>,
+): Partial<T> => {
+	return Object.entries(b).reduce((acc, [key, value]) => {
+		if (typeof value === "object" && value !== null) {
+			return {
+				...acc,
+				[key]: {
+					...(acc[key] ?? {}),
+					...value,
+				},
+			};
+		}
+
+		return {
+			...acc,
+			[key]: value,
+		};
+	}, a);
 };

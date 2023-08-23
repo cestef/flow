@@ -706,6 +706,11 @@ export const nodesRouter = router({
 						id: z.string(),
 						x: z.number().optional(),
 						y: z.number().optional(),
+						height: z.number().optional(),
+						width: z.number().optional(),
+						color: z.string().optional(),
+						name: z.string().optional(),
+						parentId: z.string().optional().nullable(),
 					}),
 				),
 			}),
@@ -750,6 +755,17 @@ export const nodesRouter = router({
 					data: {
 						x: node.x,
 						y: node.y,
+						height: node.height,
+						width: node.width,
+						color: node.color,
+						name: node.name,
+						parent: {
+							...(node.parentId === null
+								? { disconnect: true }
+								: node.parentId === undefined
+								? {}
+								: { connect: { id: node.parentId } }),
+						},
 					},
 				}),
 			);

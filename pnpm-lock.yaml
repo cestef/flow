@@ -119,6 +119,9 @@ dependencies:
   reactflow:
     specifier: ^11.8.1
     version: 11.8.1(@types/react@18.2.20)(react-dom@18.2.0)(react@18.2.0)
+  shallow-equal:
+    specifier: ^3.1.0
+    version: 3.1.0
   styled-components:
     specifier: ^6.0.7
     version: 6.0.7(react-dom@18.2.0)(react@18.2.0)
@@ -149,6 +152,9 @@ dependencies:
   zod:
     specifier: ^3.22.0
     version: 3.22.0
+  zundo:
+    specifier: 2.0.0-beta.24
+    version: 2.0.0-beta.24(zustand@4.4.1)
   zustand:
     specifier: ^4.4.1
     version: 4.4.1(@types/react@18.2.20)(react@18.2.0)
@@ -5219,6 +5225,10 @@ packages:
       upper-case-first: 2.0.2
     dev: false
 
+  /shallow-equal@3.1.0:
+    resolution: {integrity: sha512-pfVOw8QZIXpMbhBWvzBISicvToTiM5WBF1EeAUZDDSb5Dt29yl4AYbyywbJFSEsRUMr7gJaxqCdr4L3tQf9wVg==}
+    dev: false
+
   /shallowequal@1.1.0:
     resolution: {integrity: sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==}
     dev: false
@@ -5836,6 +5846,14 @@ packages:
 
   /zod@3.22.0:
     resolution: {integrity: sha512-y5KZY/ssf5n7hCGDGGtcJO/EBJEm5Pa+QQvFBeyMOtnFYOSflalxIFFvdaYevPhePcmcKC4aTbFkCcXN7D0O8Q==}
+    dev: false
+
+  /zundo@2.0.0-beta.24(zustand@4.4.1):
+    resolution: {integrity: sha512-8/pzu9locjAZLpK5iV0Uej3yccc9R8lP2Qe7AbEAXgv9NCTd9aIb43P0Fnj4T8UtGpFu4hX1cozf3CC7w+ZnuA==}
+    peerDependencies:
+      zustand: ^4.3.0
+    dependencies:
+      zustand: 4.4.1(@types/react@18.2.20)(react@18.2.0)
     dev: false
 
   /zustand@4.4.1(@types/react@18.2.20)(react@18.2.0):

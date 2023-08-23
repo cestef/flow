@@ -1,3 +1,4 @@
+import { useStore, useTemporalStore } from "@/lib/store";
 import ELK, {
 	ElkExtendedEdge,
 	ElkNode,
@@ -12,6 +13,7 @@ import {
 	MoveVertical,
 	Settings2,
 } from "lucide-react";
+import { useCallback, useEffect } from "react";
 import {
 	Node,
 	getRectOfNodes,
@@ -26,11 +28,9 @@ import {
 } from "../ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-import { useStore } from "@/lib/store";
 import { trpc } from "@/lib/utils";
 import { toPng } from "html-to-image";
 import { useTheme } from "next-themes";
-import { useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useStore as useStoreFlow } from "reactflow";
 import { ModeToggle } from "../mode-toggle";
@@ -151,6 +151,7 @@ export default function ActionsPanel() {
 		(state) => state.resetSelectedElements,
 	);
 	const updateManyNodes = trpc.nodes.updateMany.useMutation();
+	// const updateManyEdges = trpc.edges.updateMany.useMutation();
 	const { theme } = useTheme();
 	const { getLayoutedElements } = useLayoutedElements({
 		onLayouted: (nodes) => {
@@ -231,6 +232,7 @@ export default function ActionsPanel() {
 	});
 	const settingsOpen = useStore((state) => state.settingsOpen);
 	const setSettingsOpen = useStore((state) => state.setSettingsOpen);
+
 	useHotkeys(["ctrl+s", "meta+s"], (e) => {
 		e.preventDefault();
 		setSettingsOpen(!settingsOpen);
@@ -242,6 +244,30 @@ export default function ActionsPanel() {
 	useHotkeys(["ctrl+f", "meta+f"], (e) => {
 		e.preventDefault();
 		fitView();
+	});
+	const { undo, redo } = useTemporalStore((s) => s);
+	useHotkeys(["ctrl+z", "meta+z"], (e) => {
+		e.preventDefault();
+		undo();
+		const newNodes = useStore.getState().nodes;
+		// const newEdges = useStore.getState().edges;
+
+		updateManyNodes.mutate({
+			nodes: newNodes.map((node) => ({
+				id: node.id,
+				x: node.position.x,
+				y: node.position.y,
+				color: node.data.color || undefined,
+				width: +(node.style?.width || 0) || +(node.width || 0) || undefined,
+				height: +(node.style?.height || 0) || +(node.height || 0) || undefined,
+				name: node.data.label,
+				parentId: node.parentNode,
+			})),
+		});
+	});
+	useHotkeys(["ctrl+shift+z", "meta+shift+z"], (e) => {
+		e.preventDefault();
+		redo();
 	});
 	const { fitView, getNodes } = useReactFlow();
 	return (

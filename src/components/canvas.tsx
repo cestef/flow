@@ -19,9 +19,6 @@ import {
 	Node,
 	NodeChange,
 	NodePositionChange,
-	getConnectedEdges,
-	getIncomers,
-	getOutgoers,
 	useReactFlow,
 } from "reactflow";
 import ShapeNode, { SHAPES } from "./nodes/shape-node";
@@ -56,6 +53,7 @@ export const EDGE_TYPES = {
 };
 
 const UPDATE_THROTTLE = 100;
+const DEBOUNCE_THROTTLE = 500;
 
 export const flowSelector = (state: StoreState) => ({
 	nodes: state.nodes,
@@ -90,9 +88,6 @@ const Flow = ({
 		setNodes,
 		setEdges,
 		updateNode,
-		addEdge,
-		addNode,
-		findNode,
 		findAndUpdateNode,
 	} = useStore(flowSelector);
 
@@ -100,8 +95,6 @@ const Flow = ({
 
 	const remoteNodes = trpc.nodes.list.useQuery({ canvasId });
 	const remoteEdges = trpc.edges.list.useQuery({ canvasId });
-
-	// const store = useStoreApi();
 
 	const inGroup = useCallback(
 		(node: Node) => {
@@ -135,7 +128,14 @@ const Flow = ({
 					.map((node) => ({
 						id: node.id,
 						type: node.type,
-						data: { label: node.name, color: node.color },
+						data: {
+							label: node.name,
+							color: node.color,
+							debouncedPosition: {
+								x: node.x,
+								y: node.y,
+							},
+						},
 						position: { x: node.x, y: node.y },
 						...((node.width || node.height) && {
 							style: {
@@ -189,33 +189,6 @@ const Flow = ({
 
 	const deleteNode = trpc.nodes.delete.useMutation();
 
-	const onNodesDelete = useCallback(
-		(deleted: Node[]) => {
-			setEdges(
-				deleted.reduce((acc, node) => {
-					const incomers = getIncomers(node, nodes, edges);
-					const outgoers = getOutgoers(node, nodes, edges);
-					const connectedEdges = getConnectedEdges([node], edges);
-
-					const remainingEdges = acc.filter(
-						(edge) => !connectedEdges.includes(edge),
-					);
-
-					const createdEdges = incomers.flatMap(({ id: source }) =>
-						outgoers.map(({ id: target }) => ({
-							id: `${source}->${target}`,
-							source,
-							target,
-						})),
-					);
-
-					return [...remainingEdges, ...createdEdges];
-				}, edges),
-			);
-		},
-		[nodes, edges],
-	);
-
 	const dragUpdateNode = trpc.nodes.dragUpdate.useMutation();
 	const MupdateNode = trpc.nodes.update.useMutation();
 
@@ -227,14 +200,14 @@ const Flow = ({
 				y: change.position!.y,
 			});
 		}),
-		[],
+		[nodes],
 	);
 
-	const setHelperLineHorizontal = useStore(
-		(state) => state.setHelperLineHorizontal,
-	);
-	const setHelperLineVertical = useStore(
-		(state) => state.setHelperLineVertical,
+	const { setHelperLineHorizontal, setHelperLineVertical } = useStore(
+		(state) => ({
+			setHelperLineHorizontal: state.setHelperLineHorizontal,
+			setHelperLineVertical: state.setHelperLineVertical,
+		}),
 	);
 
 	const onNodesChangeProxy = (nodeChanges: NodeChange[]) => {
@@ -351,6 +324,17 @@ const Flow = ({
 				x: node.position.x,
 				y: node.position.y,
 			});
+
+			updateNode({
+				id: node.id,
+				data: {
+					...node.data,
+					debouncedPosition: {
+						x: node.position.x,
+						y: node.position.y,
+					},
+				},
+			});
 		},
 		[inGroup],
 	);
@@ -447,7 +431,6 @@ const Flow = ({
 						onNodeDrag={onNodeDrag}
 						onEdgesChange={onEdgesChangeProxy}
 						onConnect={onConnectProxy}
-						onNodesDelete={onNodesDelete}
 						snapToGrid={snapToGrid}
 						nodeTypes={nodeTypes}
 						edgeTypes={edgeTypes}

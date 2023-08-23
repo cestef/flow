@@ -8,14 +8,16 @@ import {
 	applyEdgeChanges,
 	applyNodeChanges,
 } from "reactflow";
-import { combine, devtools } from "zustand/middleware";
 
+import { temporal } from "zundo";
+import { create } from "zustand";
+import { combine } from "zustand/middleware";
 import { shallow } from "zustand/shallow";
 import { createWithEqualityFn } from "zustand/traditional";
 import { shallowMerge } from "./utils";
 
 export const useStore = createWithEqualityFn(
-	devtools(
+	temporal(
 		combine(
 			{
 				nodes: [] as Node[],
@@ -181,8 +183,62 @@ export const useStore = createWithEqualityFn(
 				setSnapLines: (snapLines: boolean) => set({ snapLines }),
 			}),
 		),
+		{
+			equality: (a, b) => {
+				const diffs = a.nodes.map((node, i) => {
+					const currentNode = b.nodes.find((n) => n.id === node.id);
+					if (!currentNode) return false;
+					const diff = {
+						name:
+							node.data?.label !== currentNode.data?.label
+								? currentNode.data?.label
+								: undefined,
+						color:
+							node.data?.color !== currentNode.data?.color
+								? currentNode.data?.color
+								: undefined,
+						x:
+							node.position.x !== currentNode.position.x
+								? currentNode.position.x
+								: undefined,
+						y:
+							node.position.y !== currentNode.position.y
+								? currentNode.position.y
+								: undefined,
+						width:
+							+(node.style?.width || 0) !== +(currentNode.style?.width || 0)
+								? +(currentNode.style?.width || 0)
+								: undefined,
+						height:
+							+(node.style?.height || 0) !== +(currentNode.style?.height || 0)
+								? +(currentNode.style?.height || 0)
+								: undefined,
+						parentId:
+							node.parentNode !== currentNode.parentNode
+								? currentNode.parentNode
+								: undefined,
+					};
+					return diff;
+				});
+				const hasChanges = diffs.map((diff) =>
+					Object.values(diff).some((v) => v !== undefined),
+				);
+				return !hasChanges.some((v) => v);
+			},
+			partialize(state) {
+				return {
+					nodes: state.nodes.map((node) => ({
+						...node,
+						position: node.data.debouncedPosition || node.position,
+					})),
+					edges: state.edges,
+				};
+			},
+		},
 	),
 	shallow,
 );
+
+export const useTemporalStore = create(useStore.temporal);
 
 export type StoreState = ReturnType<typeof useStore.getState>;

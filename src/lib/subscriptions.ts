@@ -28,7 +28,14 @@ export const subscribe = () => {
 				addNode({
 					id: node.id,
 					type: node.type,
-					data: { label: node.name, color: node.color },
+					data: {
+						label: node.name,
+						color: node.color,
+						debouncedPosition: {
+							x: node.x,
+							y: node.y,
+						},
+					},
 					position: { x: node.x, y: node.y },
 					...((node.width || node.height) && {
 						style: {

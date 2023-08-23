@@ -1,5 +1,4 @@
 import http from "http";
-import { parse } from "url";
 import { applyWSSHandler } from "@trpc/server/adapters/ws";
 import ws from "ws";
 import { createContext } from "./context";
