@@ -210,67 +210,61 @@ const Flow = ({
 				);
 			}
 		},
-		[setNodes],
+		[nodes],
 	);
 
 	const onNodeDragStop = useCallback<
 		(event: React.MouseEvent, node: Node) => void
-	>((_, node) => {
-		setNodes(
-			nodes.map((n) => {
-				if (
-					n.type === "customGroup" &&
-					n.className?.includes("border-primary")
-				) {
-					n.className = "transition-colors duration-200 ease-in-out rounded-md";
-					return n;
-				}
-				return n;
-			}),
-		);
-		const group = isNodeInGroupBounds(node, nodes);
-		if (group) {
-			const relativePosition = {
-				x: node.position.x - group.position.x,
-				y: node.position.y - group.position.y,
-			};
-			MupdateNode.mutate({
-				id: node.id,
-				parentId: group.id,
-				x: relativePosition.x,
-				y: relativePosition.y,
-			});
-			setNodes(
-				nodes.map((n) => {
-					if (n.id === node.id) {
-						return {
-							...n,
-							parentNode: group.id,
-							extent: "parent",
-							position: relativePosition,
-						};
-					}
-					return n;
+	>(
+		(_, node) => {
+			findAndUpdateNode(
+				(n) =>
+					!!(
+						n.type === "customGroup" && n.className?.includes("border-primary")
+					),
+				(n) => ({
+					...n,
+					className: "transition-colors duration-200 ease-in-out rounded-md",
 				}),
 			);
-		}
-		dragEndNode.mutate({
-			id: node.id,
-			x: node.position.x,
-			y: node.position.y,
-		});
+			const group = isNodeInGroupBounds(node, nodes);
+			if (group) {
+				const relativePosition = {
+					x: node.position.x - group.position.x,
+					y: node.position.y - group.position.y,
+				};
+				MupdateNode.mutate({
+					id: node.id,
+					parentId: group.id,
+					x: relativePosition.x,
+					y: relativePosition.y,
+				});
+				updateNode({
+					id: node.id,
+					parentNode: group.id,
+					extent: "parent",
+					position: relativePosition,
+				});
+			}
+			dragEndNode.mutate({
+				id: node.id,
+				x: node.position.x,
+				y: node.position.y,
+			});
 
-		updateNode({
-			id: node.id,
-			data: {
-				...node.data,
-				debouncedPosition: {
-					x: node.position.x,
-					y: node.position.y,
+			updateNode({
+				id: node.id,
+				data: {
+					...node.data,
+					debouncedPosition: {
+						x: node.position.x,
+						y: node.position.y,
+					},
 				},
-			},
-		});
-	}, []);
+			});
+		},
+		[nodes],
+	);
 
 	const addEdgeM = trpc.edges.add.useMutation();
 	const removeEdge = trpc.edges.delete.useMutation();
