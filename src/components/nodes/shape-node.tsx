@@ -1,7 +1,9 @@
 import { DEFAULT_COLORS, SHAPES } from "@/lib/constants";
+import { cn, trpc } from "@/lib/utils";
 import { Copy, Pipette, TextCursor, Trash, Unlink } from "lucide-react";
 import { memo, useState } from "react";
 import { Handle, NodeResizer, Position, useStore } from "reactflow";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -9,7 +11,6 @@ import {
 	ContextMenuTrigger,
 } from "../ui/context-menu";
 
-import { trpc } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { GradientPicker } from "../ui/picker";
 
@@ -19,26 +20,17 @@ function ShapeNode({
 	id,
 	type,
 }: {
-	data: { label: string; color: string };
+	data: { label: string; color: string; draggedBy: string };
 	selected: boolean;
 	id: string;
 	xPos: number;
 	yPos: number;
 	type: string;
 }) {
-	const { width, height } = useStore((s) => {
-		const node = s.nodeInternals.get(id);
-		if (!node) {
-			return {
-				width: 0,
-				height: 0,
-			};
-		}
-		return {
-			width: node.width,
-			height: node.height,
-		};
-	});
+	const user = trpc.users.get.useQuery(
+		{ id: data.draggedBy },
+		{ enabled: !!data.draggedBy },
+	);
 	const parent = useStore((s) => {
 		const node = s.nodeInternals.get(id);
 
@@ -47,11 +39,13 @@ function ShapeNode({
 		}
 		return s.nodeInternals.get(node.parentNode || "");
 	});
+
 	const setNodes = useStore((s) => s.setNodes);
 	const getNodes = useStore((s) => s.getNodes);
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const updateNode = trpc.nodes.update.useMutation();
 	const duplicateNode = trpc.nodes.duplicate.useMutation();
+
 	const getHandles = () => {
 		switch (type) {
 			case SHAPES.CIRCLE:
@@ -134,10 +128,21 @@ function ShapeNode({
 							});
 						}}
 					/>
+					{user.data && (
+						<Avatar className="absolute -top-4 -right-4 w-8 h-8 border-2 border-primary">
+							<AvatarImage src={user.data?.image ?? undefined} />
+							<AvatarFallback>
+								{user.data?.name?.slice(0, 2).toUpperCase()}
+							</AvatarFallback>
+						</Avatar>
+					)}
 					<div
-						className={`${getClassNames(
-							data.color || DEFAULT_COLORS[type],
-						)} px-4 py-2 shadow-md`}
+						className={cn(
+							getClassNames(data.color || DEFAULT_COLORS[type]),
+							"px-4 py-2 shadow-md",
+							selected ? "border-primary" : "border-stone-400",
+							user.data && "border-primary",
+						)}
 						style={{
 							background: data.color || DEFAULT_COLORS[type],
 						}}

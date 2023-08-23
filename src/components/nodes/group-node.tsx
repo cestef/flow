@@ -1,5 +1,7 @@
+import { cn, trpc } from "@/lib/utils";
 import { TextCursor, Trash, Workflow } from "lucide-react";
 import { memo, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -10,11 +12,10 @@ import {
 	ContextMenuTrigger,
 } from "../ui/context-menu";
 
+import { NODES_TYPES } from "@/lib/constants";
 import { useStore } from "@/lib/store";
-import { trpc } from "@/lib/utils";
 import { NodeResizer } from "reactflow";
 import { Input } from "../ui/input";
-import { NODES_TYPES } from "./default-node";
 
 const GroupNode = ({
 	data,
@@ -23,10 +24,15 @@ const GroupNode = ({
 }: {
 	data: {
 		label: string;
+		draggedBy: string;
 	};
 	selected: boolean;
 	id: string;
 }) => {
+	const user = trpc.users.get.useQuery(
+		{ id: data.draggedBy },
+		{ enabled: !!data.draggedBy },
+	);
 	const updateNode = trpc.nodes.update.useMutation();
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const createNode = trpc.nodes.add.useMutation();
@@ -42,6 +48,14 @@ const GroupNode = ({
 		<ContextMenu>
 			<ContextMenuTrigger>
 				<>
+					{user.data && (
+						<Avatar className="absolute -top-4 -right-4 w-8 h-8 border-2 border-primary">
+							<AvatarImage src={user.data?.image ?? undefined} />
+							<AvatarFallback>
+								{user.data?.name?.slice(0, 2).toUpperCase()}
+							</AvatarFallback>
+						</Avatar>
+					)}
 					<NodeResizer
 						handleClassName="h-3 w-3 rounded-md bg-primary"
 						color="#fff"
@@ -62,7 +76,10 @@ const GroupNode = ({
 					/>
 					{/* <Handle type="target" position={Position.Top} /> */}
 					<div
-						className="p-4 h-full w-full dark:bg-[rgba(255,255,255,0.1)] rounded-md bg-[rgba(0,0,0,0.1)]"
+						className={cn(
+							"p-4 h-full w-full dark:bg-[rgba(255,255,255,0.1)] rounded-md bg-[rgba(0,0,0,0.1)]",
+							user.data && "border-primary border-2",
+						)}
 						onContextMenu={(e) => {
 							// e.preventDefault();
 							const { top, left, bottom, right } = (

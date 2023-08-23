@@ -97,6 +97,11 @@ export const subscribe = () => {
 						x: node.x,
 						y: node.y,
 					},
+					data: {
+						label: node.name,
+						color: node.color,
+						draggedBy: userId,
+					},
 				});
 			},
 		},
@@ -106,7 +111,16 @@ export const subscribe = () => {
 			canvasId,
 		},
 		{
-			async onData(node) {},
+			async onData({ node, userId }) {
+				updateNode({
+					id: node.id,
+					data: {
+						label: node.name,
+						color: node.color,
+						draggedBy: undefined,
+					},
+				});
+			},
 		},
 	);
 

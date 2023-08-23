@@ -394,6 +394,7 @@ export const formatRemoteData = (data: any, order = false): Node[] => {
 				x: node.x,
 				y: node.y,
 			},
+			draggedBy: undefined,
 		},
 		position: { x: node.x, y: node.y },
 		...((node.width || node.height) && {

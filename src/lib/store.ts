@@ -219,7 +219,7 @@ export const useStore = createWithEqualityFn(
 			},
 			partialize(state) {
 				return {
-					nodes: state.nodes.map((node) => ({
+					nodes: (state.nodes || []).map((node) => ({
 						...node,
 						position: node.data.debouncedPosition || node.position,
 					})),

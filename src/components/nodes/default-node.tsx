@@ -1,6 +1,8 @@
+import { cn, trpc } from "@/lib/utils";
 import { Copy, TextCursor, Trash, Unlink } from "lucide-react";
 import { memo, useState } from "react";
 import { Handle, Position, useStore } from "reactflow";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -9,24 +11,25 @@ import {
 } from "../ui/context-menu";
 
 import { NODES_TYPES } from "@/lib/constants";
-import { trpc } from "@/lib/utils";
 import { Input } from "../ui/input";
 
 function DefaultNode({
 	data,
 	selected,
 	id,
-	xPos,
-	yPos,
 	type,
 }: {
-	data: { label: string };
+	data: { label: string; draggedBy: string };
 	selected: boolean;
 	id: string;
 	xPos: number;
 	yPos: number;
 	type: string;
 }) {
+	const user = trpc.users.get.useQuery(
+		{ id: data.draggedBy },
+		{ enabled: !!data.draggedBy },
+	);
 	const parent = useStore((s) => {
 		const node = s.nodeInternals.get(id);
 
@@ -83,10 +86,20 @@ function DefaultNode({
 		<ContextMenu>
 			<ContextMenuTrigger>
 				<div
-					className={`px-4 py-2 shadow-md rounded-md bg-accent border-2 ${
-						selected ? "border-primary" : "border-stone-400"
-					}`}
+					className={cn(
+						"px-4 py-2 shadow-md rounded-md bg-accent border-2",
+						selected ? "border-primary" : "border-stone-400",
+						user.data && "border-primary",
+					)}
 				>
+					{user.data && (
+						<Avatar className="absolute -top-4 -right-4 w-8 h-8 border-2 border-primary">
+							<AvatarImage src={user.data?.image ?? undefined} />
+							<AvatarFallback>
+								{user.data?.name?.slice(0, 2).toUpperCase()}
+							</AvatarFallback>
+						</Avatar>
+					)}
 					{editing[id]?.status ? (
 						<Input
 							value={editing[id].value}
