@@ -1,4 +1,4 @@
-import { ArrowDownRight, Crown, Plus } from "lucide-react";
+import { ArrowDownRight, Copy, Crown, Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
@@ -8,14 +8,23 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "../ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 import { useStore } from "@/lib/store";
 import useConfirm from "@/lib/useConfirm";
 import { trpc } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import getConfig from "next/config";
 import { useDebounce } from "use-debounce";
 import { Button } from "../ui/button";
+import { DatePicker } from "../ui/date-picker";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Slider } from "../ui/slider";
+
+const { publicRuntimeConfig } = getConfig();
+
+const { APP_URL, WS_URL } = publicRuntimeConfig;
 
 export default function MembersPanel() {
 	const { data: session } = useSession();
@@ -55,9 +64,63 @@ export default function MembersPanel() {
 	const { confirm, modal } = useConfirm();
 	const togglePanel = useStore((state) => state.toggleMembersPanel);
 	const panelHidden = useStore((state) => state.membersPanelHidden);
+	const {
+		setCreateInvitePanelMaxUses,
+		setCreateInvitePanelExpires,
+		createInvitePanel,
+		setCreateInvitePanelShowResult,
+	} = useStore((state) => ({
+		setCreateInvitePanelMaxUses: state.setCreateInvitePanelMaxUses,
+		setCreateInvitePanelExpires: state.setCreateInvitePanelExpires,
+		createInvitePanel: state.createInvitePanel,
+		setCreateInvitePanelShowResult: state.setCreateInvitePanelShowResult,
+	}));
+
+	const createInvite = trpc.invites.create.useMutation({
+		onSuccess(data) {
+			toggleAddNewMember(false);
+			setCreateInvitePanelShowResult(data.code);
+		},
+	});
 	return (
 		<>
 			{modal}
+
+			<Dialog
+				open={!!createInvitePanel.showResult}
+				onOpenChange={(e) =>
+					setCreateInvitePanelShowResult(
+						e ? createInvitePanel.showResult : undefined,
+					)
+				}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Invite created</DialogTitle>
+					</DialogHeader>
+					<div className="flex flex-col space-y-2">
+						<p className="text-sm font-semibold mb-2 mt-2">
+							Share this link with your friends:
+						</p>
+						<code className="dark:bg-gray-800 bg-gray-100 px-4 py-2 rounded-md w-fit self-center flex items-center">
+							{APP_URL}/invite/
+							{createInvitePanel.showResult}
+							<Button
+								size="icon"
+								variant="ghost"
+								className="ml-2"
+								onClick={() =>
+									navigator.clipboard.writeText(
+										`${APP_URL}/invite/${createInvitePanel.showResult}`,
+									)
+								}
+							>
+								<Copy className="w-4 h-4" />
+							</Button>
+						</code>
+					</div>
+				</DialogContent>
+			</Dialog>
 			<Card
 				className={`w-64 text-right ${
 					panelHidden
@@ -103,63 +166,108 @@ export default function MembersPanel() {
 								<DialogHeader>
 									<DialogTitle>Add new member</DialogTitle>
 								</DialogHeader>
-								<div className="flex flex-col space-y-2">
-									<div className="flex w-full items-center space-x-2">
-										<Input
-											type="email"
-											placeholder="Email or name"
-											value={addNewMemberState.email}
-											onChange={(e) => setAddNewMemberEmail(e.target.value)}
-										/>
-									</div>
-									{(findUser?.data?.length || 0) > 0 ? (
-										<div className="flex flex-col space-y-2">
-											<p className="text-sm font-semibold mb-2 mt-2">
-												Found users:
-											</p>
-											{findUser.data?.map((user) => (
-												<Card>
-													<CardHeader>
-														<div className="flex items-center space-x-4">
-															<Avatar>
-																<AvatarImage src={user.image ?? undefined} />
-																<AvatarFallback>
-																	{user?.name?.slice(0, 2).toUpperCase()}
-																</AvatarFallback>
-															</Avatar>
-															<p className="text-lg">{user.name}</p>
-															<div className="flex-grow" />
-															<Button
-																onClick={() => {
-																	addMember.mutate({
-																		canvasId: currentCanvasId,
-																		id: user.id,
-																	});
-																}}
-															>
-																Add
-															</Button>
-														</div>
-													</CardHeader>
-												</Card>
-											))}
+								<Tabs defaultValue="search">
+									<TabsList>
+										<TabsTrigger value="search">
+											Search for a member
+										</TabsTrigger>
+										<TabsTrigger value="invite">Create an invite</TabsTrigger>
+									</TabsList>
+									<TabsContent value="invite">
+										<div className="flex flex-col gap-4 mt-4">
+											<Label htmlFor="uses">
+												Max Uses: {createInvitePanel.maxUses}
+											</Label>
+											<Slider
+												id="uses"
+												min={1}
+												max={30}
+												value={[createInvitePanel.maxUses]}
+												onValueChange={(e) => setCreateInvitePanelMaxUses(e[0])}
+												className="w-full mb-2"
+											/>
+											<Label htmlFor="expires">Expires</Label>
+											<DatePicker
+												id="expires"
+												date={createInvitePanel.expires}
+												setDate={setCreateInvitePanelExpires}
+												buttonClassName="w-full"
+											/>
+											<Button
+												className="mt-4"
+												onClick={() => {
+													createInvite.mutate({
+														canvasId: currentCanvasId,
+														maxUses: createInvitePanel.maxUses,
+														expires: createInvitePanel.expires,
+													});
+												}}
+											>
+												Create
+											</Button>
 										</div>
-									) : (
+									</TabsContent>
+									<TabsContent value="search">
 										<div className="flex flex-col space-y-2">
-											<p className="text-sm font-semibold mb-2 mt-2">
-												No users found.
-											</p>
+											<div className="flex w-full items-center space-x-2">
+												<Input
+													type="email"
+													placeholder="Email or name"
+													value={addNewMemberState.email}
+													onChange={(e) => setAddNewMemberEmail(e.target.value)}
+												/>
+											</div>
+											{(findUser?.data?.length || 0) > 0 ? (
+												<div className="flex flex-col space-y-2">
+													<p className="text-sm font-semibold mb-2 mt-2">
+														Found users:
+													</p>
+													{findUser.data?.map((user) => (
+														<Card>
+															<CardHeader>
+																<div className="flex items-center space-x-4">
+																	<Avatar>
+																		<AvatarImage
+																			src={user.image ?? undefined}
+																		/>
+																		<AvatarFallback>
+																			{user?.name?.slice(0, 2).toUpperCase()}
+																		</AvatarFallback>
+																	</Avatar>
+																	<p className="text-lg">{user.name}</p>
+																	<div className="flex-grow" />
+																	<Button
+																		onClick={() => {
+																			addMember.mutate({
+																				canvasId: currentCanvasId,
+																				id: user.id,
+																			});
+																		}}
+																	>
+																		Add
+																	</Button>
+																</div>
+															</CardHeader>
+														</Card>
+													))}
+												</div>
+											) : (
+												<div className="flex flex-col space-y-2">
+													<p className="text-sm font-semibold mb-2 mt-2">
+														No users found.
+													</p>
+												</div>
+											)}
+											{addMember.error?.message && (
+												<p className="text-red-500 text-sm">
+													An error occurred: {addMember.error.message}
+												</p>
+											)}
 										</div>
-									)}
-									{addMember.error?.message && (
-										<p className="text-red-500 text-sm">
-											An error occurred: {addMember.error.message}
-										</p>
-									)}
-								</div>
+									</TabsContent>
+								</Tabs>
 							</DialogContent>
 						</Dialog>
-
 						{(currentCanvas.data?.members.some((e) => e.id === session?.user.id)
 							? [
 									currentCanvas.data?.owner,

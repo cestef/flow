@@ -53,6 +53,12 @@ export const useStore = createWithEqualityFn(
 				settingsOpen: false,
 				helperLineVertical: undefined as number | undefined,
 				helperLineHorizontal: undefined as number | undefined,
+				createInvitePanel: {
+					opened: false,
+					maxUses: 1,
+					expires: undefined as Date | undefined,
+					showResult: undefined as string | undefined,
+				},
 			},
 			(set) => ({
 				onNodesChange: (changes: NodeChange[]) => {
@@ -181,6 +187,25 @@ export const useStore = createWithEqualityFn(
 				setHelperLineHorizontal: (helperLineHorizontal: number | undefined) =>
 					set({ helperLineHorizontal }),
 				setSnapLines: (snapLines: boolean) => set({ snapLines }),
+				toggleCreateInvitePanel: (opened?: boolean) =>
+					set((state) => ({
+						createInvitePanel: {
+							...state.createInvitePanel,
+							opened: opened ?? !state.createInvitePanel.opened,
+						},
+					})),
+				setCreateInvitePanelMaxUses: (maxUses: number) =>
+					set((state) => ({
+						createInvitePanel: { ...state.createInvitePanel, maxUses },
+					})),
+				setCreateInvitePanelExpires: (expires: Date | undefined) =>
+					set((state) => ({
+						createInvitePanel: { ...state.createInvitePanel, expires },
+					})),
+				setCreateInvitePanelShowResult: (showResult: string | undefined) =>
+					set((state) => ({
+						createInvitePanel: { ...state.createInvitePanel, showResult },
+					})),
 			}),
 		),
 		{

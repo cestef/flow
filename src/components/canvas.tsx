@@ -27,6 +27,7 @@ import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 import GroupNode from "@/components/nodes/group-node";
 import { subscribe } from "@/lib/subscriptions";
 import useConfirm from "@/lib/useConfirm";
+import { useSearchParams } from "next/navigation";
 import { throttle } from "throttle-debounce";
 import DefaultEdge from "./edges/default-edge";
 import HelperLines from "./helper-lines";
@@ -90,6 +91,15 @@ const Flow = ({
 		updateNode,
 		findAndUpdateNode,
 	} = useStore(flowSelector);
+
+	const search = useSearchParams();
+	const setCurrentCanvasId = useStore((state) => state.setCurrentCanvasId);
+	useEffect(() => {
+		const canvasId = search.get("canvasId");
+		if (canvasId) {
+			setCurrentCanvasId(canvasId);
+		}
+	}, [search]);
 
 	const canvasId = useStore((state) => state.currentCanvasId);
 

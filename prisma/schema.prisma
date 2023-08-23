@@ -52,6 +52,7 @@ model User {
     sessions      Session[]
     canvases      Canvas[]
     invitedTo     Canvas[]  @relation("InvitedTo")
+    invites       Invite[]
 
     @@map("users")
 }
@@ -75,6 +76,7 @@ model Canvas {
     updatedAt DateTime @updatedAt
     nodes     Node[]
     edges     Edge[]
+    invites   Invite[]
 }
 
 model Node {
@@ -108,4 +110,18 @@ model Edge {
     to        Node     @relation("ToEdges", fields: [toId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+model Invite {
+    id        String    @id @default(cuid())
+    code      String    @unique
+    canvasId  String
+    canvas    Canvas    @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+    maxUses   Int       @default(1)
+    uses      Int       @default(0)
+    user      User?     @relation(fields: [userId], references: [id])
+    userId    String?
+    expires   DateTime?
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
 }

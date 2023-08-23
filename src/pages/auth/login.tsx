@@ -13,9 +13,10 @@ import type {
 import { getProviders, signIn } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
-import { Github } from "lucide-react";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { Github } from "lucide-react";
 import { getServerSession } from "next-auth/next";
+import { useSearchParams } from "next/navigation";
 
 const icons = {
 	github: <Github className="mr-2 h-6 w-6" />,
@@ -24,6 +25,10 @@ const icons = {
 export default function Login({
 	providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+	const search = useSearchParams();
+	const callbackUrl = search.get("callbackUrl") ?? "/";
+	const error = search.get("error") ?? undefined;
+
 	return (
 		<div className="flex flex-col items-center justify-center w-screen h-screen shadow-sm">
 			<Card className="w-[450px] p-2">
@@ -36,7 +41,7 @@ export default function Login({
 				<CardContent className="flex flex-col gap-4 justify-center items-center">
 					{Object.values(providers || {}).map((provider) => (
 						<Button
-							onClick={() => signIn(provider.id)}
+							onClick={() => signIn(provider.id, { callbackUrl })}
 							size="lg"
 							variant="default"
 							className="w-full"

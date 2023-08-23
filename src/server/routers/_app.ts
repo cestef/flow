@@ -2,6 +2,7 @@ import { publicProcedure, router } from "../trpc";
 
 import { canvasRouter } from "./canvas";
 import { edgesRouter } from "./edges";
+import { invitesRouter } from "./invites";
 import { membersRouter } from "./members";
 import { nodesRouter } from "./nodes";
 import { usersRouter } from "./users";
@@ -12,7 +13,8 @@ export const appRouter = router({
 	nodes: nodesRouter,
 	edges: edgesRouter,
 	members: membersRouter,
-  users: usersRouter,
+	users: usersRouter,
+	invites: invitesRouter,
 });
 
 // export type definition of API
