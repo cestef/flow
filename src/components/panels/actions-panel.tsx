@@ -268,7 +268,23 @@ export default function ActionsPanel() {
 	});
 	useHotkeys(["ctrl+shift+z", "meta+shift+z"], (e) => {
 		e.preventDefault();
+		const oldNodes = useStore.getState().nodes;
 		redo();
+		const newNodes = useStore.getState().nodes;
+		// const newEdges = useStore.getState().edges;
+		if (nodesEqual(oldNodes, newNodes)) return;
+		updateManyNodes.mutate({
+			nodes: newNodes.map((node) => ({
+				id: node.id,
+				x: node.position.x,
+				y: node.position.y,
+				color: node.data.color || undefined,
+				width: +(node.style?.width || 0) || +(node.width || 0) || undefined,
+				height: +(node.style?.height || 0) || +(node.height || 0) || undefined,
+				name: node.data.label,
+				parentId: node.parentNode,
+			})),
+		});
 	});
 	const { fitView, getNodes } = useReactFlow();
 	return (
