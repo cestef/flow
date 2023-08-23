@@ -58,6 +58,7 @@ export const useStore = createWithEqualityFn(
 					maxUses: 1,
 					expires: undefined as Date | undefined,
 					showResult: undefined as string | undefined,
+					copied: false,
 				},
 			},
 			(set) => ({
@@ -205,6 +206,10 @@ export const useStore = createWithEqualityFn(
 				setCreateInvitePanelShowResult: (showResult: string | undefined) =>
 					set((state) => ({
 						createInvitePanel: { ...state.createInvitePanel, showResult },
+					})),
+				setCreateInvitePanelCopied: (copied: boolean) =>
+					set((state) => ({
+						createInvitePanel: { ...state.createInvitePanel, copied },
 					})),
 			}),
 		),

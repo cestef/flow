@@ -21,6 +21,7 @@ import { DatePicker } from "../ui/date-picker";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Slider } from "../ui/slider";
+import { useToast } from "../ui/use-toast";
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -65,55 +66,78 @@ export default function MembersPanel() {
 	const togglePanel = useStore((state) => state.toggleMembersPanel);
 	const panelHidden = useStore((state) => state.membersPanelHidden);
 	const {
-		setCreateInvitePanelMaxUses,
-		setCreateInvitePanelExpires,
-		createInvitePanel,
-		setCreateInvitePanelShowResult,
+		setMaxUses,
+		setExpires,
+		createInviteStatus,
+		setShowResult,
+		setCopied,
 	} = useStore((state) => ({
-		setCreateInvitePanelMaxUses: state.setCreateInvitePanelMaxUses,
-		setCreateInvitePanelExpires: state.setCreateInvitePanelExpires,
-		createInvitePanel: state.createInvitePanel,
-		setCreateInvitePanelShowResult: state.setCreateInvitePanelShowResult,
+		setMaxUses: state.setCreateInvitePanelMaxUses,
+		setExpires: state.setCreateInvitePanelExpires,
+		createInviteStatus: state.createInvitePanel,
+		setShowResult: state.setCreateInvitePanelShowResult,
+		setCopied: state.setCreateInvitePanelCopied,
 	}));
 
 	const createInvite = trpc.invites.create.useMutation({
 		onSuccess(data) {
 			toggleAddNewMember(false);
-			setCreateInvitePanelShowResult(data.code);
+			setShowResult(data.code);
 		},
 	});
+	const { toast } = useToast();
 	return (
 		<>
 			{modal}
 
 			<Dialog
-				open={!!createInvitePanel.showResult}
-				onOpenChange={(e) =>
-					setCreateInvitePanelShowResult(
-						e ? createInvitePanel.showResult : undefined,
-					)
-				}
+				open={!!createInviteStatus.showResult}
+				onOpenChange={async (e) => {
+					if (
+						e === false &&
+						createInviteStatus.showResult &&
+						!createInviteStatus.copied
+					) {
+						const res = await confirm(
+							"Are you sure you want to close this dialog? The invite link will be lost.",
+						);
+						if (res) {
+							setShowResult(undefined);
+						}
+					} else {
+						setShowResult(e ? createInviteStatus.showResult : undefined);
+					}
+				}}
 			>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Invite created</DialogTitle>
+						<DialogTitle>
+							<h1 className="text-2xl font-bold">Invite created</h1>
+						</DialogTitle>
 					</DialogHeader>
 					<div className="flex flex-col space-y-2">
 						<p className="text-sm font-semibold mb-2 mt-2">
 							Share this link with your friends:
 						</p>
-						<code className="dark:bg-gray-800 bg-gray-100 px-4 py-2 rounded-md w-fit self-center flex items-center">
+						<code className="dark:bg-gray-800 bg-gray-100 px-4 py-2 rounded-md w-fit self-center flex items-center text-base">
 							{APP_URL}/invite/
-							{createInvitePanel.showResult}
+							{createInviteStatus.showResult}
 							<Button
 								size="icon"
 								variant="ghost"
 								className="ml-2"
-								onClick={() =>
+								onClick={() => {
 									navigator.clipboard.writeText(
-										`${APP_URL}/invite/${createInvitePanel.showResult}`,
-									)
-								}
+										`${APP_URL}/invite/${createInviteStatus.showResult}`,
+									);
+									setCopied(true);
+									toast({
+										title: "Copied to clipboard",
+										description:
+											"The invite link has been copied to your clipboard.",
+										duration: 3000,
+									});
+								}}
 							>
 								<Copy className="w-4 h-4" />
 							</Button>
@@ -176,21 +200,21 @@ export default function MembersPanel() {
 									<TabsContent value="invite">
 										<div className="flex flex-col gap-4 mt-4">
 											<Label htmlFor="uses">
-												Max Uses: {createInvitePanel.maxUses}
+												Max Uses: {createInviteStatus.maxUses}
 											</Label>
 											<Slider
 												id="uses"
 												min={1}
 												max={30}
-												value={[createInvitePanel.maxUses]}
-												onValueChange={(e) => setCreateInvitePanelMaxUses(e[0])}
+												value={[createInviteStatus.maxUses]}
+												onValueChange={(e) => setMaxUses(e[0])}
 												className="w-full mb-2"
 											/>
 											<Label htmlFor="expires">Expires</Label>
 											<DatePicker
 												id="expires"
-												date={createInvitePanel.expires}
-												setDate={setCreateInvitePanelExpires}
+												date={createInviteStatus.expires}
+												setDate={setExpires}
 												buttonClassName="w-full"
 											/>
 											<Button
@@ -198,8 +222,8 @@ export default function MembersPanel() {
 												onClick={() => {
 													createInvite.mutate({
 														canvasId: currentCanvasId,
-														maxUses: createInvitePanel.maxUses,
-														expires: createInvitePanel.expires,
+														maxUses: createInviteStatus.maxUses,
+														expires: createInviteStatus.expires,
 													});
 												}}
 											>
@@ -209,9 +233,13 @@ export default function MembersPanel() {
 									</TabsContent>
 									<TabsContent value="search">
 										<div className="flex flex-col space-y-2">
+											<Label htmlFor="email" className="my-2">
+												Search
+											</Label>
 											<div className="flex w-full items-center space-x-2">
 												<Input
 													type="email"
+													id="email"
 													placeholder="Email or name"
 													value={addNewMemberState.email}
 													onChange={(e) => setAddNewMemberEmail(e.target.value)}

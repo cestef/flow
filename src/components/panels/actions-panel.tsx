@@ -182,8 +182,9 @@ export default function ActionsPanel() {
 
 	const paste = useCallback(() => {
 		console.log("paste", clipboard.nodes, clipboard.edges);
-		if (clipboard.nodes.length === 0 && clipboard.edges.length === 0) return;
-		const { nodes, edges } = clipboard;
+		if (clipboard.nodes.length === 0) return;
+		const { nodes } = clipboard;
+
 		duplicateManyNodes.mutate({
 			ids: nodes.map((node) => node.id),
 			offsetX: 2,

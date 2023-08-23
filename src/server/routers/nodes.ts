@@ -494,15 +494,21 @@ export const nodesRouter = router({
 	dragUpdate: protectedProcedure
 		.input(
 			z.object({
-				id: z.string(),
-				x: z.number(),
-				y: z.number(),
+				changes: z.array(
+					z.object({
+						id: z.string(),
+						x: z.number(),
+						y: z.number(),
+					}),
+				),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			const node = await prisma.node.findUnique({
+			const nodes = await prisma.node.findMany({
 				where: {
-					id: input.id,
+					id: {
+						in: input.changes.map((change) => change.id),
+					},
 				},
 				include: {
 					canvas: {
@@ -514,27 +520,45 @@ export const nodesRouter = router({
 				},
 			});
 
-			if (!node) {
-				throw new Error("Node not found");
+			if (!nodes) {
+				throw new Error("Nodes not found");
 			}
+
+			if (nodes.length === 0) {
+				return [];
+			}
+
+			const canvas = nodes[0].canvas;
 
 			if (
-				node.canvas.owner.id !== ctx.user.id &&
-				!node.canvas.members.some((member) => member.id === ctx.user.id)
+				canvas.owner.id !== ctx.user.id &&
+				!canvas.members.some((member) => member.id === ctx.user.id)
 			) {
-				throw new Error("User is not allowed to drag node");
+				throw new Error("User is not allowed to update nodes in this canvas");
 			}
 
-			emitter(node.canvas.id).emit("dragUpdate", {
-				node: {
-					...node,
-					x: input.x,
-					y: input.y,
-				},
-				userId: ctx.user.id,
+			const updateNodes = input.changes.map((change) =>
+				prisma.node.update({
+					where: {
+						id: change.id,
+					},
+					data: {
+						x: change.x,
+						y: change.y,
+					},
+				}),
+			);
+
+			const res = await prisma.$transaction(updateNodes);
+
+			res.forEach((node) => {
+				emitter(node.canvasId).emit("dragUpdate", {
+					node,
+					userId: ctx.user.id,
+				});
 			});
 
-			return node;
+			return res;
 		}),
 
 	onDragUpdate: protectedProcedure

@@ -304,4 +304,74 @@ export const edgesRouter = router({
 				};
 			});
 		}),
+	createMany: protectedProcedure
+		.input(
+			z.object({
+				canvasId: z.string(),
+				edges: z.array(
+					z.object({
+						from: z.string(),
+						to: z.string(),
+						type: z.string().default("default"),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			// Check if user is allowed to add edge
+			const canvas = await prisma.canvas.findUnique({
+				where: {
+					id: input.canvasId,
+				},
+				include: {
+					owner: true,
+					members: true,
+				},
+			});
+
+			if (!canvas) {
+				throw new Error("Canvas not found");
+			}
+
+			if (
+				canvas.owner.id !== ctx.user.id &&
+				!canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to add edge");
+			}
+
+			const edges = input.edges.map((edge) =>
+				prisma.edge.create({
+					data: {
+						from: {
+							connect: {
+								id: edge.from,
+							},
+						},
+						to: {
+							connect: {
+								id: edge.to,
+							},
+						},
+						canvas: {
+							connect: {
+								id: input.canvasId,
+							},
+						},
+						type: edge.type,
+					},
+				}),
+			);
+
+			const res = await prisma.$transaction(edges);
+
+			res.forEach((edge) => {
+				emitter(edge.canvasId).emit("add", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			return res;
+		}),
 });
