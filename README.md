@@ -20,7 +20,7 @@ Flow is a web application that allows you to create and share canvases consistin
 - [Node.js](https://nodejs.org/en/) (v18.0.0 or higher)
 - [pnpm](https://pnpm.io/) (v9.0.0 or higher)
 
-### Installation
+### Installing and Running
 
 1. Clone the repository
 ```bash
@@ -35,7 +35,7 @@ pnpm install
 
 3. Register a new OAuth app on [GitHub](https://github.com/settings/applications/new) and set the callback URL to `http://localhost:3000/api/auth/callback/`
 
-4. Create a `.env.local` file in the root directory and add the following
+4. Create a `.env` file based on the `.env.example` in the root directory and add the following
 ```bash
 DATABASE_URL="postgresql://postgres:@localhost:5432/flow-dev?schema=public"
 NEXTAUTH_SECRET="ultra-secure-secret"
@@ -52,6 +52,31 @@ pnpm dev
 ```
 
 You can now access the app at [localhost:3000](http://localhost:3000)
+
+## Production
+
+### Prerequisites
+- [Docker](https://www.docker.com/)
+
+### Installing and Running
+
+You can use the provided `docker-compose.yml` file to run the app in production mode. It will automatically start a PostgreSQL database, a Next.js server and a WebSocket server.
+
+An image is automatically built and pushed to the [GitHub Container Registry](https://ghcr.io/cestef/flow) on every version tag.
+
+Follow [Running Locally](#running-locally) steps **1**, **3** and **4** to set up the OAuth app and `.env` file.
+
+and run the following command to start the app
+
+```bash
+docker-compose up
+```
+
+You can also start the app in detached mode with
+
+```bash
+docker-compose up -d
+```
 
 ## Contributing
 
