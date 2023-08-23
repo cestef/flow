@@ -93,8 +93,8 @@ const useLayoutedElements = ({
 					.filter((node) => (node.parentNode || "rootGroup") === group.id)
 					.map((node) => ({
 						id: node.id,
-						width: node.width || 0,
-						height: node.height || 0,
+						width: node.width || +(node.style?.width || 0),
+						height: node.height || +(node.style?.height || 0),
 						layoutOptions: layoutOptions,
 					})),
 			})),

@@ -9,29 +9,25 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { StoreState, useStore } from "@/lib/store";
 import { getHelperLines, trpc } from "@/lib/utils";
 import { Group, Shapes, Trash, Workflow } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import {
 	Connection,
-	Edge,
 	EdgeChange,
 	Node,
 	NodeChange,
 	NodePositionChange,
-	addEdge,
 	getConnectedEdges,
 	getIncomers,
 	getOutgoers,
-	useEdgesState,
-	useNodesState,
 	useReactFlow,
 } from "reactflow";
 import ShapeNode, { SHAPES } from "./nodes/shape-node";
 import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
 import GroupNode from "@/components/nodes/group-node";
-import { useStore } from "@/lib/store";
 import { subscribe } from "@/lib/subscriptions";
 import useConfirm from "@/lib/useConfirm";
 import { throttle } from "throttle-debounce";
@@ -61,39 +57,50 @@ export const EDGE_TYPES = {
 
 const UPDATE_THROTTLE = 100;
 
+export const flowSelector = (state: StoreState) => ({
+	nodes: state.nodes,
+	edges: state.edges,
+	setNodes: state.setNodes,
+	setEdges: state.setEdges,
+	onNodesChange: state.onNodesChange,
+	onEdgesChange: state.onEdgesChange,
+	onConnect: state.onConnect,
+	updateNode: state.updateNode,
+	addNode: state.addNode,
+	findNode: state.findNode,
+	deleteNode: state.deleteNode,
+	addEdge: state.addEdge,
+	deleteEdge: state.deleteEdge,
+	findAndUpdateNode: state.findAndUpdateNode,
+	// updateEdge: state.updateEdge,
+});
+
 const Flow = ({
 	children,
 }: {
 	children?: React.ReactNode;
 }) => {
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
-	const [nodes, _setNodes, onNodesChange] = useNodesState([]);
-	const setNodes = useCallback<typeof _setNodes>(
-		(nodes) => {
-			if (typeof nodes === "function") {
-				_setNodes((n) => {
-					const newNodes = n.sort((a, b) => {
-						if (a.type === "customGroup" && b.type !== "customGroup") return -1;
-						if (a.type !== "customGroup" && b.type === "customGroup") return 1;
-						return 0;
-					});
-					return nodes(newNodes);
-				});
-			} else {
-				const newNodes = nodes.sort((a, b) => {
-					if (a.type === "customGroup" && b.type !== "customGroup") return -1;
-					if (a.type !== "customGroup" && b.type === "customGroup") return 1;
-					return 0;
-				});
-				_setNodes(newNodes);
-			}
-		},
-		[_setNodes],
-	);
-	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+	const {
+		nodes,
+		edges,
+		onNodesChange,
+		onEdgesChange,
+		onConnect,
+		setNodes,
+		setEdges,
+		updateNode,
+		addEdge,
+		addNode,
+		findNode,
+		findAndUpdateNode,
+	} = useStore(flowSelector);
+
 	const canvasId = useStore((state) => state.currentCanvasId);
+
 	const remoteNodes = trpc.nodes.list.useQuery({ canvasId });
 	const remoteEdges = trpc.edges.list.useQuery({ canvasId });
+
 	// const store = useStoreApi();
 
 	const inGroup = useCallback(
@@ -161,11 +168,10 @@ const Flow = ({
 		}
 	}, [remoteEdges.data]);
 
-	const onConnect = useCallback(
-		(params: Edge | Connection) => {
-			const newEdges = addEdge(params, edges);
-			setEdges(newEdges);
-			const newEdge = newEdges.find(
+	const onConnectProxy = useCallback(
+		(params: Connection) => {
+			onConnect(params);
+			const newEdge = edges.find(
 				(edge) =>
 					edge.source === params.source && edge.target === params.target,
 			);
@@ -211,7 +217,7 @@ const Flow = ({
 	);
 
 	const dragUpdateNode = trpc.nodes.dragUpdate.useMutation();
-	const updateNode = trpc.nodes.update.useMutation();
+	const MupdateNode = trpc.nodes.update.useMutation();
 
 	const updateNodePositionThrottled = useCallback(
 		throttle(UPDATE_THROTTLE, (change: NodePositionChange) => {
@@ -272,28 +278,24 @@ const Flow = ({
 		(_, node) => {
 			const group = inGroup(node);
 			if (group) {
-				setNodes((nodes) =>
-					nodes.map((n) => {
-						if (n.id === group.id && !n.className?.includes("border-primary")) {
-							n.className =
-								"transition-colors duration-200 ease-in-out dark:bg-[rgba(255,255,255,0.2)] bg-[rgba(0,0,0,0.2)] rounded-md border-primary";
-							return n;
-						}
-						return n;
+				findAndUpdateNode(
+					(n) => n.id === group.id,
+					(n) => ({
+						...n,
+						className:
+							"transition-colors duration-200 ease-in-out dark:bg-[rgba(255,255,255,0.2)] bg-[rgba(0,0,0,0.2)] rounded-md border-primary",
 					}),
 				);
 			} else {
-				setNodes((nodes) =>
-					nodes.map((n) => {
-						if (
+				findAndUpdateNode(
+					(n) =>
+						!!(
 							n.type === "customGroup" &&
 							n.className?.includes("border-primary")
-						) {
-							n.className =
-								"transition-colors duration-200 ease-in-out rounded-md";
-							return n;
-						}
-						return n;
+						),
+					(n) => ({
+						...n,
+						className: "transition-colors duration-200 ease-in-out rounded-md",
 					}),
 				);
 			}
@@ -305,7 +307,7 @@ const Flow = ({
 		(event: React.MouseEvent, node: Node) => void
 	>(
 		(_, node) => {
-			setNodes((nodes) =>
+			setNodes(
 				nodes.map((n) => {
 					if (
 						n.type === "customGroup" &&
@@ -324,13 +326,13 @@ const Flow = ({
 					x: node.position.x - group.position.x,
 					y: node.position.y - group.position.y,
 				};
-				updateNode.mutate({
+				MupdateNode.mutate({
 					id: node.id,
 					parentId: group.id,
 					x: relativePosition.x,
 					y: relativePosition.y,
 				});
-				setNodes((nodes) =>
+				setNodes(
 					nodes.map((n) => {
 						if (n.id === node.id) {
 							return {
@@ -355,14 +357,6 @@ const Flow = ({
 
 	const addEdgeM = trpc.edges.add.useMutation();
 	const removeEdge = trpc.edges.delete.useMutation();
-
-	const onConnectProxy = (edge: Edge | Connection) => {
-		if (edge.source === edge.target || !edge.source || !edge.target) {
-			return;
-		}
-
-		onConnect(edge);
-	};
 
 	const onEdgesChangeProxy = (edgeChanges: EdgeChange[]) => {
 		onEdgesChange(edgeChanges);
@@ -418,12 +412,7 @@ const Flow = ({
 	const helperLineHorizontal = useStore((state) => state.helperLineHorizontal);
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
 
-	subscribe({
-		setEdges,
-		setNodes,
-		nodes,
-		edges,
-	});
+	subscribe();
 
 	return (
 		<div

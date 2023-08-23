@@ -266,3 +266,34 @@ export function getHelperLines(
 			return result;
 		}, defaultResult);
 }
+
+export const shallowMerge = <T extends Record<string, unknown>>(
+	a: T,
+	b: Partial<T>,
+): T => {
+	return Object.entries(b).reduce((acc, [key, value]) => {
+		if (typeof value === "object" && value !== null) {
+			return {
+				...acc,
+				[key]: {
+					...(acc[key] ?? {}),
+					...value,
+				},
+			};
+		}
+
+		return {
+			...acc,
+			[key]: value,
+		};
+	}, a);
+};
+
+export const shallowEqual = <T extends Record<string, unknown>>(
+	a: T,
+	b: T,
+): boolean => {
+	return Object.entries(a).every(([key, value]) => {
+		return b[key as keyof T] === value;
+	});
+};
