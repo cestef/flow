@@ -420,13 +420,13 @@ export const formatRemoteData = (data: any, order = false): Node[] => {
 				children: children.map(traverse),
 			};
 		};
-		const tree = traverse(formatted.find((n) => !n.parentNode)!);
+		const trees = formatted.filter((n) => !n.parentNode).map(traverse);
 
 		const flatten = (tree: TreeNode): Node[] => {
 			return [tree.node, ...tree.children.flatMap(flatten)];
 		};
 
-		return flatten(tree);
+		return trees.flatMap(flatten);
 	}
 
 	return formatted;
