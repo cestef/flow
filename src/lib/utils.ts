@@ -1,4 +1,5 @@
 import type { AppRouter } from "@/server/routers/_app";
+import { Node as PrismaNode } from "@prisma/client";
 import { createTRPCProxyClient } from "@trpc/client";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { loggerLink } from "@trpc/client/links/loggerLink";
@@ -383,7 +384,7 @@ export const isNodeInGroupBounds = (node: Node, nodes: Node[]): Node | null => {
 	);
 };
 
-export const formatRemoteData = (data: any, order = false): Node[] => {
+export const formatRemoteData = (data: PrismaNode[], order = false): Node[] => {
 	const formatted = data.map((node: any) => ({
 		id: node.id,
 		type: node.type,
