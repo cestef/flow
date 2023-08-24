@@ -10,11 +10,11 @@ import {
 } from "reactflow";
 import { nodesEqual, shallowMerge } from "./utils";
 
-import { temporal } from "zundo";
-import { create } from "zustand";
 import { combine } from "zustand/middleware";
-import { shallow } from "zustand/shallow";
+import { create } from "zustand";
 import { createWithEqualityFn } from "zustand/traditional";
+import { shallow } from "zustand/shallow";
+import { temporal } from "zundo";
 
 export const useStore = createWithEqualityFn(
 	temporal(
@@ -134,9 +134,17 @@ export const useStore = createWithEqualityFn(
 					}));
 				},
 				onConnect: (connection: Connection) => {
-					set((state) => ({
-						edges: addEdge(connection, state.edges),
+					const newEdges = addEdge(connection, useStore.getState().edges);
+					set(() => ({
+						edges: newEdges,
 					}));
+					const createdEdge = newEdges.find(
+						(e) =>
+							e.source === connection.source && e.target === connection.target,
+					);
+					if (createdEdge) {
+						return createdEdge;
+					}
 				},
 				toggleCreateNewCanvas: (opened?: boolean) =>
 					set((state) => ({

@@ -1,3 +1,12 @@
+import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
+import {
+	Connection,
+	EdgeChange,
+	Node,
+	NodeChange,
+	NodePositionChange,
+	useReactFlow,
+} from "reactflow";
 import {
 	UPDATE_THROTTLE,
 	edgeTypes,
@@ -11,22 +20,13 @@ import {
 	trpc,
 } from "@/lib/utils";
 import { useCallback, useEffect, useRef } from "react";
-import {
-	Connection,
-	EdgeChange,
-	Node,
-	NodeChange,
-	NodePositionChange,
-	useReactFlow,
-} from "reactflow";
-import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
-import { useStore } from "@/lib/store";
-import { subscribe } from "@/lib/subscriptions";
-import { useSearchParams } from "next/navigation";
-import { throttle } from "throttle-debounce";
 import CanvasContext from "./canvas-context";
 import HelperLines from "./helper-lines";
+import { subscribe } from "@/lib/subscriptions";
+import { throttle } from "throttle-debounce";
+import { useSearchParams } from "next/navigation";
+import { useStore } from "@/lib/store";
 
 const Flow = ({
 	children,
@@ -81,11 +81,7 @@ const Flow = ({
 
 	const onConnectProxy = useCallback(
 		(params: Connection) => {
-			onConnect(params);
-			const newEdge = edges.find(
-				(edge) =>
-					edge.source === params.source && edge.target === params.target,
-			);
+			const newEdge = onConnect(params);
 			if (!newEdge) return console.log("No edge found");
 			addEdgeM.mutate({
 				canvasId,
@@ -95,7 +91,7 @@ const Flow = ({
 				type: newEdge.type || "default",
 			});
 		},
-		[edges],
+		[edges, canvasId],
 	);
 
 	const deleteNode = trpc.nodes.delete.useMutation();
