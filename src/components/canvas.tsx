@@ -354,21 +354,21 @@ const Flow = ({
 						hideAttribution: true,
 					}}
 					className="h-full"
-					onDoubleClickCapture={(e) => {
-						e.stopPropagation();
-						e.preventDefault();
-						const contextMenuPosition = project({
-							x: e.clientX,
-							y: e.clientY,
-						});
-						createNode.mutate({
-							canvasId,
-							name: "Default",
-							x: contextMenuPosition.x,
-							y: contextMenuPosition.y,
-							type: NODES_TYPES.DEFAULT,
-						});
-					}}
+					// onDoubleClickCapture={(e) => {
+					// 	e.stopPropagation();
+					// 	e.preventDefault();
+					// 	const contextMenuPosition = project({
+					// 		x: e.clientX,
+					// 		y: e.clientY,
+					// 	});
+					// 	createNode.mutate({
+					// 		canvasId,
+					// 		name: "Default",
+					// 		x: contextMenuPosition.x,
+					// 		y: contextMenuPosition.y,
+					// 		type: NODES_TYPES.DEFAULT,
+					// 	});
+					// }}
 				>
 					{/* <MiniMapStyled /> */}
 					{/* <ControlsStyled position="bottom-right" /> */}
