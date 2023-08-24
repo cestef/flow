@@ -25,10 +25,7 @@ const isAuthed = t.middleware(({ next, ctx }) => {
 
 	return next({
 		ctx: {
-			user: {
-				...user,
-				name: user.name,
-			},
+			user,
 		},
 	});
 });

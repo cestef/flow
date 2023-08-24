@@ -1,8 +1,8 @@
 import { protectedProcedure, router } from "../trpc";
 
 import EventEmitter from "events";
-import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { z } from "zod";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -61,6 +61,7 @@ export const usersRouter = router({
 					email: true,
 					name: true,
 					image: true,
+					login: true,
 				},
 			});
 

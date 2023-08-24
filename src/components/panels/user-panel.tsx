@@ -1,5 +1,3 @@
-import { Github, LogIn } from "lucide-react";
-import { signIn, signOut, useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import {
@@ -8,10 +6,12 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { Github, LogIn } from "lucide-react";
+import { signIn, signOut, useSession } from "next-auth/react";
 
+import { Button } from "../ui/button";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { Button } from "../ui/button";
 
 export default function () {
 	const { data: session } = useSession();
@@ -24,7 +24,9 @@ export default function () {
 						<Avatar className="cursor-pointer hover:opacity-80 transition-opacity duration-200">
 							<AvatarImage src={session.user.image} />
 							<AvatarFallback>
-								{session.user.name.slice(0, 2).toUpperCase()}
+								{(session.user.name || session.user.login)
+									.slice(0, 2)
+									.toUpperCase()}
 							</AvatarFallback>
 						</Avatar>
 					</DropdownMenuTrigger>

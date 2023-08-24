@@ -10,17 +10,17 @@ import {
 } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
-import { useStore } from "@/lib/store";
-import useConfirm from "@/lib/useConfirm";
-import { trpc } from "@/lib/utils";
-import { useSession } from "next-auth/react";
-import getConfig from "next/config";
-import { useDebounce } from "use-debounce";
 import { Button } from "../ui/button";
 import { DatePicker } from "../ui/date-picker";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Slider } from "../ui/slider";
+import getConfig from "next/config";
+import { trpc } from "@/lib/utils";
+import useConfirm from "@/lib/useConfirm";
+import { useDebounce } from "use-debounce";
+import { useSession } from "next-auth/react";
+import { useStore } from "@/lib/store";
 import { useToast } from "../ui/use-toast";
 
 const { publicRuntimeConfig } = getConfig();
@@ -262,7 +262,9 @@ export default function MembersPanel() {
 																			{user?.name?.slice(0, 2).toUpperCase()}
 																		</AvatarFallback>
 																	</Avatar>
-																	<p className="text-lg">{user.name}</p>
+																	<p className="text-lg">
+																		{user.name || user.login}
+																	</p>
 																	<div className="flex-grow" />
 																	<Button
 																		onClick={() => {
@@ -345,9 +347,11 @@ export default function MembersPanel() {
 									<Crown className="text-yellow-400 w-4 h-4 absolute -top-3 left-1/2 transform -translate-x-1/2" />
 								)}
 								<Avatar className="cursor-pointer hover:opacity-80 transition-opacity duration-200">
-									<AvatarImage src={session?.user.image} />
+									<AvatarImage src={session?.user?.image || undefined} />
 									<AvatarFallback>
-										{session?.user.name.slice(0, 2).toUpperCase()}
+										{(session?.user.name || session.user.login)
+											.slice(0, 2)
+											.toUpperCase()}
 									</AvatarFallback>
 								</Avatar>
 							</div>
