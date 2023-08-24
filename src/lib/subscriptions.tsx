@@ -1,8 +1,11 @@
 import { formatRemoteData, trpc } from "./utils";
 
-import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 import { flowSelector } from "./constants";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 import { useStore } from "./store";
+import { useToast } from "@/components/ui/use-toast";
 
 export const subscribe = () => {
 	const canvasId = useStore((state) => state.currentCanvasId);
@@ -19,6 +22,9 @@ export const subscribe = () => {
 		deleteNode,
 	} = useStore(flowSelector);
 	const { data: session } = useSession();
+	const { toast } = useToast();
+	const router = useRouter();
+
 	trpc.nodes.onAdd.useSubscription(
 		{
 			canvasId,
@@ -167,6 +173,25 @@ export const subscribe = () => {
 		},
 		onError(err) {
 			console.log(err);
+		},
+	});
+
+	trpc.members.onSelfAddMember.useSubscription(undefined, {
+		async onData(canvas) {
+			const res = toast({
+				title: "You have been added to a canvas",
+				description: `You have been added to the canvas "${canvas.name}"`,
+				action: (
+					<Button
+						onClick={() => {
+							router.push(`/?canvasId=${canvas.id}`);
+							res.dismiss();
+						}}
+					>
+						View
+					</Button>
+				),
+			});
 		},
 	});
 };

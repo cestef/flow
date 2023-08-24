@@ -1,9 +1,10 @@
 import { protectedProcedure, router } from "../trpc";
 
+import { Canvas } from "@prisma/client";
 import EventEmitter from "events";
 import { observable } from "@trpc/server/observable";
-import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { z } from "zod";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -47,7 +48,7 @@ export const membersRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			await prisma.canvas.update({
+			const res = await prisma.canvas.update({
 				where: {
 					id: input.canvasId,
 				},
@@ -59,7 +60,7 @@ export const membersRouter = router({
 					},
 				},
 			});
-
+			emitter(input.id).emit("addMember", res);
 			emitter(canvas.id).emit("addMember", input.id);
 		}),
 	delete: protectedProcedure
@@ -137,9 +138,9 @@ export const membersRouter = router({
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
-			return observable<Node>((observer) => {
-				const onAddMember = (node: Node) => {
-					observer.next(node);
+			return observable<string>((observer) => {
+				const onAddMember = (userId: string) => {
+					observer.next(userId);
 				};
 
 				emitter(input.canvasId).on("addMember", onAddMember);
@@ -148,6 +149,18 @@ export const membersRouter = router({
 				};
 			});
 		}),
+	onSelfAddMember: protectedProcedure.subscription(async ({ ctx }) => {
+		return observable<Canvas>((observer) => {
+			const onAddMember = (canvas: Canvas) => {
+				observer.next(canvas);
+			};
+
+			emitter(ctx.user.id).on("addMember", onAddMember);
+			return () => {
+				emitter(ctx.user.id).off("addMember", onAddMember);
+			};
+		});
+	}),
 	onRemoveMember: protectedProcedure
 		.input(
 			z.object({
