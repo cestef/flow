@@ -61,6 +61,8 @@ export const useStore = createWithEqualityFn(
 					copied: false,
 				},
 				shouldEmit: false,
+				brushesOpen: false,
+				selectedBrush: undefined as string | undefined,
 			},
 			(set) => ({
 				onNodesChange: (changes: NodeChange[]) => {
@@ -227,6 +229,9 @@ export const useStore = createWithEqualityFn(
 						createInvitePanel: { ...state.createInvitePanel, copied },
 					})),
 				setShouldEmit: (shouldEmit: boolean) => set({ shouldEmit }),
+				setBrushesOpen: (brushesOpen: boolean) => set({ brushesOpen }),
+				setSelectedBrush: (selectedBrush: string | undefined) =>
+					set({ selectedBrush }),
 			}),
 		),
 		{

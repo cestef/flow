@@ -188,7 +188,7 @@ function DefaultNode({
 								}}
 							/>
 						) : !editing[id]?.fontStatus ? (
-							<div className="flex items-center">
+							<>
 								{editing[id]?.nameStatus ? (
 									<form
 										onSubmit={(ev) => {
@@ -206,7 +206,7 @@ function DefaultNode({
 											});
 										}}
 									>
-										<Input
+										<textarea
 											value={editing[id].nameValue}
 											onChange={(ev) =>
 												setEditing((e) => ({
@@ -217,7 +217,6 @@ function DefaultNode({
 													},
 												}))
 											}
-											size={editing[id].nameValue.length + 1}
 											onBlur={() => {
 												setEditing((e) => ({
 													...e,
@@ -231,12 +230,20 @@ function DefaultNode({
 													name: editing[id].nameValue,
 												});
 											}}
+											className="w-full h-full resize-none bg-transparent text-center outline-none"
 										/>
 									</form>
 								) : (
-									<p>{data.label}</p>
+									<p
+										style={{
+											wordBreak: "break-word",
+										}}
+										className="text-center"
+									>
+										{data.label}
+									</p>
 								)}
-							</div>
+							</>
 						) : (
 							<div className="flex flex-col items-center gap-2 w-full">
 								<Label htmlFor="font-size">

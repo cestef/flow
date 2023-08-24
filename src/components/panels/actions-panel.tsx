@@ -1,20 +1,22 @@
-import { useStore, useTemporalStore } from "@/lib/store";
-import { nodesEqual, trpc } from "@/lib/utils";
-import ELK, {
-	ElkExtendedEdge,
-	ElkNode,
-	LayoutOptions,
-} from "elkjs/lib/elk.bundled.js";
 import {
+	BoxSelect,
+	Brush,
 	ClipboardCopy,
 	ClipboardPaste,
 	Download,
 	Maximize,
 	MoveHorizontal,
 	MoveVertical,
+	Pointer,
 	Settings2,
+	Trash2,
 } from "lucide-react";
-import { useCallback, useEffect } from "react";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import ELK, { ElkNode, LayoutOptions } from "elkjs/lib/elk.bundled.js";
 import {
 	Node,
 	getRectOfNodes,
@@ -22,20 +24,18 @@ import {
 	useOnSelectionChange,
 	useReactFlow,
 } from "reactflow";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { nodesEqual, trpc } from "@/lib/utils";
+import { useStore, useTemporalStore } from "@/lib/store";
 
-import { toPng } from "html-to-image";
-import { useTheme } from "next-themes";
-import { useHotkeys } from "react-hotkeys-hook";
-import { useStore as useStoreFlow } from "reactflow";
-import { ModeToggle } from "../mode-toggle";
 import { Button } from "../ui/button";
 import Keyboard from "../ui/keyboard";
+import { ModeToggle } from "../mode-toggle";
+import { toPng } from "html-to-image";
+import { useCallback } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { useStore as useStoreFlow } from "reactflow";
+import { useTheme } from "next-themes";
 
 function downloadImage(dataUrl: string) {
 	const a = document.createElement("a");
@@ -238,6 +238,10 @@ export default function ActionsPanel() {
 		e.preventDefault();
 		setSettingsOpen(!settingsOpen);
 	});
+	useHotkeys(["ctrl+b", "meta+b"], (e) => {
+		e.preventDefault();
+		setBrushesOpen(!brushesOpen);
+	});
 	useHotkeys(["ctrl+e", "meta+e"], (e) => {
 		e.preventDefault();
 		download();
@@ -288,129 +292,217 @@ export default function ActionsPanel() {
 		});
 	});
 	const { fitView, getNodes } = useReactFlow();
+	const [brushesOpen, setBrushesOpen] = useStore((state) => [
+		state.brushesOpen,
+		state.setBrushesOpen,
+	]);
+	const [selectedBrush, setSelectedBrush] = useStore((state) => [
+		state.selectedBrush,
+		state.setSelectedBrush,
+	]);
 	return (
-		<DropdownMenu open={settingsOpen} onOpenChange={setSettingsOpen}>
-			<DropdownMenuTrigger>
-				<Tooltip>
-					<TooltipTrigger>
-						<Button size="icon" onClick={() => setSettingsOpen(true)}>
-							<Settings2 className="w-4 h-4" />
-						</Button>
-					</TooltipTrigger>
-					<TooltipContent side="right" className="ml-2">
-						<>
-							Settings <Keyboard keys={["S"]} modifiers={["⌘"]} />
-						</>
-					</TooltipContent>
-				</Tooltip>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent side="right" className="ml-2">
-				<div className="flex flex-row space-x-2 p-2 items-center justify-center w-full">
-					<ModeToggle />
+		<div className="flex flex-col space-y-2">
+			<DropdownMenu open={settingsOpen} onOpenChange={setSettingsOpen}>
+				<DropdownMenuTrigger>
 					<Tooltip>
 						<TooltipTrigger>
-							<Button
-								size="icon"
-								onClick={copy}
-								disabled={
-									selected.nodes.length === 0 && selected.edges.length === 0
-								}
-							>
-								<ClipboardCopy />
+							<Button size="icon" onClick={() => setSettingsOpen(true)}>
+								<Settings2 className="w-4 h-4" />
 							</Button>
 						</TooltipTrigger>
-						<TooltipContent>
-							<p>
-								Copy selected <Keyboard keys={["C"]} modifiers={["⌘"]} />
-							</p>
-						</TooltipContent>
-					</Tooltip>
-					<Tooltip>
-						<TooltipTrigger>
-							<Button
-								size="icon"
-								onClick={paste}
-								disabled={
-									clipboard.nodes.length === 0 && clipboard.edges.length === 0
-								}
-							>
-								<ClipboardPaste />
-							</Button>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>
-								Paste selected <Keyboard keys={["V"]} modifiers={["⌘"]} />
-							</p>
-						</TooltipContent>
-					</Tooltip>
-					<Tooltip>
-						<TooltipTrigger>
-							<Button
-								size="icon"
-								onClick={() => {
-									setSettingsOpen(false);
-									getLayoutedElements({
-										"elk.direction": "DOWN",
-									});
-								}}
-							>
-								<MoveVertical />
-							</Button>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>Auto layout vertical</p>
-						</TooltipContent>
-					</Tooltip>
-					<Tooltip>
-						<TooltipTrigger>
-							<Button
-								size="icon"
-								onClick={() => {
-									setSettingsOpen(false);
-									getLayoutedElements({
-										"elk.direction": "RIGHT",
-									});
-								}}
-							>
-								<MoveHorizontal />
-							</Button>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>Auto layout vertical</p>
-						</TooltipContent>
-					</Tooltip>
-					<Tooltip>
-						<TooltipTrigger>
-							<Button
-								size="icon"
-								onClick={() => {
-									fitView();
-									setSettingsOpen(false);
-								}}
-							>
-								<Maximize />
-							</Button>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>
-								Fit view <Keyboard keys={["F"]} modifiers={["⌘"]} />
-							</p>
-						</TooltipContent>
-					</Tooltip>
-					<Tooltip>
-						<TooltipTrigger>
-							<Button size="icon" onClick={download}>
-								<Download />
-							</Button>
-						</TooltipTrigger>
-						<TooltipContent>
+						<TooltipContent side="right" className="ml-2">
 							<>
-								Export to image <Keyboard keys={["E"]} modifiers={["⌘"]} />
+								Settings <Keyboard keys={["S"]} modifiers={["⌘"]} />
 							</>
 						</TooltipContent>
 					</Tooltip>
-				</div>
-			</DropdownMenuContent>
-		</DropdownMenu>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent side="right" className="ml-2">
+					<div className="flex flex-row space-x-2 p-2 items-center justify-center w-full">
+						<ModeToggle />
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									size="icon"
+									onClick={copy}
+									disabled={
+										selected.nodes.length === 0 && selected.edges.length === 0
+									}
+								>
+									<ClipboardCopy />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>
+									Copy selected <Keyboard keys={["C"]} modifiers={["⌘"]} />
+								</p>
+							</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									size="icon"
+									onClick={paste}
+									disabled={
+										clipboard.nodes.length === 0 && clipboard.edges.length === 0
+									}
+								>
+									<ClipboardPaste />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>
+									Paste selected <Keyboard keys={["V"]} modifiers={["⌘"]} />
+								</p>
+							</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									size="icon"
+									onClick={() => {
+										setSettingsOpen(false);
+										getLayoutedElements({
+											"elk.direction": "DOWN",
+										});
+									}}
+								>
+									<MoveVertical />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Auto layout vertical</p>
+							</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									size="icon"
+									onClick={() => {
+										setSettingsOpen(false);
+										getLayoutedElements({
+											"elk.direction": "RIGHT",
+										});
+									}}
+								>
+									<MoveHorizontal />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Auto layout vertical</p>
+							</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									size="icon"
+									onClick={() => {
+										fitView();
+										setSettingsOpen(false);
+									}}
+								>
+									<Maximize />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>
+									Fit view <Keyboard keys={["F"]} modifiers={["⌘"]} />
+								</p>
+							</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button size="icon" onClick={download}>
+									<Download />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<>
+									Export to image <Keyboard keys={["E"]} modifiers={["⌘"]} />
+								</>
+							</TooltipContent>
+						</Tooltip>
+					</div>
+				</DropdownMenuContent>
+			</DropdownMenu>
+			<DropdownMenu open={brushesOpen} onOpenChange={setBrushesOpen}>
+				<DropdownMenuTrigger>
+					<Tooltip>
+						<TooltipTrigger>
+							<Button
+								size="icon"
+								variant="outline"
+								onClick={() => setBrushesOpen(true)}
+							>
+								<Brush className="w-4 h-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent side="right" className="ml-2">
+							<>
+								Brushes <Keyboard keys={["B"]} modifiers={["⌘"]} />
+							</>
+						</TooltipContent>
+					</Tooltip>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent side="bottom" className="mt-2 min-w-0">
+					<div className="flex flex-col space-y-2 p-2 items-center justify-center h-full">
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									variant={selectedBrush === "select" ? "default" : "outline"}
+									size="icon"
+									onClick={() => {
+										setSelectedBrush("select");
+									}}
+								>
+									<BoxSelect className="w-6 h-6" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent side="right" className="mb-4 ml-2">
+								<p className="flex flex-row items-center gap-2">
+									Selection <Keyboard keys={["S"]} modifiers={[]} />
+								</p>
+							</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									size="icon"
+									variant={selectedBrush === "pointer" ? "default" : "outline"}
+									onClick={() => {
+										setSelectedBrush("pointer");
+									}}
+								>
+									<Pointer className="w-5 h-5" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent side="right" className="mb-4 ml-2">
+								<p className="flex flex-row items-center gap-2">
+									Pointer <Keyboard keys={["P"]} modifiers={[]} />
+								</p>
+							</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									size="icon"
+									variant={selectedBrush === "delete" ? "default" : "outline"}
+									onClick={() => {
+										setSelectedBrush("delete");
+									}}
+								>
+									<Trash2 className="w-5 h-5" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent side="right" className="mb-4 ml-2">
+								<p className="flex flex-row items-center gap-2">
+									Delete tool <Keyboard keys={["D"]} modifiers={[]} />
+								</p>
+							</TooltipContent>
+						</Tooltip>
+					</div>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		</div>
 	);
 }

@@ -42,17 +42,18 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    login         String    @unique
+    id            String         @id @default(cuid())
+    login         String         @unique
     name          String?
-    email         String?   @unique
+    email         String?        @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
     canvases      Canvas[]
-    invitedTo     Canvas[]  @relation("InvitedTo")
+    invitedTo     Canvas[]       @relation("InvitedTo")
     invites       Invite[]
+    settings      UserSettings[]
 
     @@map("users")
 }
@@ -127,4 +128,12 @@ model Invite {
     expires   DateTime?
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
+}
+
+model UserSettings {
+    id        String   @id @default(cuid())
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }

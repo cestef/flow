@@ -36,6 +36,7 @@ export default function () {
 						>
 							Profile
 						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => {}}>Settings</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => router.push("/about")}>
 							About
 						</DropdownMenuItem>
