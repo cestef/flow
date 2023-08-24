@@ -246,9 +246,9 @@ function DefaultNode({
 							</>
 						) : (
 							<div className="flex flex-col items-center gap-2 w-full">
-								<Label htmlFor="font-size">
+								<Label htmlFor="font-size" className="mb-1">
 									Font Size{" "}
-									<code className="ml-1 bg-gray-100 dark:bg-gray-800 rounded-md py-1 px-2">
+									<code className="ml-1 bg-gray-100 dark:bg-gray-800 rounded-md py-1 px-2 text-primary">
 										{editing[id]?.fontSize || 16}px
 									</code>
 								</Label>
