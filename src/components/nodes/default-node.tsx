@@ -5,13 +5,25 @@ import {
 	ContextMenuItem,
 	ContextMenuTrigger,
 } from "../ui/context-menu";
-import { Copy, TextCursor, Trash, Unlink } from "lucide-react";
+import { Copy, Pipette, TextCursor, Trash, Type, Unlink } from "lucide-react";
 import { Handle, NodeResizer, Position } from "reactflow";
 import { NODES_TYPES, flowSelector } from "@/lib/constants";
-import { cn, trpc } from "@/lib/utils";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../ui/select";
+import { cn, sanitizeColor, trpc } from "@/lib/utils";
 import { memo, useState } from "react";
 
+import { Button } from "../ui/button";
+import { GradientPicker } from "../ui/picker";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Slider } from "../ui/slider";
 import { useStore } from "@/lib/store";
 
 function DefaultNode({
@@ -20,7 +32,14 @@ function DefaultNode({
 	id,
 	type,
 }: {
-	data: { label: string; draggedBy: string };
+	data: {
+		label: string;
+		draggedBy: string;
+		color: string;
+		fontColor: string;
+		fontSize: number;
+		fontWeight: string;
+	};
 	selected: boolean;
 	id: string;
 	xPos: number;
@@ -72,7 +91,16 @@ function DefaultNode({
 		}
 	};
 	const [editing, setEditing] = useState<{
-		[id: string]: { value: string; status: boolean };
+		[id: string]: {
+			nameValue: string;
+			nameStatus: boolean;
+			fontStatus: boolean;
+			fontSize: number;
+			fontColor: string;
+			fontWeight: string;
+			pickerStatus: boolean;
+			pickerValue: string;
+		};
 	}>({});
 
 	return (
@@ -81,7 +109,7 @@ function DefaultNode({
 				<NodeResizer
 					handleClassName="h-3 w-3 rounded-md bg-primary"
 					color="#fff"
-					isVisible={selected}
+					isVisible={selected && !editing[id]?.fontStatus}
 					minWidth={100}
 					minHeight={50}
 					onResizeEnd={(event, params) => {
@@ -98,17 +126,27 @@ function DefaultNode({
 				/>
 				<div
 					className={cn(
-						"px-4 py-2 shadow-md rounded-md bg-accent border-2 min-w-[100px] min-h-[50px]",
-						"flex flex-col justify-center relative items-center h-full w-full",
+						"px-4 py-2 shadow-md rounded-md border-2 min-w-[100px] min-h-[50px]",
+						"flex flex-col justify-center relative items-center h-full w-full transition-all",
 						selected ? "border-primary" : "border-stone-400",
+						!data.color && !editing[id]?.pickerValue && "bg-accent",
+						!data.fontColor && !editing[id]?.fontColor && "text-primary",
 						user.data && "border-primary",
+						editing[id]?.fontStatus && "min-h-[300px] min-w-[200px]",
 					)}
+					style={{
+						color: editing[id]?.fontColor ?? data.fontColor,
+						fontSize: editing[id]?.fontSize ?? data.fontSize ?? 16,
+						fontWeight: editing[id]?.fontWeight ?? data.fontWeight,
+						backgroundColor: editing[id]?.pickerValue ?? data.color,
+					}}
 					onDoubleClick={() => {
 						setEditing((e) => ({
 							...e,
 							[id]: {
-								status: true,
-								value: data.label,
+								...(e[id] ?? {}),
+								nameStatus: true,
+								nameValue: data.label,
 							},
 						}));
 					}}
@@ -121,58 +159,176 @@ function DefaultNode({
 							</AvatarFallback>
 						</Avatar>
 					)}
-					<div className="flex items-center">
-						{editing[id]?.status ? (
-							<form
-								onSubmit={(ev) => {
-									ev.preventDefault();
+					<div className="flex flex-col items-center">
+						{editing[id]?.pickerStatus ? (
+							<GradientPicker
+								background={editing[id].pickerValue}
+								setBackground={(color) => {
+									const sanitized = sanitizeColor(color);
 									setEditing((e) => ({
 										...e,
 										[id]: {
 											...e[id],
-											status: false,
+											pickerValue: sanitized,
 										},
 									}));
 									updateNode.mutate({
 										id,
-										name: editing[id].value,
+										color: sanitized,
 									});
 								}}
-							>
-								<Input
-									value={editing[id].value}
-									onChange={(ev) =>
+								onSubmit={() => {
+									setEditing((e) => ({
+										...e,
+										[id]: {
+											...e[id],
+											pickerStatus: false,
+										},
+									}));
+								}}
+							/>
+						) : !editing[id]?.fontStatus ? (
+							<div className="flex items-center">
+								{editing[id]?.nameStatus ? (
+									<form
+										onSubmit={(ev) => {
+											ev.preventDefault();
+											setEditing((e) => ({
+												...e,
+												[id]: {
+													...e[id],
+													nameStatus: false,
+												},
+											}));
+											updateNode.mutate({
+												id,
+												name: editing[id].nameValue,
+											});
+										}}
+									>
+										<Input
+											value={editing[id].nameValue}
+											onChange={(ev) =>
+												setEditing((e) => ({
+													...e,
+													[id]: {
+														...e[id],
+														nameValue: ev.target.value,
+													},
+												}))
+											}
+											size={editing[id].nameValue.length + 1}
+											onBlur={() => {
+												setEditing((e) => ({
+													...e,
+													[id]: {
+														...e[id],
+														nameStatus: false,
+													},
+												}));
+												updateNode.mutate({
+													id,
+													name: editing[id].nameValue,
+												});
+											}}
+										/>
+									</form>
+								) : (
+									<p>{data.label}</p>
+								)}
+							</div>
+						) : (
+							<div className="flex flex-col items-center gap-2 w-full">
+								<Label htmlFor="font-size">
+									Font Size{" "}
+									<code className="ml-1 bg-gray-100 dark:bg-gray-800 rounded-md py-1 px-2">
+										{editing[id]?.fontSize || 16}px
+									</code>
+								</Label>
+								<Slider
+									id="font-size"
+									value={[editing[id]?.fontSize || 16]}
+									onValueChange={([value]) =>
 										setEditing((e) => ({
 											...e,
 											[id]: {
 												...e[id],
-												value: ev.target.value,
+												fontSize: value,
 											},
 										}))
 									}
-									className={cn("text-sm font-medium")}
-									size={editing[id].value.length + 1}
-									onBlur={() => {
+									min={0}
+									max={100}
+									step={1}
+								/>
+								<Label htmlFor="font-color" className="mt-2">
+									Font Color
+								</Label>
+								<GradientPicker
+									id="font-color"
+									// message="Font Color"
+									background={editing[id]?.fontColor}
+									setBackground={(value) =>
 										setEditing((e) => ({
 											...e,
 											[id]: {
 												...e[id],
-												status: false,
+												fontColor: value,
+											},
+										}))
+									}
+									gradient={false}
+								/>
+								<div className="mb-1" />
+								<Select
+									value={editing[id]?.fontWeight}
+									onValueChange={(value) =>
+										setEditing((e) => ({
+											...e,
+											[id]: {
+												...e[id],
+												fontWeight: value,
+											},
+										}))
+									}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="Font weight" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectGroup>
+											<SelectItem value="normal">Normal</SelectItem>
+											<SelectItem value="bold">Bold</SelectItem>
+											<SelectItem value="bolder">Bolder</SelectItem>
+											<SelectItem value="lighter">Lighter</SelectItem>
+										</SelectGroup>
+									</SelectContent>
+								</Select>
+								<div className="mb-1" />
+								<Button
+									onClick={() => {
+										setEditing((e) => ({
+											...e,
+											[id]: {
+												...e[id],
+												fontStatus: false,
 											},
 										}));
 										updateNode.mutate({
 											id,
-											name: editing[id].value,
+											fontSize: editing[id].fontSize,
+											fontColor: editing[id].fontColor,
+											fontWeight: editing[id].fontWeight,
 										});
 									}}
-								/>
-							</form>
-						) : (
-							<p className="text-sm font-medium ">{data.label}</p>
+								>
+									Save
+								</Button>
+							</div>
 						)}
-					</div>
 
-					{getHandles()}
+						{getHandles()}
+					</div>
 				</div>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
@@ -181,8 +337,9 @@ function DefaultNode({
 						setEditing((e) => ({
 							...e,
 							[id]: {
-								status: true,
-								value: data.label,
+								...(e[id] ?? {}),
+								nameStatus: !editing[id]?.nameStatus,
+								nameValue: data.label,
 							},
 						}))
 					}
@@ -190,6 +347,7 @@ function DefaultNode({
 					<TextCursor className="w-4 h-4 mr-2" />
 					Rename
 				</ContextMenuItem>
+
 				<ContextMenuItem
 					onClick={() =>
 						duplicateNode.mutate({
@@ -201,6 +359,35 @@ function DefaultNode({
 				>
 					<Copy className="w-4 h-4 mr-2" />
 					Duplicate
+				</ContextMenuItem>
+				<ContextMenuItem
+					onClick={() =>
+						setEditing((e) => ({
+							...e,
+							[id]: {
+								...(e[id] ?? {}),
+								pickerStatus: !editing[id]?.pickerStatus,
+								pickerValue: data.color,
+							},
+						}))
+					}
+				>
+					<Pipette className="w-4 h-4 mr-2" />
+					Color
+				</ContextMenuItem>
+				<ContextMenuItem
+					onClick={() =>
+						setEditing((e) => ({
+							...e,
+							[id]: {
+								...(e[id] ?? {}),
+								fontStatus: !editing[id]?.fontStatus,
+							},
+						}))
+					}
+				>
+					<Type className="w-4 h-4 mr-2" />
+					Font
 				</ContextMenuItem>
 				{parent && (
 					<ContextMenuItem

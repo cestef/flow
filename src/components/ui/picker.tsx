@@ -1,5 +1,3 @@
-"use client";
-
 import {
 	Popover,
 	PopoverContent,
@@ -10,32 +8,25 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { Paintbrush } from "lucide-react";
-
-export function PickerExample() {
-	const [background, setBackground] = useState("#B4D455");
-
-	return (
-		<div
-			className="w-full h-full preview flex min-h-[350px] justify-center p-10 items-center rounded !bg-cover !bg-center transition-all"
-			style={{ background }}
-		>
-			<GradientPicker background={background} setBackground={setBackground} />
-		</div>
-	);
-}
+import { cn } from "@/lib/utils";
 
 export function GradientPicker({
 	background,
 	setBackground,
 	className,
 	onSubmit,
+	gradient,
+	message,
+	id,
 }: {
 	background: string;
 	setBackground: (background: string) => void;
 	onSubmit?: () => void;
 	className?: string;
+	gradient?: boolean;
+	message?: string;
+	id?: string;
 }) {
 	const solids = [
 		"#E2E2E2",
@@ -68,7 +59,7 @@ export function GradientPicker({
 	];
 
 	const defaultTab = useMemo(() => {
-		if (background.includes("gradient")) return "gradient";
+		if (gradient && background?.includes("gradient")) return "gradient";
 		return "solid";
 	}, [background]);
 
@@ -81,9 +72,10 @@ export function GradientPicker({
 		>
 			<PopoverTrigger asChild>
 				<Button
+					id={id}
 					variant={"outline"}
 					className={cn(
-						"w-[220px] justify-start text-left font-normal",
+						"w-full justify-start text-left font-normal",
 						!background && "text-muted-foreground",
 						className,
 					)}
@@ -98,7 +90,7 @@ export function GradientPicker({
 							<Paintbrush className="h-4 w-4" />
 						)}
 						<div className="truncate flex-1">
-							{background ? background : "Pick a color"}
+							{background ? background : message || "Pick a color"}
 						</div>
 					</div>
 				</Button>
@@ -109,9 +101,11 @@ export function GradientPicker({
 						<TabsTrigger className="flex-1" value="solid">
 							Solid
 						</TabsTrigger>
-						<TabsTrigger className="flex-1" value="gradient">
-							Gradient
-						</TabsTrigger>
+						{gradient && (
+							<TabsTrigger className="flex-1" value="gradient">
+								Gradient
+							</TabsTrigger>
+						)}
 					</TabsList>
 
 					<TabsContent value="solid" className="flex flex-wrap gap-1 mt-0">
@@ -125,18 +119,20 @@ export function GradientPicker({
 						))}
 					</TabsContent>
 
-					<TabsContent value="gradient" className="mt-0">
-						<div className="flex flex-wrap gap-1 mb-2">
-							{gradients.map((s) => (
-								<div
-									key={s}
-									style={{ background: s }}
-									className="rounded-md h-6 w-6 cursor-pointer active:scale-105"
-									onClick={() => setBackground(s)}
-								/>
-							))}
-						</div>
-					</TabsContent>
+					{gradient && (
+						<TabsContent value="gradient" className="mt-0">
+							<div className="flex flex-wrap gap-1 mb-2">
+								{gradients.map((s) => (
+									<div
+										key={s}
+										style={{ background: s }}
+										className="rounded-md h-6 w-6 cursor-pointer active:scale-105"
+										onClick={() => setBackground(s)}
+									/>
+								))}
+							</div>
+						</TabsContent>
+					)}
 
 					<TabsContent value="password">Change your password here.</TabsContent>
 				</Tabs>

@@ -3,8 +3,8 @@ import { protectedProcedure, router } from "../trpc";
 import EventEmitter from "events";
 import { Node } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
-import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { z } from "zod";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -163,6 +163,9 @@ export const nodesRouter = router({
 				name: z.string().optional(),
 				parentId: z.string().optional().nullable(),
 				color: z.string().optional(),
+				fontColor: z.string().optional(),
+				fontSize: z.number().optional(),
+				fontWeight: z.string().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -209,10 +212,11 @@ export const nodesRouter = router({
 							: { connect: { id: input.parentId } }),
 					},
 					color: input.color,
+					fontColor: input.fontColor,
+					fontSize: input.fontSize,
+					fontWeight: input.fontWeight,
 				},
 			});
-
-			console.log(res);
 
 			emitter(node.canvas.id).emit("update", res);
 		}),
@@ -801,5 +805,36 @@ export const nodesRouter = router({
 			});
 
 			return res;
+		}),
+	shouldEmit: protectedProcedure
+		.input(
+			z.object({
+				canvasId: z.string(),
+			}),
+		)
+		.query(async ({ ctx, input }) => {
+			// Check if there are any listeners for this canvas
+			const canvas = await prisma.canvas.findUnique({
+				where: {
+					id: input.canvasId,
+				},
+				include: {
+					owner: true,
+					members: true,
+				},
+			});
+
+			if (!canvas) {
+				throw new Error("Canvas not found");
+			}
+
+			if (
+				canvas.owner.id !== ctx.user.id &&
+				!canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to subscribe to this canvas");
+			}
+
+			return emitter(input.canvasId).listenerCount("dragUpdate") > 0;
 		}),
 });

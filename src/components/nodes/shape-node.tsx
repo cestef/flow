@@ -1,8 +1,3 @@
-import { DEFAULT_COLORS, SHAPES } from "@/lib/constants";
-import { cn, trpc } from "@/lib/utils";
-import { Copy, Pipette, TextCursor, Trash, Unlink } from "lucide-react";
-import { memo, useState } from "react";
-import { Handle, NodeResizer, Position, useStore } from "reactflow";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	ContextMenu,
@@ -10,9 +5,14 @@ import {
 	ContextMenuItem,
 	ContextMenuTrigger,
 } from "../ui/context-menu";
+import { Copy, Pipette, TextCursor, Trash, Unlink } from "lucide-react";
+import { DEFAULT_COLORS, SHAPES } from "@/lib/constants";
+import { Handle, NodeResizer, Position, useStore } from "reactflow";
+import { cn, sanitizeColor, trpc } from "@/lib/utils";
+import { memo, useState } from "react";
 
-import { Input } from "../ui/input";
 import { GradientPicker } from "../ui/picker";
+import { Input } from "../ui/input";
 
 function ShapeNode({
 	data,
@@ -218,7 +218,7 @@ function ShapeNode({
 						setEditing((e) => ({
 							...e,
 							[id]: {
-								status: true,
+								status: !editing[id]?.status,
 								value: data.label,
 							},
 						}))
@@ -232,7 +232,7 @@ function ShapeNode({
 						setPicker((e) => ({
 							...e,
 							[id]: {
-								status: true,
+								status: !picker[id]?.status,
 								value: data.color || DEFAULT_COLORS[type],
 							},
 						}))
@@ -305,11 +305,3 @@ function ShapeNode({
 }
 
 export default memo(ShapeNode);
-
-const sanitizeColor = (color: string) => {
-	// Prevents from inputing images
-	if (color.includes("url")) {
-		return "";
-	}
-	return color;
-};

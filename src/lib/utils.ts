@@ -385,7 +385,7 @@ export const isNodeInGroupBounds = (node: Node, nodes: Node[]): Node | null => {
 };
 
 export const formatRemoteData = (data: PrismaNode[], order = false): Node[] => {
-	const formatted = data.map((node: any) => ({
+	const formatted = data.map((node) => ({
 		id: node.id,
 		type: node.type,
 		data: {
@@ -396,6 +396,9 @@ export const formatRemoteData = (data: PrismaNode[], order = false): Node[] => {
 				y: node.y,
 			},
 			draggedBy: undefined,
+			fontColor: node.fontColor,
+			fontSize: node.fontSize,
+			fontWeight: node.fontWeight,
 		},
 		position: { x: node.x, y: node.y },
 		...((node.width || node.height) && {
@@ -431,4 +434,11 @@ export const formatRemoteData = (data: PrismaNode[], order = false): Node[] => {
 	}
 
 	return formatted;
+};
+export const sanitizeColor = (color: string) => {
+	// Prevents from inputing images
+	if (color.includes("url")) {
+		return "";
+	}
+	return color;
 };
