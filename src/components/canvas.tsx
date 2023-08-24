@@ -8,6 +8,7 @@ import {
 	useReactFlow,
 } from "reactflow";
 import {
+	NODES_TYPES,
 	UPDATE_THROTTLE,
 	edgeTypes,
 	flowSelector,
@@ -312,7 +313,7 @@ const Flow = ({
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
 
 	subscribe();
-
+	const createNode = trpc.nodes.add.useMutation();
 	return (
 		<div
 			ref={reactFlowWrapper}
@@ -353,6 +354,21 @@ const Flow = ({
 						hideAttribution: true,
 					}}
 					className="h-full"
+					onDoubleClickCapture={(e) => {
+						e.stopPropagation();
+						e.preventDefault();
+						const contextMenuPosition = project({
+							x: e.clientX,
+							y: e.clientY,
+						});
+						createNode.mutate({
+							canvasId,
+							name: "Default",
+							x: contextMenuPosition.x,
+							y: contextMenuPosition.y,
+							type: NODES_TYPES.DEFAULT,
+						});
+					}}
 				>
 					{/* <MiniMapStyled /> */}
 					{/* <ControlsStyled position="bottom-right" /> */}
