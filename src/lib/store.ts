@@ -79,6 +79,9 @@ export const useStore = createWithEqualityFn(
 				findNode: (id: string) => {
 					return useStore.getState().nodes.find((node) => node.id === id);
 				},
+				findNodes: (where: (node: Node) => boolean) => {
+					return useStore.getState().nodes.filter((node) => where(node));
+				},
 				findAndUpdateNode: (
 					where: (node: Node) => boolean,
 					update: (node: Node) => Node,

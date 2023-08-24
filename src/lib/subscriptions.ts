@@ -13,7 +13,7 @@ export const subscribe = () => {
 		setEdges,
 		updateNode,
 		addNode,
-		findNode,
+		findNodes,
 		deleteEdge,
 		addEdge,
 		deleteNode,
@@ -55,17 +55,19 @@ export const subscribe = () => {
 		{
 			async onData(node) {
 				if (node.type === "customGroup") {
-					const currentNode = findNode(node.id);
-					if (!currentNode) return;
-					updateNode({
-						id: node.id,
-						parentNode: undefined,
-						extent: undefined,
-						position: {
-							x: currentNode.position.x + node.x,
-							y: currentNode.position.y + node.y,
-						},
-					});
+					const nodes = findNodes((n) => n.id === node.id);
+					if (nodes.length === 0) return;
+					for (const current of nodes) {
+						updateNode({
+							id: current.id,
+							parentNode: undefined,
+							extent: undefined,
+							position: {
+								x: current.position.x + node.x,
+								y: current.position.y + node.y,
+							},
+						});
+					}
 				}
 				deleteNode(node.id);
 			},

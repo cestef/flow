@@ -54,6 +54,7 @@ export const flowSelector = (state: StoreState) => ({
 	updateNode: state.updateNode,
 	addNode: state.addNode,
 	findNode: state.findNode,
+	findNodes: state.findNodes,
 	deleteNode: state.deleteNode,
 	addEdge: state.addEdge,
 	deleteEdge: state.deleteEdge,
