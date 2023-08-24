@@ -65,6 +65,7 @@ jobs:
               run: |
                   printf -v now '%(%s)T'
                   duration=$((now - ${{ steps.start.outputs.timestamp }}))
+                  printf 'duration=%s\n' "$duration" >> "$GITHUB_OUTPUT"
             - name: Discord notification
               uses: sarisia/actions-status-discord@v1
               if: always()
@@ -73,7 +74,7 @@ jobs:
               with:
                   title: ${{ github.workflow }} - ${{ matrix.os }}
                   status: ${{ job.status }}
-                  description: Built `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}` for `${{ matrix.platform }}` in ${{ steps.duration.outputs.duration }} seconds
+                  description: Built `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}` for `${{ matrix.platform }}` in `${{ steps.duration.outputs.duration }}` seconds
 
     merge:
         runs-on: ubuntu-latest
