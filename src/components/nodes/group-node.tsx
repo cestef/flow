@@ -1,21 +1,23 @@
-import { cn, trpc } from "@/lib/utils";
-import { TextCursor, Trash, Workflow } from "lucide-react";
-import { memo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	ContextMenu,
 	ContextMenuContent,
 	ContextMenuItem,
+	ContextMenuLabel,
+	ContextMenuSeparator,
 	ContextMenuSub,
 	ContextMenuSubContent,
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "../ui/context-menu";
+import { NODES_TYPES, SHAPES } from "@/lib/constants";
+import { Shapes, TextCursor, Trash, Workflow } from "lucide-react";
+import { cn, trpc } from "@/lib/utils";
+import { memo, useState } from "react";
 
-import { NODES_TYPES } from "@/lib/constants";
-import { useStore } from "@/lib/store";
-import { NodeResizer } from "reactflow";
 import { Input } from "../ui/input";
+import { NodeResizer } from "reactflow";
+import { useStore } from "@/lib/store";
 
 const GroupNode = ({
 	data,
@@ -77,7 +79,7 @@ const GroupNode = ({
 					{/* <Handle type="target" position={Position.Top} /> */}
 					<div
 						className={cn(
-							"p-4 h-full w-full dark:bg-[rgba(255,255,255,0.1)] rounded-md bg-[rgba(0,0,0,0.1)]",
+							"p-4 h-full w-full dark:bg-[rgba(255,255,255,0.1)] rounded-md bg-[rgba(0,0,0,0.1)] min-w-[200px] min-h-[240px]",
 							user.data && "border-primary border-2",
 						)}
 						onContextMenu={(e) => {
@@ -141,11 +143,12 @@ const GroupNode = ({
 					<TextCursor className="w-4 h-4 mr-2" />
 					Rename
 				</ContextMenuItem>
-
+				<ContextMenuSeparator />
+				<ContextMenuLabel>Add to group</ContextMenuLabel>
 				<ContextMenuSub>
 					<ContextMenuSubTrigger>
 						<Workflow className="mr-2 w-4 h-4" />
-						Add to group
+						Nodes
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent>
 						<ContextMenuItem
@@ -195,6 +198,100 @@ const GroupNode = ({
 						</ContextMenuItem>
 					</ContextMenuSubContent>
 				</ContextMenuSub>
+				<ContextMenuSub>
+					<ContextMenuSubTrigger>
+						<Shapes className="mr-2 w-4 h-4" />
+						Shapes
+					</ContextMenuSubTrigger>
+					<ContextMenuSubContent>
+						<ContextMenuItem
+							inset
+							onClick={() => {
+								createNode.mutate({
+									canvasId,
+									name: "Rectangle",
+									x: contextMenuPosition.x,
+									y: contextMenuPosition.y,
+									type: SHAPES.RECTANGLE,
+									height: 100,
+									width: 200,
+									parentId: id,
+								});
+							}}
+						>
+							Rectangle
+						</ContextMenuItem>
+						<ContextMenuItem
+							inset
+							onClick={() => {
+								createNode.mutate({
+									canvasId,
+									name: "Rounded Rectangle",
+									x: contextMenuPosition.x,
+									y: contextMenuPosition.y,
+									type: SHAPES.ROUNDED_RECTANGLE,
+									height: 100,
+									width: 200,
+									parentId: id,
+								});
+							}}
+						>
+							Rounded Rectangle
+						</ContextMenuItem>
+						<ContextMenuItem
+							inset
+							onClick={() => {
+								createNode.mutate({
+									canvasId,
+									name: "Circle",
+									x: contextMenuPosition.x,
+									y: contextMenuPosition.y,
+									type: SHAPES.CIRCLE,
+									height: 100,
+									width: 100,
+									parentId: id,
+								});
+							}}
+						>
+							Circle
+						</ContextMenuItem>
+						<ContextMenuItem
+							inset
+							onClick={() => {
+								createNode.mutate({
+									canvasId,
+									name: "Diamond",
+									x: contextMenuPosition.x,
+									y: contextMenuPosition.y,
+									type: SHAPES.DIAMOND,
+									height: 100,
+									width: 100,
+									parentId: id,
+								});
+							}}
+						>
+							Diamond
+						</ContextMenuItem>
+						<ContextMenuItem
+							inset
+							onClick={() => {
+								createNode.mutate({
+									canvasId,
+									name: "Parallelogram",
+									x: contextMenuPosition.x,
+									y: contextMenuPosition.y,
+									type: SHAPES.PARALLELOGRAM,
+									height: 100,
+									width: 200,
+									parentId: id,
+								});
+							}}
+						>
+							Parallelogram
+						</ContextMenuItem>
+					</ContextMenuSubContent>
+				</ContextMenuSub>
+				<ContextMenuSeparator />
 				<ContextMenuItem
 					onClick={() => {
 						deleteNode.mutate({

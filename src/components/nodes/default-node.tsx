@@ -6,7 +6,7 @@ import {
 	ContextMenuTrigger,
 } from "../ui/context-menu";
 import { Copy, TextCursor, Trash, Unlink } from "lucide-react";
-import { Handle, Position, useStore } from "reactflow";
+import { Handle, NodeResizer, Position, useStore } from "reactflow";
 import { cn, trpc } from "@/lib/utils";
 import { memo, useState } from "react";
 
@@ -85,9 +85,28 @@ function DefaultNode({
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
+				<NodeResizer
+					handleClassName="h-3 w-3 rounded-md bg-primary"
+					color="#fff"
+					isVisible={selected}
+					minWidth={100}
+					minHeight={50}
+					onResizeEnd={(event, params) => {
+						const { width, height, x, y } = params;
+						if (!id) return;
+						updateNode.mutate({
+							id,
+							width,
+							height,
+							x,
+							y,
+						});
+					}}
+				/>
 				<div
 					className={cn(
-						"px-4 py-2 shadow-md rounded-md bg-accent border-2 min-w-[100px] min-h-[50px] flex flex-col justify-center relative items-center",
+						"px-4 py-2 shadow-md rounded-md bg-accent border-2 min-w-[100px] min-h-[50px]",
+						"flex flex-col justify-center relative items-center h-full w-full",
 						selected ? "border-primary" : "border-stone-400",
 						user.data && "border-primary",
 					)}

@@ -1,19 +1,20 @@
-import { NODES_TYPES, SHAPES } from "@/lib/constants";
-import { Group, Shapes, Trash, Workflow } from "lucide-react";
 import {
 	ContextMenu,
 	ContextMenuContent,
 	ContextMenuItem,
+	ContextMenuLabel,
 	ContextMenuSeparator,
 	ContextMenuSub,
 	ContextMenuSubContent,
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "./ui/context-menu";
+import { Group, Shapes, Trash, Workflow } from "lucide-react";
+import { NODES_TYPES, SHAPES } from "@/lib/constants";
 
-import { useStore } from "@/lib/store";
-import useConfirm from "@/lib/useConfirm";
 import { trpc } from "@/lib/utils";
+import useConfirm from "@/lib/useConfirm";
+import { useStore } from "@/lib/store";
 
 export default function CanvasContext({
 	children,
@@ -33,10 +34,11 @@ export default function CanvasContext({
 			<ContextMenu>
 				<ContextMenuTrigger>{children}</ContextMenuTrigger>
 				<ContextMenuContent>
+					<ContextMenuLabel>Add</ContextMenuLabel>
 					<ContextMenuSub>
 						<ContextMenuSubTrigger>
 							<Workflow className="mr-2 w-4 h-4" />
-							Add node
+							Nodes
 						</ContextMenuSubTrigger>
 						<ContextMenuSubContent>
 							<ContextMenuItem
@@ -81,94 +83,94 @@ export default function CanvasContext({
 							>
 								Output
 							</ContextMenuItem>
-							<ContextMenuSub>
-								<ContextMenuSubTrigger>
-									<Shapes className="mr-2 w-4 h-4" />
-									Shapes
-								</ContextMenuSubTrigger>
-								<ContextMenuSubContent>
-									<ContextMenuItem
-										inset
-										onClick={() => {
-											createNode.mutate({
-												canvasId,
-												name: "Rectangle",
-												x: contextMenuPosition.x,
-												y: contextMenuPosition.y,
-												type: SHAPES.RECTANGLE,
-												height: 100,
-												width: 200,
-											});
-										}}
-									>
-										Rectangle
-									</ContextMenuItem>
-									<ContextMenuItem
-										inset
-										onClick={() => {
-											createNode.mutate({
-												canvasId,
-												name: "Rounded Rectangle",
-												x: contextMenuPosition.x,
-												y: contextMenuPosition.y,
-												type: SHAPES.ROUNDED_RECTANGLE,
-												height: 100,
-												width: 200,
-											});
-										}}
-									>
-										Rounded Rectangle
-									</ContextMenuItem>
-									<ContextMenuItem
-										inset
-										onClick={() => {
-											createNode.mutate({
-												canvasId,
-												name: "Circle",
-												x: contextMenuPosition.x,
-												y: contextMenuPosition.y,
-												type: SHAPES.CIRCLE,
-												height: 100,
-												width: 100,
-											});
-										}}
-									>
-										Circle
-									</ContextMenuItem>
-									<ContextMenuItem
-										inset
-										onClick={() => {
-											createNode.mutate({
-												canvasId,
-												name: "Diamond",
-												x: contextMenuPosition.x,
-												y: contextMenuPosition.y,
-												type: SHAPES.DIAMOND,
-												height: 100,
-												width: 100,
-											});
-										}}
-									>
-										Diamond
-									</ContextMenuItem>
-									<ContextMenuItem
-										inset
-										onClick={() => {
-											createNode.mutate({
-												canvasId,
-												name: "Parallelogram",
-												x: contextMenuPosition.x,
-												y: contextMenuPosition.y,
-												type: SHAPES.PARALLELOGRAM,
-												height: 100,
-												width: 200,
-											});
-										}}
-									>
-										Parallelogram
-									</ContextMenuItem>
-								</ContextMenuSubContent>
-							</ContextMenuSub>
+						</ContextMenuSubContent>
+					</ContextMenuSub>
+					<ContextMenuSub>
+						<ContextMenuSubTrigger>
+							<Shapes className="mr-2 w-4 h-4" />
+							Shapes
+						</ContextMenuSubTrigger>
+						<ContextMenuSubContent>
+							<ContextMenuItem
+								inset
+								onClick={() => {
+									createNode.mutate({
+										canvasId,
+										name: "Rectangle",
+										x: contextMenuPosition.x,
+										y: contextMenuPosition.y,
+										type: SHAPES.RECTANGLE,
+										height: 100,
+										width: 200,
+									});
+								}}
+							>
+								Rectangle
+							</ContextMenuItem>
+							<ContextMenuItem
+								inset
+								onClick={() => {
+									createNode.mutate({
+										canvasId,
+										name: "Rounded Rectangle",
+										x: contextMenuPosition.x,
+										y: contextMenuPosition.y,
+										type: SHAPES.ROUNDED_RECTANGLE,
+										height: 100,
+										width: 200,
+									});
+								}}
+							>
+								Rounded Rectangle
+							</ContextMenuItem>
+							<ContextMenuItem
+								inset
+								onClick={() => {
+									createNode.mutate({
+										canvasId,
+										name: "Circle",
+										x: contextMenuPosition.x,
+										y: contextMenuPosition.y,
+										type: SHAPES.CIRCLE,
+										height: 100,
+										width: 100,
+									});
+								}}
+							>
+								Circle
+							</ContextMenuItem>
+							<ContextMenuItem
+								inset
+								onClick={() => {
+									createNode.mutate({
+										canvasId,
+										name: "Diamond",
+										x: contextMenuPosition.x,
+										y: contextMenuPosition.y,
+										type: SHAPES.DIAMOND,
+										height: 100,
+										width: 100,
+									});
+								}}
+							>
+								Diamond
+							</ContextMenuItem>
+							<ContextMenuItem
+								inset
+								onClick={() => {
+									createNode.mutate({
+										canvasId,
+										name: "Parallelogram",
+										x: contextMenuPosition.x,
+										y: contextMenuPosition.y,
+										type: SHAPES.PARALLELOGRAM,
+										height: 100,
+										width: 200,
+									});
+								}}
+							>
+								Parallelogram
+							</ContextMenuItem>
 						</ContextMenuSubContent>
 					</ContextMenuSub>
 					<ContextMenuItem
@@ -183,7 +185,7 @@ export default function CanvasContext({
 						}}
 					>
 						<Group className="mr-2 w-4 h-4" />
-						Add Group
+						Group
 					</ContextMenuItem>
 					<ContextMenuSeparator />
 					<ContextMenuItem
