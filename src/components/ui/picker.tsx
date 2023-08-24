@@ -75,7 +75,7 @@ export function GradientPicker({
 					id={id}
 					variant={"outline"}
 					className={cn(
-						"w-full justify-start text-left font-normal",
+						"w-full justify-start text-left font-normal text-primary",
 						!background && "text-muted-foreground",
 						className,
 					)}
