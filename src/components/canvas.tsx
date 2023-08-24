@@ -17,6 +17,7 @@ import {
 	formatRemoteData,
 	getHelperLines,
 	isNodeInGroupBounds,
+	trcpProxyClient,
 	trpc,
 } from "@/lib/utils";
 import { useCallback, useEffect, useRef } from "react";
@@ -146,7 +147,8 @@ const Flow = ({
 			(change) =>
 				change.type === "position" && change.position && change.dragging,
 		) as NodePositionChange[];
-		updateNodePositionThrottled(positionChanges);
+		console.log("shouldEmit", shouldEmit);
+		if (shouldEmit) updateNodePositionThrottled(positionChanges);
 		for (const change of nodeChanges) {
 			if (change.type === "remove") {
 				deleteNode.mutate({ id: change.id });
@@ -184,6 +186,20 @@ const Flow = ({
 			}
 		},
 		[nodes],
+	);
+
+	const setShouldEmit = useStore((state) => state.setShouldEmit);
+	const shouldEmit = useStore((state) => state.shouldEmit);
+	const onNodeDragStart = useCallback<
+		(event: React.MouseEvent, node: Node) => void
+	>(
+		async (_, node) => {
+			const should = await trcpProxyClient.nodes.shouldEmit.query({
+				canvasId,
+			});
+			setShouldEmit(should);
+		},
+		[canvasId],
 	);
 
 	const onNodeDragStop = useCallback<
@@ -325,6 +341,7 @@ const Flow = ({
 					edges={edges}
 					onNodesChange={onNodesChangeProxy}
 					onNodeDragStop={onNodeDragStop}
+					onNodeDragStart={onNodeDragStart}
 					onNodeDrag={onNodeDrag}
 					onEdgesChange={onEdgesChangeProxy}
 					onConnect={onConnectProxy}

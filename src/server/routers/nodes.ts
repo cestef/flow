@@ -825,7 +825,7 @@ export const nodesRouter = router({
 			});
 
 			if (!canvas) {
-				throw new Error("Canvas not found");
+				throw new Error(`Canvas ${input.canvasId} not found`);
 			}
 
 			if (
@@ -835,6 +835,6 @@ export const nodesRouter = router({
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
-			return emitter(input.canvasId).listenerCount("dragUpdate") > 0;
+			return emitter(input.canvasId).listenerCount("dragUpdate") > 1;
 		}),
 });

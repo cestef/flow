@@ -60,6 +60,7 @@ export const useStore = createWithEqualityFn(
 					showResult: undefined as string | undefined,
 					copied: false,
 				},
+				shouldEmit: false,
 			},
 			(set) => ({
 				onNodesChange: (changes: NodeChange[]) => {
@@ -225,6 +226,7 @@ export const useStore = createWithEqualityFn(
 					set((state) => ({
 						createInvitePanel: { ...state.createInvitePanel, copied },
 					})),
+				setShouldEmit: (shouldEmit: boolean) => set({ shouldEmit }),
 			}),
 		),
 		{
