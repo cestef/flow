@@ -8,13 +8,13 @@ import {
 } from "../ui/dialog";
 import { DialogFooter, DialogHeader } from "../ui/dialog";
 
-import { useStore } from "@/lib/store";
-import { trpc } from "@/lib/utils";
-import { useSession } from "next-auth/react";
-import { useEffect } from "react";
-import ComboBox from "../combobox";
 import { Button } from "../ui/button";
+import ComboBox from "../combobox";
 import { Input } from "../ui/input";
+import { trpc } from "@/lib/utils";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useStore } from "@/lib/store";
 
 export default function CanvasPanel() {
 	const { data: session } = useSession();
@@ -120,12 +120,19 @@ export default function CanvasPanel() {
 							<DialogTitle>Create new canvas</DialogTitle>
 						</DialogHeader>
 						<div className="flex flex-col">
-							<Input
-								type="text"
-								placeholder="Canvas name"
-								value={createNewCanvasState.name}
-								onChange={(e) => setCreateNewCanvasName(e.target.value)}
-							/>
+							<form
+								onSubmit={(e) => {
+									e.preventDefault();
+									createCanvas.mutate({ name: createNewCanvasState.name });
+								}}
+							>
+								<Input
+									type="text"
+									placeholder="Canvas name"
+									value={createNewCanvasState.name}
+									onChange={(e) => setCreateNewCanvasName(e.target.value)}
+								/>
+							</form>
 						</div>
 						<DialogFooter>
 							<Button

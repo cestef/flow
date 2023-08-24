@@ -1,7 +1,3 @@
-import { cn, trpc } from "@/lib/utils";
-import { Copy, TextCursor, Trash, Unlink } from "lucide-react";
-import { memo, useState } from "react";
-import { Handle, Position, useStore } from "reactflow";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	ContextMenu,
@@ -9,9 +5,13 @@ import {
 	ContextMenuItem,
 	ContextMenuTrigger,
 } from "../ui/context-menu";
+import { Copy, TextCursor, Trash, Unlink } from "lucide-react";
+import { Handle, Position, useStore } from "reactflow";
+import { cn, trpc } from "@/lib/utils";
+import { memo, useState } from "react";
 
-import { NODES_TYPES } from "@/lib/constants";
 import { Input } from "../ui/input";
+import { NODES_TYPES } from "@/lib/constants";
 
 function DefaultNode({
 	data,
@@ -87,10 +87,19 @@ function DefaultNode({
 			<ContextMenuTrigger>
 				<div
 					className={cn(
-						"px-4 py-2 shadow-md rounded-md bg-accent border-2",
+						"px-4 py-2 shadow-md rounded-md bg-accent border-2 min-w-[100px] min-h-[50px] flex flex-col justify-center relative items-center",
 						selected ? "border-primary" : "border-stone-400",
 						user.data && "border-primary",
 					)}
+					onDoubleClick={() => {
+						setEditing((e) => ({
+							...e,
+							[id]: {
+								status: true,
+								value: data.label,
+							},
+						}));
+					}}
 				>
 					{user.data && (
 						<Avatar className="absolute -top-4 -right-4 w-8 h-8 border-2 border-primary">
@@ -100,35 +109,56 @@ function DefaultNode({
 							</AvatarFallback>
 						</Avatar>
 					)}
-					{editing[id]?.status ? (
-						<Input
-							value={editing[id].value}
-							onChange={(ev) =>
-								setEditing((e) => ({
-									...e,
-									[id]: {
-										...e[id],
-										value: ev.target.value,
-									},
-								}))
-							}
-							onBlur={() => {
-								setEditing((e) => ({
-									...e,
-									[id]: {
-										...e[id],
-										status: false,
-									},
-								}));
-								updateNode.mutate({
-									id,
-									name: editing[id].value,
-								});
-							}}
-						/>
-					) : (
-						<p className="text-sm font-medium ">{data.label}</p>
-					)}
+					<div className="flex items-center">
+						{editing[id]?.status ? (
+							<form
+								onSubmit={(ev) => {
+									ev.preventDefault();
+									setEditing((e) => ({
+										...e,
+										[id]: {
+											...e[id],
+											status: false,
+										},
+									}));
+									updateNode.mutate({
+										id,
+										name: editing[id].value,
+									});
+								}}
+							>
+								<Input
+									value={editing[id].value}
+									onChange={(ev) =>
+										setEditing((e) => ({
+											...e,
+											[id]: {
+												...e[id],
+												value: ev.target.value,
+											},
+										}))
+									}
+									className={cn("text-sm font-medium")}
+									size={editing[id].value.length + 1}
+									onBlur={() => {
+										setEditing((e) => ({
+											...e,
+											[id]: {
+												...e[id],
+												status: false,
+											},
+										}));
+										updateNode.mutate({
+											id,
+											name: editing[id].value,
+										});
+									}}
+								/>
+							</form>
+						) : (
+							<p className="text-sm font-medium ">{data.label}</p>
+						)}
+					</div>
 
 					{getHandles()}
 				</div>
