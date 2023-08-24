@@ -76,8 +76,11 @@ export const useStore = createWithEqualityFn(
 					});
 					set({ nodes: ordered });
 				},
-				findNode: (id: string) => {
+				getNode: (id: string) => {
 					return useStore.getState().nodes.find((node) => node.id === id);
+				},
+				findNode: (where: (node: Node) => boolean) => {
+					return useStore.getState().nodes.find((node) => where(node));
 				},
 				findNodes: (where: (node: Node) => boolean) => {
 					return useStore.getState().nodes.filter((node) => where(node));

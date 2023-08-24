@@ -10,8 +10,15 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "../ui/context-menu";
-import { NODES_TYPES, SHAPES } from "@/lib/constants";
-import { Shapes, TextCursor, Trash, Workflow } from "lucide-react";
+import {
+	Copy,
+	Shapes,
+	TextCursor,
+	Trash,
+	Unlink,
+	Workflow,
+} from "lucide-react";
+import { NODES_TYPES, SHAPES, flowSelector } from "@/lib/constants";
 import { cn, trpc } from "@/lib/utils";
 import { memo, useState } from "react";
 
@@ -31,12 +38,16 @@ const GroupNode = ({
 	selected: boolean;
 	id: string;
 }) => {
+	const { findAndUpdateNode, getNode, findNode } = useStore(flowSelector);
 	const user = trpc.users.get.useQuery(
 		{ id: data.draggedBy },
 		{ enabled: !!data.draggedBy },
 	);
+
+	const parent = findNode((n) => n.id === getNode(id)?.parentNode);
 	const updateNode = trpc.nodes.update.useMutation();
 	const deleteNode = trpc.nodes.delete.useMutation();
+	const duplicateNode = trpc.nodes.duplicate.useMutation();
 	const createNode = trpc.nodes.add.useMutation();
 	const canvasId = useStore((state) => state.currentCanvasId);
 	const contextMenuPosition = useStore((state) => state.contextMenuPosition);
@@ -129,21 +140,6 @@ const GroupNode = ({
 				</>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
-				<ContextMenuItem
-					onClick={() =>
-						setEditing((e) => ({
-							...e,
-							[id]: {
-								status: true,
-								value: data.label,
-							},
-						}))
-					}
-				>
-					<TextCursor className="w-4 h-4 mr-2" />
-					Rename
-				</ContextMenuItem>
-				<ContextMenuSeparator />
 				<ContextMenuLabel>Add to group</ContextMenuLabel>
 				<ContextMenuSub>
 					<ContextMenuSubTrigger>
@@ -292,6 +288,63 @@ const GroupNode = ({
 					</ContextMenuSubContent>
 				</ContextMenuSub>
 				<ContextMenuSeparator />
+				<ContextMenuItem
+					onClick={() =>
+						setEditing((e) => ({
+							...e,
+							[id]: {
+								status: true,
+								value: data.label,
+							},
+						}))
+					}
+				>
+					<TextCursor className="w-4 h-4 mr-2" />
+					Rename
+				</ContextMenuItem>
+				<ContextMenuItem
+					onClick={() =>
+						duplicateNode.mutate({
+							id,
+							offsetX: 2,
+							offsetY: 2,
+						})
+					}
+				>
+					<Copy className="w-4 h-4 mr-2" />
+					Duplicate
+				</ContextMenuItem>
+				{parent && (
+					<ContextMenuItem
+						onClick={() => {
+							findAndUpdateNode(
+								(n) => n.id === id,
+								(node) => {
+									const absolutePosition = {
+										x: node.position.x + parent.position.x,
+										y: node.position.y + parent.position.y,
+									};
+									updateNode.mutate({
+										id,
+										parentId: null,
+										x: absolutePosition.x,
+										y: absolutePosition.y,
+									});
+									return {
+										...node,
+										parentNode: undefined,
+										extent: undefined,
+										position: absolutePosition,
+										zIndex: 0,
+									};
+								},
+							);
+						}}
+					>
+						<Unlink className="w-4 h-4 mr-2" />
+						Ungroup
+					</ContextMenuItem>
+				)}
 				<ContextMenuItem
 					onClick={() => {
 						deleteNode.mutate({

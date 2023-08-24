@@ -6,12 +6,13 @@ import {
 	ContextMenuTrigger,
 } from "../ui/context-menu";
 import { Copy, TextCursor, Trash, Unlink } from "lucide-react";
-import { Handle, NodeResizer, Position, useStore } from "reactflow";
+import { Handle, NodeResizer, Position } from "reactflow";
+import { NODES_TYPES, flowSelector } from "@/lib/constants";
 import { cn, trpc } from "@/lib/utils";
 import { memo, useState } from "react";
 
 import { Input } from "../ui/input";
-import { NODES_TYPES } from "@/lib/constants";
+import { useStore } from "@/lib/store";
 
 function DefaultNode({
 	data,
@@ -26,20 +27,12 @@ function DefaultNode({
 	yPos: number;
 	type: string;
 }) {
+	const { findAndUpdateNode, getNode, findNode } = useStore(flowSelector);
 	const user = trpc.users.get.useQuery(
 		{ id: data.draggedBy },
 		{ enabled: !!data.draggedBy },
 	);
-	const parent = useStore((s) => {
-		const node = s.nodeInternals.get(id);
-
-		if (!node) {
-			return false;
-		}
-		return s.nodeInternals.get(node.parentNode || "");
-	});
-	const setNodes = useStore((s) => s.setNodes);
-	const getNodes = useStore((s) => s.getNodes);
+	const parent = findNode((n) => n.id === getNode(id)?.parentNode);
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const updateNode = trpc.nodes.update.useMutation();
 	const duplicateNode = trpc.nodes.duplicate.useMutation();
@@ -209,6 +202,37 @@ function DefaultNode({
 					<Copy className="w-4 h-4 mr-2" />
 					Duplicate
 				</ContextMenuItem>
+				{parent && (
+					<ContextMenuItem
+						onClick={() => {
+							findAndUpdateNode(
+								(n) => n.id === id,
+								(node) => {
+									const absolutePosition = {
+										x: node.position.x + parent.position.x,
+										y: node.position.y + parent.position.y,
+									};
+									updateNode.mutate({
+										id,
+										parentId: null,
+										x: absolutePosition.x,
+										y: absolutePosition.y,
+									});
+									return {
+										...node,
+										parentNode: undefined,
+										extent: undefined,
+										position: absolutePosition,
+										zIndex: 0,
+									};
+								},
+							);
+						}}
+					>
+						<Unlink className="w-4 h-4 mr-2" />
+						Ungroup
+					</ContextMenuItem>
+				)}
 				<ContextMenuItem
 					onClick={() =>
 						deleteNode.mutate({
@@ -219,42 +243,6 @@ function DefaultNode({
 					<Trash className="w-4 h-4 mr-2" />
 					Remove
 				</ContextMenuItem>
-				{parent && (
-					<ContextMenuItem
-						onClick={() => {
-							const nodes = getNodes();
-							const node = nodes.find((node) => node.id === id);
-							if (!node) return;
-							const absolutePosition = {
-								x: node.position.x + parent.position.x,
-								y: node.position.y + parent.position.y,
-							};
-							updateNode.mutate({
-								id,
-								parentId: null,
-								x: absolutePosition.x,
-								y: absolutePosition.y,
-							});
-							setNodes(
-								nodes.map((node) => {
-									if (node.id === id) {
-										return {
-											...node,
-											parentNode: undefined,
-											extent: undefined,
-											position: absolutePosition,
-											zIndex: 0,
-										};
-									}
-									return node;
-								}),
-							);
-						}}
-					>
-						<Unlink className="w-4 h-4 mr-2" />
-						Ungroup
-					</ContextMenuItem>
-				)}
 			</ContextMenuContent>
 		</ContextMenu>
 	);
