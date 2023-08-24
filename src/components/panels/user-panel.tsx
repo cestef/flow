@@ -1,5 +1,7 @@
+import { Github, LogIn } from "lucide-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -7,8 +9,8 @@ import {
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-import { LogIn } from "lucide-react";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { Button } from "../ui/button";
 
 export default function () {
@@ -26,11 +28,14 @@ export default function () {
 							</AvatarFallback>
 						</Avatar>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent side="left" className="mr-2">
+					<DropdownMenuContent side="left" className="mr-2 mt-6">
 						<DropdownMenuItem
 							onClick={() => router.push(`/profile/${session.user.id}`)}
 						>
 							Profile
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => router.push("/about")}>
+							About
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => signOut()}>
 							Sign out
