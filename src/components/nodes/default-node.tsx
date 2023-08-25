@@ -3,9 +3,18 @@ import {
 	ContextMenu,
 	ContextMenuContent,
 	ContextMenuItem,
+	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "../ui/context-menu";
-import { Copy, Pipette, TextCursor, Trash, Type, Unlink } from "lucide-react";
+import {
+	Copy,
+	MessageSquare,
+	Pipette,
+	TextCursor,
+	Trash,
+	Type,
+	Unlink,
+} from "lucide-react";
 import { Handle, NodeResizer, Position, useKeyPress } from "reactflow";
 import { NODES_TYPES, flowSelector } from "@/lib/constants";
 import {
@@ -22,7 +31,6 @@ import { memo, useState } from "react";
 import BorderResizer from "../border-resizer";
 import { Button } from "../ui/button";
 import { GradientPicker } from "../ui/picker";
-import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Slider } from "../ui/slider";
 import { useStore } from "@/lib/store";
@@ -53,10 +61,12 @@ function DefaultNode({
 		{ id: data.draggedBy },
 		{ enabled: !!data.draggedBy },
 	);
+	const canvasId = useStore((state) => state.currentCanvasId);
 	const parent = findNode((n) => n.id === getNode(id)?.parentNode);
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const updateNode = trpc.nodes.update.useMutation();
 	const duplicateNode = trpc.nodes.duplicate.useMutation();
+	const createComment = trpc.comments.add.useMutation();
 	const getHandles = () => {
 		switch (type) {
 			case NODES_TYPES.INPUT:
@@ -362,7 +372,6 @@ function DefaultNode({
 					<TextCursor className="w-4 h-4 mr-2" />
 					Rename
 				</ContextMenuItem>
-
 				<ContextMenuItem
 					onClick={() =>
 						duplicateNode.mutate({
@@ -435,6 +444,19 @@ function DefaultNode({
 						Ungroup
 					</ContextMenuItem>
 				)}
+				<ContextMenuItem
+					onClick={() => {
+						createComment.mutate({
+							canvasId,
+							nodeId: id,
+							text: "Comment",
+						});
+					}}
+				>
+					<MessageSquare className="mr-2 w-4 h-4" />
+					Comment
+				</ContextMenuItem>
+				<ContextMenuSeparator />
 				<ContextMenuItem
 					onClick={() =>
 						deleteNode.mutate({

@@ -20,6 +20,11 @@ export const subscribe = () => {
 		deleteEdge,
 		addEdge,
 		deleteNode,
+		comments,
+		setComments,
+		addComment,
+		updateComment,
+		deleteComment,
 	} = useStore(flowSelector);
 	const { data: session } = useSession();
 	const { toast } = useToast();
@@ -194,4 +199,45 @@ export const subscribe = () => {
 			});
 		},
 	});
+
+	trpc.comments.onAdd.useSubscription(
+		{
+			canvasId,
+		},
+		{
+			async onData(comment) {
+				if (comments.find((c) => c.id === comment.id)) return;
+				addComment(comment);
+			},
+			onError(err) {
+				console.log(err);
+			},
+		},
+	);
+	trpc.comments.onUpdate.useSubscription(
+		{
+			canvasId,
+		},
+		{
+			async onData(comment) {
+				updateComment(comment);
+			},
+			onError(err) {
+				console.log(err);
+			},
+		},
+	);
+	trpc.comments.onDelete.useSubscription(
+		{
+			canvasId,
+		},
+		{
+			async onData(comment) {
+				deleteComment(comment.id);
+			},
+			onError(err) {
+				console.log(err);
+			},
+		},
+	);
 };

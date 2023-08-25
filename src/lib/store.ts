@@ -10,6 +10,7 @@ import {
 } from "reactflow";
 import { nodesEqual, shallowMerge } from "./utils";
 
+import { Comment } from "@prisma/client";
 import { combine } from "zustand/middleware";
 import { create } from "zustand";
 import { createWithEqualityFn } from "zustand/traditional";
@@ -22,6 +23,7 @@ export const useStore = createWithEqualityFn(
 			{
 				nodes: [] as Node[],
 				edges: [] as Edge[],
+				comments: [] as Comment[],
 				createNewCanvas: {
 					opened: false,
 					name: "",
@@ -60,7 +62,7 @@ export const useStore = createWithEqualityFn(
 				},
 				shouldEmit: false,
 				brushesOpen: false,
-				selectedBrush: undefined as string | undefined,
+				selectedBrush: "pointer" as string | undefined,
 			},
 			(set) => ({
 				onNodesChange: (changes: NodeChange[]) => {
@@ -70,6 +72,7 @@ export const useStore = createWithEqualityFn(
 					}));
 				},
 				setNodes: (nodes: Node[]) => {
+					console.log("setNodes", nodes);
 					const ordered = nodes.sort((a, b) => {
 						if (a.type === "customGroup" && b.type !== "customGroup") return -1;
 						if (a.type !== "customGroup" && b.type === "customGroup") return 1;
@@ -90,6 +93,7 @@ export const useStore = createWithEqualityFn(
 					where: (node: Node) => boolean,
 					update: (node: Node) => Node,
 				) => {
+					console.log("findAndUpdateNode", where, update);
 					set((state) => ({
 						nodes: state.nodes.map((node) => {
 							if (where(node)) {
@@ -100,6 +104,7 @@ export const useStore = createWithEqualityFn(
 					}));
 				},
 				updateNode: (node: Partial<Node> & { id: string }) => {
+					console.log("updateNode", node);
 					set((state) => ({
 						nodes: state.nodes.map((n) => {
 							if (n.id === node.id) {
@@ -137,6 +142,30 @@ export const useStore = createWithEqualityFn(
 						edges: [...state.edges, edge],
 					}));
 				},
+				setComments: (comments: Comment[]) => {
+					set({ comments });
+				},
+				addComment: (comment: Comment) => {
+					set((state) => ({
+						comments: [...state.comments, comment],
+					}));
+				},
+				deleteComment: (commentId: string) => {
+					set((state) => ({
+						comments: state.comments.filter((c) => c.id !== commentId),
+					}));
+				},
+				updateComment: (comment: Partial<Comment> & { id: string }) => {
+					set((state) => ({
+						comments: state.comments.map((c) => {
+							if (c.id === comment.id) {
+								return shallowMerge(c, comment);
+							}
+							return c;
+						}),
+					}));
+				},
+
 				onConnect: (connection: Connection) => {
 					const newEdges = addEdge(connection, useStore.getState().edges);
 					set(() => ({

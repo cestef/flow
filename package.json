@@ -61,6 +61,7 @@
 		"react-day-picker": "^8.8.1",
 		"react-dom": "18.2.0",
 		"react-hotkeys-hook": "^4.4.1",
+		"react-selecto": "^1.26.0",
 		"reactflow": "^11.8.1",
 		"shallow-equal": "^3.1.0",
 		"styled-components": "^6.0.7",

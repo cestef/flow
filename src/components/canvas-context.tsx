@@ -9,7 +9,7 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "./ui/context-menu";
-import { Group, Shapes, Trash, Workflow } from "lucide-react";
+import { Group, MessageSquare, Shapes, Trash, Workflow } from "lucide-react";
 import { NODES_TYPES, SHAPES } from "@/lib/constants";
 
 import { trpc } from "@/lib/utils";
@@ -24,6 +24,7 @@ export default function CanvasContext({
 	const { confirm, modal } = useConfirm();
 	const clearCanvas = trpc.canvas.clear.useMutation();
 	const createNode = trpc.nodes.add.useMutation();
+	const createComment = trpc.comments.add.useMutation();
 	const contextMenuPosition = useStore((state) => state.contextMenuPosition);
 	const canvasId = useStore((state) => state.currentCanvasId);
 
@@ -186,6 +187,19 @@ export default function CanvasContext({
 					>
 						<Group className="mr-2 w-4 h-4" />
 						Group
+					</ContextMenuItem>
+					<ContextMenuItem
+						onClick={() => {
+							createComment.mutate({
+								canvasId,
+								x: contextMenuPosition.x,
+								y: contextMenuPosition.y,
+								text: "Comment",
+							});
+						}}
+					>
+						<MessageSquare className="mr-2 w-4 h-4" />
+						Comment
 					</ContextMenuItem>
 					<ContextMenuSeparator />
 					<ContextMenuItem

@@ -1,10 +1,10 @@
-import { Canvas, Edge, Node } from "@prisma/client";
 import { protectedProcedure, router } from "../trpc";
 
+import { Canvas } from "@prisma/client";
 import EventEmitter from "events";
 import { observable } from "@trpc/server/observable";
-import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { z } from "zod";
 
 const emitters = new Map<string, EventEmitter>();
 

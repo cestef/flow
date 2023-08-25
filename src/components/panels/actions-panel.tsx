@@ -227,7 +227,7 @@ export default function ActionsPanel() {
 	const setSelected = useStore((state) => state.setSelected);
 	useOnSelectionChange({
 		onChange: ({ nodes, edges }) => {
-			// console.log("selection change", nodes, edges);
+			console.log("selection change", nodes, edges);
 			setSelected(nodes, edges);
 		},
 	});
@@ -249,6 +249,18 @@ export default function ActionsPanel() {
 	useHotkeys(["ctrl+f", "meta+f"], (e) => {
 		e.preventDefault();
 		fitView();
+	});
+	useHotkeys(["p"], (e) => {
+		e.preventDefault();
+		setSelectedBrush("pointer");
+	});
+	useHotkeys(["s"], (e) => {
+		e.preventDefault();
+		setSelectedBrush("select");
+	});
+	useHotkeys(["d"], (e) => {
+		e.preventDefault();
+		setSelectedBrush("delete");
 	});
 	const { undo, redo } = useTemporalStore((s) => s);
 	useHotkeys(["ctrl+z", "meta+z"], (e) => {
@@ -434,7 +446,15 @@ export default function ActionsPanel() {
 								variant="outline"
 								onClick={() => setBrushesOpen(true)}
 							>
-								<Brush className="w-4 h-4" />
+								{selectedBrush === "select" ? (
+									<BoxSelect className="w-4 h-4" />
+								) : selectedBrush === "pointer" ? (
+									<Pointer className="w-4 h-4" />
+								) : selectedBrush === "delete" ? (
+									<Trash2 className="w-4 h-4" />
+								) : (
+									<Brush className="w-4 h-4" />
+								)}
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent side="right" className="ml-2">

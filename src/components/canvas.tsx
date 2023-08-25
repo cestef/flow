@@ -16,6 +16,7 @@ import {
 	nodeTypes,
 } from "@/lib/constants";
 import {
+	cn,
 	formatRemoteData,
 	getHelperLines,
 	isNodeInGroupBounds,
@@ -26,6 +27,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 import CanvasContext from "./canvas-context";
 import HelperLines from "./helper-lines";
+import Selecto from "react-selecto";
 import { subscribe } from "@/lib/subscriptions";
 import { throttle } from "throttle-debounce";
 import { useSearchParams } from "next/navigation";
@@ -46,6 +48,7 @@ const Flow = ({
 		setNodes,
 		setEdges,
 		updateNode,
+		getNode,
 		findAndUpdateNode,
 	} = useStore(flowSelector);
 
@@ -149,14 +152,17 @@ const Flow = ({
 			(change) =>
 				change.type === "position" && change.position && change.dragging,
 		) as NodePositionChange[];
-		console.log("shouldEmit", shouldEmit);
 		if (shouldEmit) updateNodePositionThrottled(positionChanges);
 		for (const change of nodeChanges) {
 			if (change.type === "remove") {
 				deleteNode.mutate({ id: change.id });
 			}
 		}
-		onNodesChange(nodeChanges);
+		onNodesChange(
+			nodeChanges.filter((change) =>
+				selectedBrush === "select" ? change.type !== "select" : true,
+			),
+		);
 	};
 
 	const dragEndNode = trpc.nodes.dragEnd.useMutation();
@@ -283,8 +289,10 @@ const Flow = ({
 	const helperLineHorizontal = useStore((state) => state.helperLineHorizontal);
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
 
+	const selectedBrush = useStore((state) => state.selectedBrush);
+
 	subscribe();
-	const createNode = trpc.nodes.add.useMutation();
+
 	return (
 		<div
 			ref={reactFlowWrapper}
@@ -325,24 +333,8 @@ const Flow = ({
 						hideAttribution: true,
 					}}
 					className="h-full"
-					// onDoubleClickCapture={(e) => {
-					// 	e.stopPropagation();
-					// 	e.preventDefault();
-					// 	const contextMenuPosition = project({
-					// 		x: e.clientX,
-					// 		y: e.clientY,
-					// 	});
-					// 	createNode.mutate({
-					// 		canvasId,
-					// 		name: "Default",
-					// 		x: contextMenuPosition.x,
-					// 		y: contextMenuPosition.y,
-					// 		type: NODES_TYPES.DEFAULT,
-					// 	});
-					// }}
+					panOnDrag={selectedBrush === "pointer" || !selectedBrush}
 				>
-					{/* <MiniMapStyled /> */}
-					{/* <ControlsStyled position="bottom-right" /> */}
 					<BackgroundStyled />
 					<HelperLines
 						horizontal={helperLineHorizontal}
@@ -351,6 +343,48 @@ const Flow = ({
 					{children}
 				</ReactFlowStyled>
 			</CanvasContext>
+			{selectedBrush === "select" && (
+				<Selecto
+					selectableTargets={[".react-flow__node"]}
+					onSelect={(e) => {
+						e.added.forEach((el) => {
+							const id = el.getAttribute("data-id");
+							if (!id) return;
+							const node = getNode(id);
+							if (!node) return;
+							onNodesChange([
+								{
+									id: node.id,
+									type: "select",
+									selected: true,
+								},
+							]);
+						});
+						e.removed.forEach((el) => {
+							const id = el.getAttribute("data-id");
+							if (!id) return;
+							const node = getNode(id);
+							if (!node) return;
+							onNodesChange([
+								{
+									id: node.id,
+									type: "select",
+									selected: false,
+								},
+							]);
+						});
+					}}
+					onSelectEnd={(e) => {
+						onNodesChange(
+							e.selected.map((el) => ({
+								id: el.id,
+								type: "select",
+								selected: true,
+							})),
+						);
+					}}
+				/>
+			)}
 		</div>
 	);
 };

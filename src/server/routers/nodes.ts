@@ -543,6 +543,8 @@ export const nodesRouter = router({
 				throw new Error("User is not allowed to update nodes in this canvas");
 			}
 
+			// console.log(input.changes);
+
 			const updateNodes = input.changes.map((change) =>
 				prisma.node.update({
 					where: {
