@@ -1,10 +1,10 @@
 import { protectedProcedure, router } from "../trpc";
 
-import EventEmitter from "events";
 import { Edge } from "@prisma/client";
+import EventEmitter from "events";
 import { observable } from "@trpc/server/observable";
-import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { z } from "zod";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -367,6 +367,53 @@ export const edgesRouter = router({
 
 			res.forEach((edge) => {
 				emitter(edge.canvasId).emit("add", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			return res;
+		}),
+	deleteMany: protectedProcedure
+		.input(
+			z.object({
+				ids: z.array(z.string()),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const edges = await prisma.edge.findMany({
+				where: {
+					id: {
+						in: input.ids,
+					},
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+				},
+			});
+
+			const allowedEdges = edges.filter((edge) => {
+				return (
+					edge.canvas.owner.id === ctx.user.id ||
+					edge.canvas.members.some((member) => member.id === ctx.user.id)
+				);
+			});
+
+			const res = await prisma.edge.deleteMany({
+				where: {
+					id: {
+						in: allowedEdges.map((edge) => edge.id),
+					},
+				},
+			});
+
+			allowedEdges.forEach((edge) => {
+				emitter(edge.canvas.id).emit("delete", {
 					edge,
 					userId: ctx.user.id,
 				});

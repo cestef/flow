@@ -847,4 +847,56 @@ export const nodesRouter = router({
 
 			return emitter(input.canvasId).listenerCount("dragUpdate") > 1;
 		}),
+	deleteMany: protectedProcedure
+		.input(
+			z.object({
+				ids: z.array(z.string()),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const nodes = await prisma.node.findMany({
+				where: {
+					id: {
+						in: input.ids,
+					},
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+				},
+			});
+
+			if (!nodes) {
+				throw new Error("Nodes not found");
+			}
+
+			const canvas = nodes[0].canvas;
+
+			if (
+				canvas.owner.id !== ctx.user.id &&
+				!canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to delete nodes");
+			}
+
+			const deleteNodes = nodes.map((node) =>
+				prisma.node.delete({
+					where: {
+						id: node.id,
+					},
+				}),
+			);
+
+			const res = await prisma.$transaction(deleteNodes);
+
+			res.forEach((node) => {
+				emitter(node.canvasId).emit("delete", node);
+			});
+
+			return res;
+		}),
 });

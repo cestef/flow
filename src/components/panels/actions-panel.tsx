@@ -225,9 +225,26 @@ export default function ActionsPanel() {
 	useHotkeys(["ctrl+c", "meta+c"], copy);
 	useHotkeys(["ctrl+v", "meta+v"], paste);
 	const setSelected = useStore((state) => state.setSelected);
+	const deleteManyNodes = trpc.nodes.deleteMany.useMutation({
+		onSuccess: () => {
+			setSelected([], selected.edges);
+		},
+	});
+	const deleteManyEdges = trpc.edges.deleteMany.useMutation({
+		onSuccess: () => {
+			setSelected(selected.nodes, []);
+		},
+	});
 	useOnSelectionChange({
 		onChange: ({ nodes, edges }) => {
 			// console.log("selection change", nodes, edges);
+			if (selectedBrush === "delete" && nodes.length > 0) {
+				const nodeIds = nodes.map((node) => node.id);
+				const edgeIds = edges.map((edge) => edge.id);
+				deleteManyNodes.mutate({ ids: nodeIds });
+				deleteManyEdges.mutate({ ids: edgeIds });
+				return;
+			}
 			setSelected(nodes, edges);
 		},
 	});
