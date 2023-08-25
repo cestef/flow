@@ -137,12 +137,12 @@ const BorderResizerControl = ({
 		<div
 			ref={controlRef}
 			className={cn(
-				"absolute border-2 border-primary rounded-sm bg-primary z-10 w-4 h-4",
+				"absolute border border-accent rounded-[5px] bg-primary z-10 w-1 h-1",
 				{
-					"top-4 left-4 cursor-nwse-resize": position === "top-left",
-					"top-4 right-4 cursor-nesw-resize": position === "top-right",
-					"bottom-4 left-4 cursor-nesw-resize": position === "bottom-left",
-					"bottom-4 right-4 cursor-nwse-resize": position === "bottom-right",
+					"top-2 left-2 cursor-nwse-resize": position === "top-left",
+					"top-2 right-2 cursor-nesw-resize": position === "top-right",
+					"bottom-2 left-2 cursor-nesw-resize": position === "bottom-left",
+					"bottom-2 right-2 cursor-nwse-resize": position === "bottom-right",
 				},
 			)}
 		/>
@@ -151,9 +151,9 @@ const BorderResizerControl = ({
 
 const corners: Position[] = [
 	"top-left",
-	"top-right",
-	"bottom-left",
-	"bottom-right",
+	// "top-right",
+	// "bottom-left",
+	// "bottom-right",
 ];
 
 const BorderResizer = ({
