@@ -19,11 +19,11 @@ import {
 	Workflow,
 } from "lucide-react";
 import { NODES_TYPES, SHAPES, flowSelector } from "@/lib/constants";
+import { NodeResizer, useKeyPress } from "reactflow";
 import { cn, trpc } from "@/lib/utils";
 import { memo, useState } from "react";
 
 import { Input } from "../ui/input";
-import { NodeResizer } from "reactflow";
 import { useStore } from "@/lib/store";
 
 const GroupNode = ({
@@ -57,6 +57,7 @@ const GroupNode = ({
 	const [editing, setEditing] = useState<{
 		[id: string]: { value: string; status: boolean };
 	}>({});
+	const altPressed = useKeyPress("Alt");
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
@@ -86,6 +87,7 @@ const GroupNode = ({
 								y,
 							});
 						}}
+						keepAspectRatio={altPressed}
 					/>
 					{/* <Handle type="target" position={Position.Top} /> */}
 					<div

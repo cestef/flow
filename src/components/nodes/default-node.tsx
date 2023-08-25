@@ -6,7 +6,7 @@ import {
 	ContextMenuTrigger,
 } from "../ui/context-menu";
 import { Copy, Pipette, TextCursor, Trash, Type, Unlink } from "lucide-react";
-import { Handle, NodeResizer, Position } from "reactflow";
+import { Handle, NodeResizer, Position, useKeyPress } from "reactflow";
 import { NODES_TYPES, flowSelector } from "@/lib/constants";
 import {
 	Select,
@@ -105,6 +105,8 @@ function DefaultNode({
 		};
 	}>({});
 
+	const altPressed = useKeyPress("Alt");
+
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
@@ -125,6 +127,7 @@ function DefaultNode({
 							y,
 						});
 					}}
+					keepAspectRatio={altPressed}
 				/>
 				<BorderResizer visible={selected} />
 				<div
