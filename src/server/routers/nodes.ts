@@ -653,6 +653,10 @@ export const nodesRouter = router({
 					y: node.y + (input.offsetY ?? 0),
 					type: node.type,
 					name: node.name,
+					fontSize: node.fontSize,
+					fontWeight: node.fontWeight,
+					fontColor: node.fontColor,
+					borderRadius: node.borderRadius,
 					canvas: {
 						connect: {
 							id: node.canvas.id,
@@ -716,6 +720,10 @@ export const nodesRouter = router({
 						y: node.y + (input.offsetY ?? 0),
 						type: node.type,
 						name: node.name,
+						fontSize: node.fontSize,
+						fontWeight: node.fontWeight,
+						fontColor: node.fontColor,
+						borderRadius: node.borderRadius,
 					},
 				}),
 			);
