@@ -657,16 +657,11 @@ export const nodesRouter = router({
 					fontWeight: node.fontWeight,
 					fontColor: node.fontColor,
 					borderRadius: node.borderRadius,
-					canvas: {
-						connect: {
-							id: node.canvas.id,
-						},
-					},
-					parent: {
-						connect: {
-							id: node.parentId ?? undefined,
-						},
-					},
+					width: node.width,
+					height: node.height,
+					color: node.color,
+					canvasId: node.canvas.id,
+					parentId: node.parentId ?? undefined,
 				},
 			});
 
@@ -723,6 +718,9 @@ export const nodesRouter = router({
 						fontSize: node.fontSize,
 						fontWeight: node.fontWeight,
 						fontColor: node.fontColor,
+						width: node.width,
+						height: node.height,
+						color: node.color,
 						borderRadius: node.borderRadius,
 					},
 				}),
