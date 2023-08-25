@@ -166,6 +166,7 @@ export const nodesRouter = router({
 				fontColor: z.string().optional(),
 				fontSize: z.number().optional(),
 				fontWeight: z.string().optional(),
+				borderRadius: z.number().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -215,6 +216,7 @@ export const nodesRouter = router({
 					fontColor: input.fontColor,
 					fontSize: input.fontSize,
 					fontWeight: input.fontWeight,
+					borderRadius: input.borderRadius,
 				},
 			});
 

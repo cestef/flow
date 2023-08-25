@@ -19,6 +19,7 @@ import {
 import { cn, sanitizeColor, trpc } from "@/lib/utils";
 import { memo, useState } from "react";
 
+import BorderResizer from "../border-resizer";
 import { Button } from "../ui/button";
 import { GradientPicker } from "../ui/picker";
 import { Input } from "../ui/input";
@@ -39,6 +40,7 @@ function DefaultNode({
 		fontColor: string;
 		fontSize: number;
 		fontWeight: string;
+		borderRadius: number;
 	};
 	selected: boolean;
 	id: string;
@@ -124,21 +126,24 @@ function DefaultNode({
 						});
 					}}
 				/>
+				<BorderResizer visible={selected} />
 				<div
 					className={cn(
-						"px-4 py-2 shadow-md rounded-md border-2 min-w-[100px] min-h-[50px]",
-						"flex flex-col justify-center relative items-center h-full w-full transition-all",
+						"px-4 py-2 shadow-md border-2 min-w-[100px] min-h-[50px]",
+						"flex flex-col justify-center relative items-center h-full w-full transition-none",
 						selected ? "border-primary" : "border-stone-400",
 						!data.color && !editing[id]?.pickerValue && "bg-accent",
 						!data.fontColor && !editing[id]?.fontColor && "text-primary",
 						user.data && "border-primary",
 						editing[id]?.fontStatus && "min-h-[300px] min-w-[200px]",
 					)}
+					id={id}
 					style={{
 						color: editing[id]?.fontColor ?? data.fontColor,
 						fontSize: editing[id]?.fontSize ?? data.fontSize ?? 16,
 						fontWeight: editing[id]?.fontWeight ?? data.fontWeight,
 						backgroundColor: editing[id]?.pickerValue ?? data.color,
+						borderRadius: data.borderRadius ?? 15,
 					}}
 					onDoubleClick={() => {
 						setEditing((e) => ({

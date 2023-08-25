@@ -81,26 +81,27 @@ model Canvas {
 }
 
 model Node {
-    id         String   @id @default(cuid())
-    canvasId   String
-    canvas     Canvas   @relation(fields: [canvasId], references: [id], onDelete: Cascade)
-    name       String
-    type       String
-    x          Float
-    y          Float
-    width      Float?
-    height     Float?
-    color      String?
-    fontColor  String?
-    fontSize   Float?
-    fontWeight String?
-    parentId   String?
-    parent     Node?    @relation("Parent", fields: [parentId], references: [id])
-    children   Node[]   @relation("Parent")
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-    fromEdges  Edge[]   @relation("FromEdges")
-    toEdges    Edge[]   @relation("ToEdges")
+    id           String   @id @default(cuid())
+    canvasId     String
+    canvas       Canvas   @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+    name         String
+    type         String
+    x            Float
+    y            Float
+    width        Float?
+    height       Float?
+    color        String?
+    fontColor    String?
+    fontSize     Float?
+    fontWeight   String?
+    borderRadius Float?
+    parentId     String?
+    parent       Node?    @relation("Parent", fields: [parentId], references: [id])
+    children     Node[]   @relation("Parent")
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    fromEdges    Edge[]   @relation("FromEdges")
+    toEdges      Edge[]   @relation("ToEdges")
 }
 
 model Edge {

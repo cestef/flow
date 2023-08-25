@@ -399,6 +399,7 @@ export const formatRemoteData = (data: PrismaNode[], order = false): Node[] => {
 			fontColor: node.fontColor,
 			fontSize: node.fontSize,
 			fontWeight: node.fontWeight,
+			borderRadius: node.borderRadius,
 		},
 		position: { x: node.x, y: node.y },
 		...((node.width || node.height) && {

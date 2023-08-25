@@ -45,6 +45,8 @@
 		"clsx": "^2.0.0",
 		"cmdk": "^0.2.0",
 		"cross-env": "^7.0.3",
+		"d3-drag": "^3.0.0",
+		"d3-selection": "^3.0.0",
 		"date-fns": "^2.30.0",
 		"elkjs": "^0.8.2",
 		"html-to-image": "^1.11.11",
@@ -75,6 +77,8 @@
 		"zustand": "^4.4.1"
 	},
 	"devDependencies": {
+		"@types/d3-drag": "^3.0.3",
+		"@types/d3-selection": "^3.0.6",
 		"@types/node": "20.5.0",
 		"@types/react": "18.2.20",
 		"@types/react-dom": "18.2.7",
