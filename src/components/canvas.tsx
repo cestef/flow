@@ -224,41 +224,45 @@ const Flow = ({
 					className: "transition-colors duration-200 ease-in-out rounded-md",
 				}),
 			);
-			const group = isNodeInGroupBounds(node, nodes);
-			if (group) {
-				const relativePosition = {
-					x: node.position.x - group.position.x,
-					y: node.position.y - group.position.y,
-				};
-				MupdateNode.mutate({
-					id: node.id,
-					parentId: group.id,
-					x: relativePosition.x,
-					y: relativePosition.y,
-				});
+			const selectedNodes = nodes.filter((n) => n.selected);
+			console.log(selectedNodes);
+			for (const node of selectedNodes) {
+				const group = isNodeInGroupBounds(node, nodes);
+				if (group) {
+					const relativePosition = {
+						x: node.position.x - group.position.x,
+						y: node.position.y - group.position.y,
+					};
+					MupdateNode.mutate({
+						id: node.id,
+						parentId: group.id,
+						x: relativePosition.x,
+						y: relativePosition.y,
+					});
+					updateNode({
+						id: node.id,
+						parentNode: group.id,
+						extent: "parent",
+						position: relativePosition,
+					});
+				}
+
 				updateNode({
 					id: node.id,
-					parentNode: group.id,
-					extent: "parent",
-					position: relativePosition,
+					data: {
+						...node.data,
+						debouncedPosition: {
+							x: node.position.x,
+							y: node.position.y,
+						},
+					},
+				});
+				dragEndNode.mutate({
+					id: node.id,
+					x: node.position.x,
+					y: node.position.y,
 				});
 			}
-			dragEndNode.mutate({
-				id: node.id,
-				x: node.position.x,
-				y: node.position.y,
-			});
-
-			updateNode({
-				id: node.id,
-				data: {
-					...node.data,
-					debouncedPosition: {
-						x: node.position.x,
-						y: node.position.y,
-					},
-				},
-			});
 		},
 		[nodes],
 	);

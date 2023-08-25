@@ -227,7 +227,7 @@ export default function ActionsPanel() {
 	const setSelected = useStore((state) => state.setSelected);
 	useOnSelectionChange({
 		onChange: ({ nodes, edges }) => {
-			console.log("selection change", nodes, edges);
+			// console.log("selection change", nodes, edges);
 			setSelected(nodes, edges);
 		},
 	});
