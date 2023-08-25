@@ -306,10 +306,7 @@ export default function ActionsPanel() {
 				<DropdownMenuTrigger>
 					<Tooltip>
 						<TooltipTrigger>
-							<Button
-								size="icon"
-								onClick={() => setSettingsOpen(!settingsOpen)}
-							>
+							<Button size="icon" onClick={() => setSettingsOpen(true)}>
 								<Settings2 className="w-4 h-4" />
 							</Button>
 						</TooltipTrigger>
@@ -435,7 +432,7 @@ export default function ActionsPanel() {
 							<Button
 								size="icon"
 								variant="outline"
-								onClick={() => setBrushesOpen(!brushesOpen)}
+								onClick={() => setBrushesOpen(true)}
 							>
 								<Brush className="w-4 h-4" />
 							</Button>
