@@ -5,6 +5,7 @@ import {
 	Node,
 	NodeChange,
 	NodePositionChange,
+	useKeyPress,
 	useReactFlow,
 } from "reactflow";
 import {
@@ -129,7 +130,7 @@ const Flow = ({
 			nodeChanges[0].type === "position" &&
 			nodeChanges[0].dragging &&
 			nodeChanges[0].position &&
-			snapLines
+			ctrlDown
 		) {
 			const helperLines = getHelperLines(nodeChanges[0], nodes);
 
@@ -273,39 +274,9 @@ const Flow = ({
 	const setContextMenuPosition = useStore(
 		(state) => state.setContextMenuPosition,
 	);
-	const { snapToGrid, setSnapToGrid, snapLines, setSnapLines } = useStore(
-		(state) => ({
-			snapToGrid: state.snapToGrid,
-			setSnapToGrid: state.setSnapToGrid,
-			snapLines: state.snapLines,
-			setSnapLines: state.setSnapLines,
-		}),
-	);
 
-	useEffect(() => {
-		const onKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Shift") {
-				setSnapToGrid(true);
-			}
-			if (e.key === "Control") {
-				setSnapLines(true);
-			}
-		};
-		const onKeyUp = (e: KeyboardEvent) => {
-			if (e.key === "Shift") {
-				setSnapToGrid(false);
-			}
-			if (e.key === "Control") {
-				setSnapLines(false);
-			}
-		};
-		window.addEventListener("keydown", onKeyDown);
-		window.addEventListener("keyup", onKeyUp);
-		return () => {
-			window.removeEventListener("keydown", onKeyDown);
-			window.removeEventListener("keyup", onKeyUp);
-		};
-	}, []);
+	const shiftDown = useKeyPress("Shift");
+	const ctrlDown = useKeyPress("Control");
 
 	const { project } = useReactFlow();
 
@@ -346,7 +317,7 @@ const Flow = ({
 					onNodeDrag={onNodeDrag}
 					onEdgesChange={onEdgesChangeProxy}
 					onConnect={onConnectProxy}
-					snapToGrid={snapToGrid}
+					snapToGrid={shiftDown}
 					nodeTypes={nodeTypes}
 					edgeTypes={edgeTypes}
 					fitView

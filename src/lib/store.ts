@@ -40,8 +40,6 @@ export const useStore = createWithEqualityFn(
 				},
 				canvasPanelHidden: false,
 				membersPanelHidden: false,
-				snapToGrid: false,
-				snapLines: false,
 				clipboard: {
 					nodes: [] as Node[],
 					edges: [] as Edge[],
@@ -192,7 +190,6 @@ export const useStore = createWithEqualityFn(
 					set((state) => ({
 						membersPanelHidden: hidden ?? !state.membersPanelHidden,
 					})),
-				setSnapToGrid: (snapToGrid: boolean) => set({ snapToGrid }),
 				setClipboard: (nodes: Node[], edges: Edge[]) =>
 					set({ clipboard: { nodes, edges } }),
 				clearClipboard: () => set({ clipboard: { nodes: [], edges: [] } }),
@@ -204,7 +201,6 @@ export const useStore = createWithEqualityFn(
 					set({ helperLineVertical }),
 				setHelperLineHorizontal: (helperLineHorizontal: number | undefined) =>
 					set({ helperLineHorizontal }),
-				setSnapLines: (snapLines: boolean) => set({ snapLines }),
 				toggleCreateInvitePanel: (opened?: boolean) =>
 					set((state) => ({
 						createInvitePanel: {
