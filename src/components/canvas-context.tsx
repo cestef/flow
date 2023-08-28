@@ -62,7 +62,7 @@ export default function CanvasContext({
 						<Group className="mr-2 w-4 h-4" />
 						Group
 					</ContextMenuItem>
-					<ContextMenuItem
+					{/* <ContextMenuItem
 						onClick={() => {
 							createComment.mutate({
 								canvasId,
@@ -74,7 +74,7 @@ export default function CanvasContext({
 					>
 						<MessageSquare className="mr-2 w-4 h-4" />
 						Comment
-					</ContextMenuItem>
+					</ContextMenuItem> */}
 					<ContextMenuSeparator />
 					<ContextMenuItem
 						onClick={async () => {

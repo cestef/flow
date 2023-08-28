@@ -124,10 +124,8 @@ model Comment {
     id        String   @id @default(cuid())
     canvasId  String
     canvas    Canvas   @relation(fields: [canvasId], references: [id], onDelete: Cascade)
-    nodeId    String?
-    node      Node?    @relation(fields: [nodeId], references: [id], onDelete: Cascade)
-    x         Float
-    y         Float
+    nodeId    String
+    node      Node     @relation(fields: [nodeId], references: [id], onDelete: Cascade)
     userId    String
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     text      String

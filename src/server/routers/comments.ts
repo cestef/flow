@@ -51,23 +51,30 @@ export const commentsRouter = router({
 	add: protectedProcedure
 		.input(
 			z.object({
-				canvasId: z.string(),
 				text: z.string(),
-				x: z.number().optional(),
-				y: z.number().optional(),
-				nodeId: z.string().optional(),
+				nodeId: z.string(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			const canvas = await prisma.canvas.findUnique({
+			const node = await prisma.node.findUnique({
 				where: {
-					id: input.canvasId,
+					id: input.nodeId,
 				},
 				include: {
-					owner: true,
-					members: true,
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
 				},
 			});
+
+			if (!node) {
+				throw new Error("Node not found");
+			}
+
+			const canvas = node.canvas;
 
 			if (!canvas) {
 				throw new Error("Canvas not found");
@@ -80,38 +87,16 @@ export const commentsRouter = router({
 				throw new Error("User is not allowed to add node");
 			}
 
-			let node: Node | null = null;
-
-			if (input.nodeId) {
-				node = await prisma.node.findUnique({
-					where: {
-						id: input.nodeId,
-					},
-				});
-
-				if (!node) {
-					throw new Error("Node not found");
-				}
-
-				if (node.canvasId !== input.canvasId) {
-					throw new Error("Node does not belong to canvas");
-				}
-			} else if (!input.x || !input.y) {
-				throw new Error("x and y are required if nodeId is not provided");
-			}
-
 			const comment = await prisma.comment.create({
 				data: {
-					canvasId: input.canvasId,
+					canvasId: node.canvasId,
 					text: input.text,
-					x: (input.x || node?.x) as number,
-					y: (input.y || node?.y) as number,
 					nodeId: input.nodeId,
 					userId: ctx.user.id,
 				},
 			});
 
-			emitter(input.canvasId).emit("add", comment);
+			emitter(node.canvasId).emit("add", comment);
 
 			return comment;
 		}),

@@ -221,7 +221,6 @@ function DefaultNode({
 				<ContextMenuItem
 					onClick={() => {
 						createComment.mutate({
-							canvasId,
 							nodeId: id,
 							text: "Comment",
 						});
