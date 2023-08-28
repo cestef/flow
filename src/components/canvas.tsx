@@ -394,6 +394,7 @@ const Flow = ({
 			{selectedBrush === "select" && (
 				<Selecto
 					selectableTargets={[".react-flow__node"]}
+					hitRate={50}
 					onSelect={(e) => {
 						const addedIds = e.added
 							.map((el) => el.getAttribute("data-id"))
