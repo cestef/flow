@@ -292,7 +292,52 @@ const Flow = ({
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
 
 	const selectedBrush = useStore((state) => state.selectedBrush);
+	const deleteManyNodes = trpc.nodes.deleteMany.useMutation();
+	const deleteManyEdges = trpc.edges.deleteMany.useMutation();
+	const updateManyNodes = trpc.nodes.updateMany.useMutation();
 
+	const onNodeClick = useCallback(
+		(event: React.MouseEvent, node: Node) => {
+			const selectedNodes = nodes.filter((n) => n.selected);
+			const selectedEdges = edges.filter((e) => e.selected);
+			if (
+				selectedBrush === "delete" &&
+				(selectedNodes.length > 0 || selectedEdges.length > 0)
+			) {
+				const nodeIds = selectedNodes.map((node) => node.id);
+				const edgeIds = selectedEdges.map((edge) => edge.id);
+				const edges = useStore.getState().edges;
+				const connectedEdgesIds = edges
+					.filter((edge) => {
+						return (
+							nodeIds.includes(edge.source) || nodeIds.includes(edge.target)
+						);
+					})
+					.map((edge) => edge.id);
+				const nodes = useStore.getState().nodes;
+				const childrenNodesIds = nodes
+					.filter((e) => nodeIds.includes(e.parentNode || ""))
+					.map((e) => e.id);
+				findAndUpdateNode(
+					(n) => nodeIds.includes(n.parentNode || ""),
+					(n) => ({
+						...n,
+						parentNode: undefined,
+					}),
+				);
+				updateManyNodes.mutate({
+					nodes: childrenNodesIds.map((node) => ({
+						id: node,
+						parentId: null,
+					})),
+				});
+				deleteManyNodes.mutate({ ids: nodeIds });
+				deleteManyEdges.mutate({ ids: [...edgeIds, ...connectedEdgesIds] });
+				return;
+			}
+		},
+		[nodes],
+	);
 	subscribe();
 
 	return (
@@ -326,6 +371,7 @@ const Flow = ({
 					onNodeDragStart={onNodeDragStart}
 					onNodeDrag={onNodeDrag}
 					onEdgesChange={onEdgesChangeProxy}
+					onNodeClick={onNodeClick}
 					onConnect={onConnectProxy}
 					snapToGrid={shiftDown}
 					nodeTypes={nodeTypes}
@@ -335,7 +381,7 @@ const Flow = ({
 						hideAttribution: true,
 					}}
 					className="h-full"
-					panOnDrag={selectedBrush === "pointer" || !selectedBrush}
+					panOnDrag={["pointer", "delete", undefined].includes(selectedBrush)}
 				>
 					<BackgroundStyled />
 					<HelperLines

@@ -150,7 +150,7 @@ export default function ActionsPanel() {
 	const setClipboard = useStore((state) => state.setClipboard);
 	const clearClipboard = useStore((state) => state.clearClipboard);
 	const selected = useStore((state) => state.selected);
-	const { setNodes } = useStore(flowSelector);
+	const { setNodes, findAndUpdateNode } = useStore(flowSelector);
 	const addSelectedNodes = useStoreFlow((state) => state.addSelectedNodes);
 	const addSelectedEdges = useStoreFlow((state) => state.addSelectedEdges);
 	const resetSelectedElements = useStoreFlow(
@@ -265,34 +265,7 @@ export default function ActionsPanel() {
 				}
 			}
 			// console.log("selection change", nodes, edges);
-			if (
-				selectedBrush === "delete" &&
-				(selectedNodes.length > 0 || selectedEdges.length > 0)
-			) {
-				const nodeIds = selectedNodes.map((node) => node.id);
-				const edgeIds = selectedEdges.map((edge) => edge.id);
-				const edges = useStore.getState().edges;
-				const connectedEdgesIds = edges
-					.filter((edge) => {
-						return (
-							nodeIds.includes(edge.source) || nodeIds.includes(edge.target)
-						);
-					})
-					.map((edge) => edge.id);
-				const nodes = useStore.getState().nodes;
-				const childrenNodesIds = nodes
-					.filter((e) => nodeIds.includes(e.parentNode || ""))
-					.map((e) => e.id);
-				updateManyNodes.mutate({
-					nodes: childrenNodesIds.map((node) => ({
-						id: node,
-						parentId: null,
-					})),
-				});
-				deleteManyNodes.mutate({ ids: nodeIds });
-				deleteManyEdges.mutate({ ids: [...edgeIds, ...connectedEdgesIds] });
-				return;
-			}
+
 			setSelected(selectedNodes, selectedEdges);
 		},
 	});
@@ -522,7 +495,7 @@ export default function ActionsPanel() {
 								) : selectedBrush === "pointer" ? (
 									<Pointer className="w-4 h-4" />
 								) : selectedBrush === "delete" ? (
-									<Trash2 className="w-4 h-4" />
+									<Trash2 className="w-4 h-4 text-red-500 dark:text-red-700" />
 								) : (
 									<Brush className="w-4 h-4" />
 								)}
