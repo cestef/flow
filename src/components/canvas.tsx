@@ -21,6 +21,7 @@ import {
 	trcpProxyClient,
 	trpc,
 } from "@/lib/utils";
+import { loginEdges, loginNodes } from "@/login-nodes";
 import { useCallback, useEffect, useRef } from "react";
 
 import CanvasContext from "./canvas-context";
@@ -29,6 +30,7 @@ import Selecto from "react-selecto";
 import { subscribe } from "@/lib/subscriptions";
 import { throttle } from "throttle-debounce";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 
 const Flow = ({
@@ -37,6 +39,7 @@ const Flow = ({
 	children?: React.ReactNode;
 }) => {
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
+	const { data: session } = useSession();
 	const {
 		nodes,
 		edges,
@@ -61,16 +64,28 @@ const Flow = ({
 
 	const canvasId = useStore((state) => state.currentCanvasId);
 
-	const remoteNodes = trpc.nodes.list.useQuery({ canvasId });
-	const remoteEdges = trpc.edges.list.useQuery({ canvasId });
+	const remoteNodes = trpc.nodes.list.useQuery(
+		{ canvasId },
+		{ enabled: !!session?.user?.id },
+	);
+	const remoteEdges = trpc.edges.list.useQuery(
+		{ canvasId },
+		{ enabled: !!session?.user?.id },
+	);
 
 	useEffect(() => {
 		if (remoteNodes.data) {
 			setNodes(formatRemoteData(remoteNodes.data, true));
+		} else if (
+			(remoteNodes.error && remoteNodes.error.data?.code === "UNAUTHORIZED") ||
+			!session?.user?.id
+		) {
+			setNodes(loginNodes);
 		}
 	}, [remoteNodes.data]);
 
 	useEffect(() => {
+		console.log("remoteEdges", remoteEdges);
 		if (remoteEdges.data) {
 			setEdges(
 				remoteEdges.data.map((edge) => ({
@@ -80,6 +95,11 @@ const Flow = ({
 					type: edge.type,
 				})),
 			);
+		} else if (
+			(remoteEdges.error && remoteEdges.error.data?.code === "UNAUTHORIZED") ||
+			!session?.user?.id
+		) {
+			setEdges(loginEdges);
 		}
 	}, [remoteEdges.data]);
 
@@ -105,6 +125,9 @@ const Flow = ({
 
 	const updateNodePositionThrottled = useCallback(
 		throttle(UPDATE_THROTTLE, (changes: NodePositionChange[]) => {
+			if (!shouldEmit) return;
+			if (!canvasId) return;
+			if (!session?.user?.id) return;
 			dragUpdateNode.mutate({
 				changes: changes.map((change) => ({
 					id: change.id,
@@ -153,7 +176,7 @@ const Flow = ({
 		if (shouldEmit) updateNodePositionThrottled(positionChanges);
 		for (const change of nodeChanges) {
 			if (change.type === "remove") {
-				deleteNode.mutate({ id: change.id });
+				if (session?.user?.id) deleteNode.mutate({ id: change.id });
 			}
 		}
 		onNodesChange(
@@ -200,6 +223,8 @@ const Flow = ({
 		(event: React.MouseEvent, node: Node) => void
 	>(
 		async (_, node) => {
+			if (!canvasId) return;
+			if (!session?.user?.id) return;
 			const should = await trcpProxyClient.nodes.shouldEmit.query({
 				canvasId,
 			});
@@ -231,12 +256,13 @@ const Flow = ({
 						x: node.position.x - group.position.x,
 						y: node.position.y - group.position.y,
 					};
-					MupdateNode.mutate({
-						id: node.id,
-						parentId: group.id,
-						x: relativePosition.x,
-						y: relativePosition.y,
-					});
+					if (session?.user?.id)
+						MupdateNode.mutate({
+							id: node.id,
+							parentId: group.id,
+							x: relativePosition.x,
+							y: relativePosition.y,
+						});
 					updateNode({
 						id: node.id,
 						parentNode: group.id,
@@ -255,11 +281,12 @@ const Flow = ({
 						},
 					},
 				});
-				dragEndNode.mutate({
-					id: node.id,
-					x: node.position.x,
-					y: node.position.y,
-				});
+				if (session?.user?.id)
+					dragEndNode.mutate({
+						id: node.id,
+						x: node.position.x,
+						y: node.position.y,
+					});
 			}
 		},
 		[nodes],
@@ -271,7 +298,7 @@ const Flow = ({
 	const onEdgesChangeProxy = (edgeChanges: EdgeChange[]) => {
 		onEdgesChange(edgeChanges);
 		for (const change of edgeChanges) {
-			if (change.type === "remove") {
+			if (change.type === "remove" && session?.user?.id) {
 				removeEdge.mutate({
 					id: change.id,
 				});
@@ -325,20 +352,22 @@ const Flow = ({
 						parentNode: undefined,
 					}),
 				);
-				updateManyNodes.mutate({
-					nodes: childrenNodesIds.map((node) => ({
-						id: node,
-						parentId: null,
-					})),
-				});
-				deleteManyNodes.mutate({ ids: nodeIds });
-				deleteManyEdges.mutate({ ids: [...edgeIds, ...connectedEdgesIds] });
+				if (session?.user.id) {
+					updateManyNodes.mutate({
+						nodes: childrenNodesIds.map((node) => ({
+							id: node,
+							parentId: null,
+						})),
+					});
+					deleteManyNodes.mutate({ ids: nodeIds });
+					deleteManyEdges.mutate({ ids: [...edgeIds, ...connectedEdgesIds] });
+				}
 				return;
 			}
 		},
 		[nodes],
 	);
-	subscribe();
+	if (session?.user?.id) subscribe();
 
 	return (
 		<div
@@ -377,6 +406,7 @@ const Flow = ({
 					nodeTypes={nodeTypes}
 					edgeTypes={edgeTypes}
 					fitView
+					minZoom={0.1}
 					proOptions={{
 						hideAttribution: true,
 					}}

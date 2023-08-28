@@ -1,3 +1,4 @@
+import ButtonNode from "@/components/nodes/button-node";
 import DefaultEdge from "@/components/edges/default-edge";
 import DefaultNode from "@/components/nodes/default/node";
 import GroupNode from "@/components/nodes/group-node";
@@ -5,20 +6,22 @@ import { StoreState } from "./store";
 
 export const NODES_TYPES = {
 	DEFAULT: "customDefault",
+	BUTTON: "customButton",
 	GROUP: "customGroup",
 };
 
 export const nodeTypes = {
 	[NODES_TYPES.GROUP]: GroupNode,
 	[NODES_TYPES.DEFAULT]: DefaultNode,
+	[NODES_TYPES.BUTTON]: ButtonNode,
 };
 
-export const EDGE_TYPES = {
+export const EDGES_TYPES = {
 	DEFAULT: "customDefault",
 };
 
 export const edgeTypes = {
-	[EDGE_TYPES.DEFAULT]: DefaultEdge,
+	[EDGES_TYPES.DEFAULT]: DefaultEdge,
 };
 
 export const UPDATE_THROTTLE = (1 / 60) * 1000; // 60fps
