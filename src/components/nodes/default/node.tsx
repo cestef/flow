@@ -105,7 +105,7 @@ function DefaultNode({
 				<BorderResizer visible={selected} />
 				<div
 					className={cn(
-						"px-4 py-2 shadow-md border-2 min-w-[100px] min-h-[50px]",
+						"px-4 py-2 shadow-md border-2 min-w-[120px] min-h-[60px]",
 						"flex flex-col justify-center relative items-center h-full w-full transition-none",
 						selected ? "border-primary" : "border-stone-400",
 						!data.color && !editing[id]?.pickerValue && "bg-accent",
@@ -158,8 +158,8 @@ function DefaultNode({
 					onClick={() =>
 						duplicateNode.mutate({
 							id,
-							offsetX: 2,
-							offsetY: 2,
+							offsetX: 5,
+							offsetY: 5,
 						})
 					}
 				>

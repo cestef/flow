@@ -64,8 +64,8 @@ const GroupNode = ({
 						handleClassName="h-3 w-3 rounded-md bg-primary"
 						color="#fff"
 						isVisible={selected}
-						minWidth={200}
-						minHeight={240}
+						minWidth={260}
+						minHeight={200}
 						onResizeEnd={(event, params) => {
 							const { width, height, x, y } = params;
 							if (!id) return;
@@ -82,7 +82,7 @@ const GroupNode = ({
 					{/* <Handle type="target" position={Position.Top} /> */}
 					<div
 						className={cn(
-							"p-4 h-full w-full dark:bg-[rgba(255,255,255,0.1)] rounded-md bg-[rgba(0,0,0,0.1)] min-w-[200px] min-h-[240px]",
+							"p-4 h-full w-full dark:bg-[rgba(255,255,255,0.1)] rounded-md bg-[rgba(0,0,0,0.1)] min-w-[260px] min-h-[200px]",
 							user.data && "border-primary border-2",
 						)}
 						onContextMenu={(e) => {
@@ -167,8 +167,8 @@ const GroupNode = ({
 					onClick={() =>
 						duplicateNode.mutate({
 							id,
-							offsetX: 2,
-							offsetY: 2,
+							offsetX: 5,
+							offsetY: 5,
 						})
 					}
 				>
