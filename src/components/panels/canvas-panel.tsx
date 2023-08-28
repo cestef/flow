@@ -129,6 +129,7 @@ export default function CanvasPanel() {
 								<Input
 									type="text"
 									placeholder="Canvas name"
+									className="w-full"
 									value={createNewCanvasState.name}
 									onChange={(e) => setCreateNewCanvasName(e.target.value)}
 								/>
