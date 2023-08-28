@@ -63,6 +63,18 @@ export const useStore = createWithEqualityFn(
 				shouldEmit: false,
 				brushesOpen: false,
 				selectedBrush: "pointer" as string | undefined,
+				editing: {} as {
+					[id: string]: {
+						nameValue: string;
+						nameStatus: boolean;
+						fontStatus: boolean;
+						fontSize: number;
+						fontColor: string;
+						fontWeight: string;
+						pickerStatus: boolean;
+						pickerValue: string;
+					};
+				},
 			},
 			(set) => ({
 				onNodesChange: (changes: NodeChange[]) => {
@@ -257,6 +269,28 @@ export const useStore = createWithEqualityFn(
 				setBrushesOpen: (brushesOpen: boolean) => set({ brushesOpen }),
 				setSelectedBrush: (selectedBrush: string | undefined) =>
 					set({ selectedBrush }),
+				setEditing: (
+					id: string,
+					editing: Partial<{
+						nameValue: string;
+						nameStatus: boolean;
+						fontStatus: boolean;
+						fontSize: number;
+						fontColor: string;
+						fontWeight: string;
+						pickerStatus: boolean;
+						pickerValue: string;
+					}>,
+				) =>
+					set((state) => ({
+						editing: {
+							...state.editing,
+							[id]: {
+								...state.editing[id],
+								...editing,
+							},
+						},
+					})),
 			}),
 		),
 		{

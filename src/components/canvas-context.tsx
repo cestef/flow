@@ -4,14 +4,11 @@ import {
 	ContextMenuItem,
 	ContextMenuLabel,
 	ContextMenuSeparator,
-	ContextMenuSub,
-	ContextMenuSubContent,
-	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "./ui/context-menu";
-import { Group, MessageSquare, Shapes, Trash, Workflow } from "lucide-react";
-import { NODES_TYPES, SHAPES } from "@/lib/constants";
+import { Group, MessageSquare, Trash, Workflow } from "lucide-react";
 
+import { NODES_TYPES } from "@/lib/constants";
 import { trpc } from "@/lib/utils";
 import useConfirm from "@/lib/useConfirm";
 import { useStore } from "@/lib/store";
@@ -36,144 +33,21 @@ export default function CanvasContext({
 				<ContextMenuTrigger>{children}</ContextMenuTrigger>
 				<ContextMenuContent>
 					<ContextMenuLabel>Add</ContextMenuLabel>
-					<ContextMenuSub>
-						<ContextMenuSubTrigger>
-							<Workflow className="mr-2 w-4 h-4" />
-							Nodes
-						</ContextMenuSubTrigger>
-						<ContextMenuSubContent>
-							<ContextMenuItem
-								inset
-								onClick={() => {
-									createNode.mutate({
-										canvasId,
-										name: "Default",
-										x: contextMenuPosition.x,
-										y: contextMenuPosition.y,
-										type: NODES_TYPES.DEFAULT,
-									});
-								}}
-							>
-								Default
-							</ContextMenuItem>
-							<ContextMenuItem
-								inset
-								onClick={() => {
-									createNode.mutate({
-										canvasId,
-										name: "Input",
-										x: contextMenuPosition.x,
-										y: contextMenuPosition.y,
-										type: NODES_TYPES.INPUT,
-									});
-								}}
-							>
-								Input
-							</ContextMenuItem>
-							<ContextMenuItem
-								inset
-								onClick={() => {
-									createNode.mutate({
-										canvasId,
-										name: "Output",
-										x: contextMenuPosition.x,
-										y: contextMenuPosition.y,
-										type: NODES_TYPES.OUTPUT,
-									});
-								}}
-							>
-								Output
-							</ContextMenuItem>
-						</ContextMenuSubContent>
-					</ContextMenuSub>
-					<ContextMenuSub>
-						<ContextMenuSubTrigger>
-							<Shapes className="mr-2 w-4 h-4" />
-							Shapes
-						</ContextMenuSubTrigger>
-						<ContextMenuSubContent>
-							<ContextMenuItem
-								inset
-								onClick={() => {
-									createNode.mutate({
-										canvasId,
-										name: "Rectangle",
-										x: contextMenuPosition.x,
-										y: contextMenuPosition.y,
-										type: SHAPES.RECTANGLE,
-										height: 100,
-										width: 200,
-									});
-								}}
-							>
-								Rectangle
-							</ContextMenuItem>
-							<ContextMenuItem
-								inset
-								onClick={() => {
-									createNode.mutate({
-										canvasId,
-										name: "Rounded Rectangle",
-										x: contextMenuPosition.x,
-										y: contextMenuPosition.y,
-										type: SHAPES.ROUNDED_RECTANGLE,
-										height: 100,
-										width: 200,
-									});
-								}}
-							>
-								Rounded Rectangle
-							</ContextMenuItem>
-							<ContextMenuItem
-								inset
-								onClick={() => {
-									createNode.mutate({
-										canvasId,
-										name: "Circle",
-										x: contextMenuPosition.x,
-										y: contextMenuPosition.y,
-										type: SHAPES.CIRCLE,
-										height: 100,
-										width: 100,
-									});
-								}}
-							>
-								Circle
-							</ContextMenuItem>
-							<ContextMenuItem
-								inset
-								onClick={() => {
-									createNode.mutate({
-										canvasId,
-										name: "Diamond",
-										x: contextMenuPosition.x,
-										y: contextMenuPosition.y,
-										type: SHAPES.DIAMOND,
-										height: 100,
-										width: 100,
-									});
-								}}
-							>
-								Diamond
-							</ContextMenuItem>
-							<ContextMenuItem
-								inset
-								onClick={() => {
-									createNode.mutate({
-										canvasId,
-										name: "Parallelogram",
-										x: contextMenuPosition.x,
-										y: contextMenuPosition.y,
-										type: SHAPES.PARALLELOGRAM,
-										height: 100,
-										width: 200,
-									});
-								}}
-							>
-								Parallelogram
-							</ContextMenuItem>
-						</ContextMenuSubContent>
-					</ContextMenuSub>
+					<ContextMenuItem
+						onClick={() => {
+							createNode.mutate({
+								canvasId,
+								name: "Node",
+								x: contextMenuPosition.x,
+								y: contextMenuPosition.y,
+								type: NODES_TYPES.DEFAULT,
+							});
+						}}
+					>
+						<Workflow className="mr-2 w-4 h-4" />
+						Node
+					</ContextMenuItem>
+
 					<ContextMenuItem
 						onClick={() => {
 							createNode.mutate({
@@ -181,7 +55,7 @@ export default function CanvasContext({
 								name: "Group",
 								x: contextMenuPosition.x,
 								y: contextMenuPosition.y,
-								type: "customGroup",
+								type: NODES_TYPES.GROUP,
 							});
 						}}
 					>

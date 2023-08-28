@@ -436,6 +436,28 @@ export const formatRemoteData = (data: PrismaNode[], order = false): Node[] => {
 
 	return formatted;
 };
+
+export const orderNodes = (nodes: Node[]) => {
+	interface TreeNode {
+		node: Node;
+		children: TreeNode[];
+	}
+	const traverse = (node: Node): TreeNode => {
+		const children = nodes.filter((n) => n.parentNode === node.id);
+		return {
+			node,
+			children: children.map(traverse),
+		};
+	};
+	const trees = nodes.filter((n) => !n.parentNode).map(traverse);
+
+	const flatten = (tree: TreeNode): Node[] => {
+		return [tree.node, ...tree.children.flatMap(flatten)];
+	};
+
+	return trees.flatMap(flatten);
+};
+
 export const sanitizeColor = (color: string) => {
 	// Prevents from inputing images
 	if (color.includes("url")) {

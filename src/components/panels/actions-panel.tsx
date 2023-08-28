@@ -17,25 +17,29 @@ import {
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import ELK, { ElkNode, LayoutOptions } from "elkjs/lib/elk.bundled.js";
+import { NODES_TYPES, flowSelector } from "@/lib/constants";
 import {
 	Node,
+	getConnectedEdges,
+	getOutgoers,
 	getRectOfNodes,
 	getTransformForBounds,
 	useOnSelectionChange,
 	useReactFlow,
 } from "reactflow";
+import { ReactNode, useCallback } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { nodesEqual, trpc } from "@/lib/utils";
+import { nodesEqual, orderNodes, trpc } from "@/lib/utils";
 import { useStore, useTemporalStore } from "@/lib/store";
 
 import { Button } from "../ui/button";
 import Keyboard from "../ui/keyboard";
 import { ModeToggle } from "../mode-toggle";
 import { toPng } from "html-to-image";
-import { useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useStore as useStoreFlow } from "reactflow";
 import { useTheme } from "next-themes";
+import { useToast } from "../ui/use-toast";
 
 function downloadImage(dataUrl: string) {
 	const a = document.createElement("a");
@@ -146,6 +150,7 @@ export default function ActionsPanel() {
 	const setClipboard = useStore((state) => state.setClipboard);
 	const clearClipboard = useStore((state) => state.clearClipboard);
 	const selected = useStore((state) => state.selected);
+	const { setNodes } = useStore(flowSelector);
 	const addSelectedNodes = useStoreFlow((state) => state.addSelectedNodes);
 	const addSelectedEdges = useStoreFlow((state) => state.addSelectedEdges);
 	const resetSelectedElements = useStoreFlow(
@@ -154,6 +159,7 @@ export default function ActionsPanel() {
 	const updateManyNodes = trpc.nodes.updateMany.useMutation();
 	// const updateManyEdges = trpc.edges.updateMany.useMutation();
 	const { theme } = useTheme();
+	const { toast } = useToast();
 	const { getLayoutedElements } = useLayoutedElements({
 		onLayouted: (nodes) => {
 			updateManyNodes.mutate({
@@ -251,16 +257,43 @@ export default function ActionsPanel() {
 		},
 	});
 	useOnSelectionChange({
-		onChange: ({ nodes, edges }) => {
+		onChange: ({ nodes: selectedNodes, edges: selectedEdges }) => {
+			for (const node of selectedNodes) {
+				if (node.type === NODES_TYPES.GROUP) {
+					const nodes = useStore.getState().nodes;
+					setNodes(orderNodes(nodes));
+				}
+			}
 			// console.log("selection change", nodes, edges);
-			if (selectedBrush === "delete" && nodes.length > 0) {
-				const nodeIds = nodes.map((node) => node.id);
-				const edgeIds = edges.map((edge) => edge.id);
+			if (
+				selectedBrush === "delete" &&
+				(selectedNodes.length > 0 || selectedEdges.length > 0)
+			) {
+				const nodeIds = selectedNodes.map((node) => node.id);
+				const edgeIds = selectedEdges.map((edge) => edge.id);
+				const edges = useStore.getState().edges;
+				const connectedEdgesIds = edges
+					.filter((edge) => {
+						return (
+							nodeIds.includes(edge.source) || nodeIds.includes(edge.target)
+						);
+					})
+					.map((edge) => edge.id);
+				const nodes = useStore.getState().nodes;
+				const childrenNodesIds = nodes
+					.filter((e) => nodeIds.includes(e.parentNode || ""))
+					.map((e) => e.id);
+				updateManyNodes.mutate({
+					nodes: childrenNodesIds.map((node) => ({
+						id: node,
+						parentId: null,
+					})),
+				});
 				deleteManyNodes.mutate({ ids: nodeIds });
-				deleteManyEdges.mutate({ ids: edgeIds });
+				deleteManyEdges.mutate({ ids: [...edgeIds, ...connectedEdgesIds] });
 				return;
 			}
-			setSelected(nodes, edges);
+			setSelected(selectedNodes, selectedEdges);
 		},
 	});
 	const settingsOpen = useStore((state) => state.settingsOpen);
@@ -292,6 +325,12 @@ export default function ActionsPanel() {
 	});
 	useHotkeys(["d"], (e) => {
 		e.preventDefault();
+		toast({
+			title: (
+				<h1 className="text-red-500 font-bold text-2xl">Delete tool</h1>
+			) as any,
+			duration: 2000,
+		});
 		setSelectedBrush("delete");
 	});
 	const { undo, redo } = useTemporalStore((s) => s);

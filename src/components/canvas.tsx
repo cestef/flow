@@ -9,14 +9,12 @@ import {
 	useReactFlow,
 } from "reactflow";
 import {
-	NODES_TYPES,
 	UPDATE_THROTTLE,
 	edgeTypes,
 	flowSelector,
 	nodeTypes,
 } from "@/lib/constants";
 import {
-	cn,
 	formatRemoteData,
 	getHelperLines,
 	isNodeInGroupBounds,
@@ -351,32 +349,28 @@ const Flow = ({
 				<Selecto
 					selectableTargets={[".react-flow__node"]}
 					onSelect={(e) => {
-						e.added.forEach((el) => {
-							const id = el.getAttribute("data-id");
-							if (!id) return;
-							const node = getNode(id);
-							if (!node) return;
-							onNodesChange([
-								{
-									id: node.id,
-									type: "select",
-									selected: true,
-								},
-							]);
-						});
-						e.removed.forEach((el) => {
-							const id = el.getAttribute("data-id");
-							if (!id) return;
-							const node = getNode(id);
-							if (!node) return;
-							onNodesChange([
-								{
-									id: node.id,
-									type: "select",
-									selected: false,
-								},
-							]);
-						});
+						const addedIds = e.added
+							.map((el) => el.getAttribute("data-id"))
+							.filter(Boolean) as string[];
+						const removedIds = e.removed
+							.map((el) => el.getAttribute("data-id"))
+							.filter(Boolean) as string[];
+
+						onNodesChange(
+							addedIds.map((id) => ({
+								id,
+								type: "select",
+								selected: true,
+							})),
+						);
+
+						onNodesChange(
+							removedIds.map((id) => ({
+								id,
+								type: "select",
+								selected: false,
+							})),
+						);
 					}}
 					onSelectEnd={(e) => {
 						onNodesChange(

@@ -1,36 +1,16 @@
 import DefaultEdge from "@/components/edges/default-edge";
-import DefaultNode from "@/components/nodes/default-node";
+import DefaultNode from "@/components/nodes/default/node";
 import GroupNode from "@/components/nodes/group-node";
-import ShapeNode from "@/components/nodes/shape-node";
 import { StoreState } from "./store";
-
-export const SHAPES = {
-	CIRCLE: "circle",
-	RECTANGLE: "rectangle",
-	ROUNDED_RECTANGLE: "rounded-rectangle",
-	TRIANGLE: "triangle",
-	DIAMOND: "diamond",
-	PARALLELOGRAM: "parallelogram",
-};
 
 export const NODES_TYPES = {
 	DEFAULT: "customDefault",
-	INPUT: "customInput",
-	OUTPUT: "customOutput",
 	GROUP: "customGroup",
 };
 
 export const nodeTypes = {
-	customGroup: GroupNode,
+	[NODES_TYPES.GROUP]: GroupNode,
 	[NODES_TYPES.DEFAULT]: DefaultNode,
-	[NODES_TYPES.INPUT]: DefaultNode,
-	[NODES_TYPES.OUTPUT]: DefaultNode,
-	[SHAPES.CIRCLE]: ShapeNode,
-	[SHAPES.RECTANGLE]: ShapeNode,
-	[SHAPES.ROUNDED_RECTANGLE]: ShapeNode,
-	[SHAPES.TRIANGLE]: ShapeNode,
-	[SHAPES.DIAMOND]: ShapeNode,
-	[SHAPES.PARALLELOGRAM]: ShapeNode,
 };
 
 export const EDGE_TYPES = {
@@ -67,12 +47,3 @@ export const flowSelector = (state: StoreState) => ({
 	updateComment: state.updateComment,
 	// updateEdge: state.updateEdge,
 });
-
-export const DEFAULT_COLORS = {
-	[SHAPES.CIRCLE]: "#B4D455",
-	[SHAPES.RECTANGLE]: "#B4D455",
-	[SHAPES.ROUNDED_RECTANGLE]: "#B4D455",
-	[SHAPES.TRIANGLE]: "#B4D455",
-	[SHAPES.DIAMOND]: "#B4D455",
-	[SHAPES.PARALLELOGRAM]: "#B4D455",
-};
