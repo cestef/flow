@@ -1,8 +1,5 @@
 import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 import { edgeTypes, flowSelector, nodeTypes } from "@/lib/constants";
-import { formatRemoteData, trpc } from "@/lib/utils";
-import { loginEdges, loginNodes } from "@/login-nodes";
-import { useEffect, useRef } from "react";
 import { useKeyPress, useReactFlow } from "reactflow";
 
 import CanvasContext from "./canvas-context";
@@ -11,7 +8,7 @@ import Selecto from "react-selecto";
 import { registerCallbacks } from "@/lib/callbacks";
 import { registerHooks } from "@/lib/hooks";
 import { subscribe } from "@/lib/subscriptions";
-import { useSearchParams } from "next/navigation";
+import { useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 
