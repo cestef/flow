@@ -147,6 +147,7 @@ export default function ActionsPanel() {
 	const clearClipboard = useStore((state) => state.clearClipboard);
 	const selected = useStore((state) => state.selected);
 	const addSelectedNodes = useStoreFlow((state) => state.addSelectedNodes);
+	const addSelectedEdges = useStoreFlow((state) => state.addSelectedEdges);
 	const resetSelectedElements = useStoreFlow(
 		(state) => state.resetSelectedElements,
 	);
@@ -191,6 +192,20 @@ export default function ActionsPanel() {
 			offsetY: 2,
 		});
 	}, [clipboard]);
+
+	const selectAll = useCallback((e: KeyboardEvent) => {
+		e.preventDefault();
+		const nodes = useStore.getState().nodes;
+		const edges = useStore.getState().edges;
+		addSelectedNodes(nodes.map((node) => node.id));
+		addSelectedEdges(edges.map((edge) => edge.id));
+	}, []);
+
+	useHotkeys(["ctrl+a", "meta+a"], selectAll);
+	useHotkeys(["ctrl+shift+a", "meta+shift+a"], (e) => {
+		e.preventDefault();
+		resetSelectedElements();
+	});
 
 	const download = useCallback(() => {
 		const nodesBounds = getRectOfNodes(getNodes());
