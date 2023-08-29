@@ -7,6 +7,7 @@ const nextConfig = {
 		// Will be available on both server and client
 		APP_URL: process.env.APP_URL,
 		WS_URL: process.env.WS_URL,
+		GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID,
 	},
 };
 
