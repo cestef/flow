@@ -35,6 +35,7 @@ const Flow = ({
 	const helperLineHorizontal = useStore((state) => state.helperLineHorizontal);
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
 	const selectedBrush = useStore((state) => state.selectedBrush);
+	const setInstance = useStore((state) => state.setInstance);
 
 	registerHooks();
 
@@ -94,6 +95,7 @@ const Flow = ({
 					className="h-full"
 					panOnDrag={["pointer", "delete", undefined].includes(selectedBrush)}
 					selectionKeyCode={"Meta"}
+					onInit={setInstance}
 				>
 					<BackgroundStyled />
 					<HelperLines

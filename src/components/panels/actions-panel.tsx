@@ -1,9 +1,14 @@
+import { NODES_TYPES, flowSelector } from "@/lib/constants";
+import { useStore, useTemporalStore } from "@/lib/store";
+import { nodesEqual, orderNodes, trpc } from "@/lib/utils";
+import ELK, { ElkNode, LayoutOptions } from "elkjs/lib/elk.bundled.js";
 import {
 	BoxSelect,
 	Brush,
 	ClipboardCopy,
 	ClipboardPaste,
 	Download,
+	FileJson2,
 	Maximize,
 	MoveHorizontal,
 	MoveVertical,
@@ -11,13 +16,7 @@ import {
 	Settings2,
 	Trash2,
 } from "lucide-react";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import ELK, { ElkNode, LayoutOptions } from "elkjs/lib/elk.bundled.js";
-import { NODES_TYPES, flowSelector } from "@/lib/constants";
+import { ReactNode, useCallback } from "react";
 import {
 	Node,
 	getConnectedEdges,
@@ -27,18 +26,20 @@ import {
 	useOnSelectionChange,
 	useReactFlow,
 } from "reactflow";
-import { ReactNode, useCallback } from "react";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { nodesEqual, orderNodes, trpc } from "@/lib/utils";
-import { useStore, useTemporalStore } from "@/lib/store";
 
-import { Button } from "../ui/button";
-import Keyboard from "../ui/keyboard";
-import { ModeToggle } from "../mode-toggle";
 import { toPng } from "html-to-image";
+import { useTheme } from "next-themes";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useStore as useStoreFlow } from "reactflow";
-import { useTheme } from "next-themes";
+import { ModeToggle } from "../mode-toggle";
+import { Button } from "../ui/button";
+import Keyboard from "../ui/keyboard";
 import { useToast } from "../ui/use-toast";
 
 function downloadImage(dataUrl: string) {
@@ -241,6 +242,27 @@ export default function ActionsPanel() {
 				transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
 			},
 		}).then(downloadImage);
+	}, []);
+
+	const exportJson = useCallback(() => {
+		const instance = useStore.getState().instance;
+		if (!instance)
+			return toast({
+				title: "No instance found",
+				duration: 2000,
+				variant: "destructive",
+			});
+		const json = JSON.stringify(instance.toObject());
+		const blob = new Blob([json], { type: "application/json" });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+
+		a.setAttribute(
+			"download",
+			`flow-json-export-${new Date().toISOString()}.json`,
+		);
+		a.setAttribute("href", url);
+		a.click();
 	}, []);
 
 	useHotkeys(["ctrl+c", "meta+c"], copy);
@@ -477,6 +499,14 @@ export default function ActionsPanel() {
 									Export to image <Keyboard keys={["E"]} modifiers={["⌘"]} />
 								</>
 							</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button size="icon" onClick={exportJson}>
+									<FileJson2 />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Export to JSON</TooltipContent>
 						</Tooltip>
 					</div>
 				</DropdownMenuContent>

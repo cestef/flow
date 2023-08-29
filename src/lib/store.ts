@@ -5,6 +5,7 @@ import {
 	EdgeChange,
 	Node,
 	NodeChange,
+	ReactFlowInstance,
 	addEdge,
 	applyEdgeChanges,
 	applyNodeChanges,
@@ -21,6 +22,7 @@ export const useStore = createWithEqualityFn(
 	temporal(
 		combine(
 			{
+				instance: undefined as ReactFlowInstance | undefined,
 				nodes: [] as Node[],
 				edges: [] as Edge[],
 				comments: [] as (Comment & Partial<{ user: User }>)[],
@@ -79,6 +81,7 @@ export const useStore = createWithEqualityFn(
 				selecting: false,
 			},
 			(set) => ({
+				setInstance: (instance: ReactFlowInstance) => set({ instance }),
 				setSelecting: (selecting: boolean) => set({ selecting }),
 				onNodesChange: (changes: NodeChange[]) => {
 					const newNodes = applyNodeChanges(changes, useStore.getState().nodes);
