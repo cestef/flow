@@ -14,9 +14,9 @@ import {
 	trpc,
 } from "./utils";
 
-import { throttle } from "throttle-debounce";
-import { useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { useCallback } from "react";
+import { throttle } from "throttle-debounce";
 import { useStore } from "./store";
 
 export const registerCallbacks = () => {
@@ -33,6 +33,10 @@ export const registerCallbacks = () => {
 	const [shouldEmit, setShouldEmit] = useStore((state) => [
 		state.shouldEmit,
 		state.setShouldEmit,
+	]);
+	const [selecting, setSelecting] = useStore((state) => [
+		state.selecting,
+		state.setSelecting,
 	]);
 	const [helperLineHorizontal, setHelperLineHorizontal] = useStore((state) => [
 		state.helperLineHorizontal,
@@ -226,10 +230,13 @@ export const registerCallbacks = () => {
 					deleteNode.mutate({ id: change.id });
 			}
 		}
+		console.log("onNodesChangeProxy", nodeChanges);
+		console.log("selecting", selecting);
+		// This is done to avoid the instant unselection of the nodes after selection (we update the selected attribute manually)
 		onNodesChange(
-			nodeChanges.filter((change) =>
-				selectedBrush === "select" ? change.type !== "select" : true,
-			),
+			selectedBrush === "select"
+				? nodeChanges.filter((e) => e.type !== "select")
+				: nodeChanges,
 		);
 	};
 

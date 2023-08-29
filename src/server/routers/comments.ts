@@ -3,8 +3,8 @@ import { protectedProcedure, router } from "../trpc";
 
 import EventEmitter from "events";
 import { observable } from "@trpc/server/observable";
-import { prisma } from "../../lib/prisma";
 import { z } from "zod";
+import { prisma } from "../../lib/prisma";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -45,6 +45,15 @@ export const commentsRouter = router({
 							},
 						},
 					],
+				},
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							image: true,
+						},
+					},
 				},
 			});
 		}),

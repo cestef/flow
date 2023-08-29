@@ -6,6 +6,8 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { Popover, PopoverContent } from "@/components/ui/popover";
+import { cn, trpc } from "@/lib/utils";
 import {
 	Copy,
 	MessageSquare,
@@ -14,15 +16,17 @@ import {
 	Trash,
 	Type,
 	Unlink,
+	X,
 } from "lucide-react";
 import { Handle, NodeResizer, Position, useKeyPress } from "reactflow";
-import { NODES_TYPES, flowSelector } from "@/lib/constants";
-import { cn, trpc } from "@/lib/utils";
 
 import BorderResizer from "@/components/border-resizer";
-import NodeEditor from "./editor";
-import { memo } from "react";
+import { Button } from "@/components/ui/button";
+import { flowSelector } from "@/lib/constants";
 import { useStore } from "@/lib/store";
+import { PopoverTrigger } from "@radix-ui/react-popover";
+import { memo } from "react";
+import NodeEditor from "./editor";
 
 function DefaultNode({
 	data,
@@ -51,11 +55,15 @@ function DefaultNode({
 		{ enabled: !!data.draggedBy },
 	);
 	const canvasId = useStore((state) => state.currentCanvasId);
+	const comments = useStore((state) =>
+		state.comments.filter((c) => c.nodeId === id),
+	);
 	const parent = findNode((n) => n.id === getNode(id)?.parentNode);
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const updateNode = trpc.nodes.update.useMutation();
 	const duplicateNode = trpc.nodes.duplicate.useMutation();
 	const createComment = trpc.comments.add.useMutation();
+
 	const getHandles = () => {
 		switch (type) {
 			default:
@@ -118,7 +126,7 @@ function DefaultNode({
 						color: editing[id]?.fontColor ?? data.fontColor,
 						fontSize: editing[id]?.fontSize ?? data.fontSize ?? 16,
 						fontWeight: editing[id]?.fontWeight ?? data.fontWeight,
-						backgroundColor: editing[id]?.pickerValue ?? data.color,
+						background: editing[id]?.pickerValue ?? data.color,
 						borderRadius: data.borderRadius ?? 15,
 					}}
 					onDoubleClick={() => {
@@ -136,10 +144,68 @@ function DefaultNode({
 							</AvatarFallback>
 						</Avatar>
 					)}
-					<div className="flex flex-col items-center">
-						<NodeEditor label={data.label} />
-						{getHandles()}
-					</div>
+
+					<Popover
+						open={editing[id]?.commentStatus}
+						onOpenChange={(e) => {
+							setEditing(id, {
+								commentStatus: e,
+							});
+						}}
+					>
+						<PopoverTrigger>
+							{selected && comments.length > 0 && (
+								<Button
+									size="icon"
+									variant="ghost"
+									className="absolute top-1/2 -translate-y-1/2 -right-12 text-primary"
+									onClick={() => {
+										setEditing(id, {
+											commentStatus: true,
+										});
+									}}
+								>
+									<MessageSquare className="w-4 h-4" />
+								</Button>
+							)}
+						</PopoverTrigger>
+						<PopoverContent>
+							<div className="flex justify-between items-center">
+								<p className="text-primary text-sm font-semibold">Comments</p>
+								<Button
+									size="smallIcon"
+									variant="ghost"
+									className="text-destructive"
+									onClick={(e) => {
+										e.stopPropagation();
+										setEditing(id, {
+											commentStatus: false,
+										});
+									}}
+								>
+									<X className="w-3 h-3" />
+								</Button>
+							</div>
+							<div className="flex flex-col gap-2 mt-5 max-h-[300px] overflow-y-auto">
+								{comments.map((comment) => (
+									<div
+										key={comment.id}
+										className="flex flex-col gap-2 mb-2 bg-card dark:bg-gray-900 rounded-md p-2 border border-gray-200 dark:border-gray-700"
+									>
+										<p className="text-primary text-sm font-semibold">
+											{comment.text}
+										</p>
+										<p className="text-gray-500 text-xs font-medium">
+											{comment.user?.name || "Unknown user"}
+										</p>
+									</div>
+								))}
+							</div>
+						</PopoverContent>
+					</Popover>
+
+					<NodeEditor label={data.label} />
+					{getHandles()}
 				</div>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
@@ -181,6 +247,9 @@ function DefaultNode({
 					onClick={() =>
 						setEditing(id, {
 							fontStatus: !editing[id]?.fontStatus,
+							fontColor: data.fontColor,
+							fontSize: data.fontSize,
+							fontWeight: data.fontWeight,
 						})
 					}
 				>

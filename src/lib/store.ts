@@ -1,3 +1,4 @@
+import { Comment, User } from "@prisma/client";
 import {
 	Connection,
 	Edge,
@@ -10,12 +11,11 @@ import {
 } from "reactflow";
 import { nodesEqual, shallowMerge } from "./utils";
 
-import { Comment } from "@prisma/client";
-import { combine } from "zustand/middleware";
-import { create } from "zustand";
-import { createWithEqualityFn } from "zustand/traditional";
-import { shallow } from "zustand/shallow";
 import { temporal } from "zundo";
+import { create } from "zustand";
+import { combine } from "zustand/middleware";
+import { shallow } from "zustand/shallow";
+import { createWithEqualityFn } from "zustand/traditional";
 
 export const useStore = createWithEqualityFn(
 	temporal(
@@ -23,7 +23,7 @@ export const useStore = createWithEqualityFn(
 			{
 				nodes: [] as Node[],
 				edges: [] as Edge[],
-				comments: [] as Comment[],
+				comments: [] as (Comment & Partial<{ user: User }>)[],
 				createNewCanvas: {
 					opened: false,
 					name: "",
@@ -73,10 +73,13 @@ export const useStore = createWithEqualityFn(
 						fontWeight: string;
 						pickerStatus: boolean;
 						pickerValue: string;
+						commentStatus: boolean;
 					};
 				},
+				selecting: false,
 			},
 			(set) => ({
+				setSelecting: (selecting: boolean) => set({ selecting }),
 				onNodesChange: (changes: NodeChange[]) => {
 					const newNodes = applyNodeChanges(changes, useStore.getState().nodes);
 					set((state) => ({
@@ -280,6 +283,7 @@ export const useStore = createWithEqualityFn(
 						fontWeight: string;
 						pickerStatus: boolean;
 						pickerValue: string;
+						commentStatus: boolean;
 					}>,
 				) =>
 					set((state) => ({

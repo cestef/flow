@@ -9,11 +9,11 @@ import {
 import { sanitizeColor, trpc } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
-import { GradientPicker } from "@/components/ui/picker";
 import { Label } from "@/components/ui/label";
+import { GradientPicker } from "@/components/ui/picker";
 import { Slider } from "@/components/ui/slider";
-import { useNodeId } from "reactflow";
 import { useStore } from "@/lib/store";
+import { useNodeId } from "reactflow";
 
 export default function NodeEditor({
 	label,
@@ -30,7 +30,7 @@ export default function NodeEditor({
 	}
 
 	return (
-		<>
+		<div className="flex flex-col items-center w-full">
 			{editing[id]?.pickerStatus ? (
 				<GradientPicker
 					background={editing[id].pickerValue}
@@ -49,6 +49,8 @@ export default function NodeEditor({
 							pickerStatus: false,
 						});
 					}}
+					gradient={true}
+					className="w-full h-full"
 				/>
 			) : !editing[id]?.fontStatus ? (
 				<>
@@ -168,6 +170,6 @@ export default function NodeEditor({
 					</Button>
 				</div>
 			)}
-		</>
+		</div>
 	);
 }

@@ -18,7 +18,7 @@ export const registerHooks = () => {
 		state.currentCanvasId,
 		state.setCurrentCanvasId,
 	]);
-	const { setNodes, setEdges } = useStore(flowSelector);
+	const { setNodes, setEdges, setComments } = useStore(flowSelector);
 
 	const remoteNodes = trpc.nodes.list.useQuery(
 		{ canvasId },
@@ -28,6 +28,18 @@ export const registerHooks = () => {
 		{ canvasId },
 		{ enabled: !!session?.user?.id && !["welcome", ""].includes(canvasId) },
 	);
+
+	const remoteComments = trpc.comments.get.useQuery(
+		{ canvasId },
+		{ enabled: !!session?.user?.id && !["welcome", ""].includes(canvasId) },
+	);
+
+	useEffect(() => {
+		if (remoteComments.data) {
+			setComments(remoteComments.data);
+		}
+	}, [remoteComments.data]);
+
 	useEffect(() => {
 		if ((!canvasId && session?.user.id) || canvasId === "welcome") {
 			setNodes(welcomeNodes);

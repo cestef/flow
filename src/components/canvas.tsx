@@ -1,16 +1,16 @@
-import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 import { edgeTypes, flowSelector, nodeTypes } from "@/lib/constants";
 import { useKeyPress, useReactFlow } from "reactflow";
+import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
-import CanvasContext from "./canvas-context";
-import HelperLines from "./helper-lines";
-import Selecto from "react-selecto";
 import { registerCallbacks } from "@/lib/callbacks";
 import { registerHooks } from "@/lib/hooks";
-import { subscribe } from "@/lib/subscriptions";
-import { useRef } from "react";
-import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
+import { subscribe } from "@/lib/subscriptions";
+import { useSession } from "next-auth/react";
+import { useRef } from "react";
+import Selecto from "react-selecto";
+import CanvasContext from "./canvas-context";
+import HelperLines from "./helper-lines";
 
 const Flow = ({
 	children,
@@ -19,7 +19,7 @@ const Flow = ({
 }) => {
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
 	const { data: session } = useSession();
-	const { nodes, edges } = useStore(flowSelector);
+	const { nodes, edges, findAndUpdateNode } = useStore(flowSelector);
 
 	const shiftDown = useKeyPress("Shift");
 
@@ -28,6 +28,10 @@ const Flow = ({
 	const setContextMenuPosition = useStore(
 		(state) => state.setContextMenuPosition,
 	);
+	const [selecting, setSelecting] = useStore((state) => [
+		state.selecting,
+		state.setSelecting,
+	]);
 	const helperLineHorizontal = useStore((state) => state.helperLineHorizontal);
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
 	const selectedBrush = useStore((state) => state.selectedBrush);
@@ -89,6 +93,7 @@ const Flow = ({
 					}}
 					className="h-full"
 					panOnDrag={["pointer", "delete", undefined].includes(selectedBrush)}
+					selectionKeyCode={"Meta"}
 				>
 					<BackgroundStyled />
 					<HelperLines
@@ -110,29 +115,26 @@ const Flow = ({
 							.map((el) => el.getAttribute("data-id"))
 							.filter(Boolean) as string[];
 
-						onNodesChange(
-							addedIds.map((id) => ({
-								id,
-								type: "select",
-								selected: true,
-							})),
+						console.log(
+							addedIds,
+							removedIds,
+							e.selected.map((el) => el.getAttribute("data-id")),
 						);
 
-						onNodesChange(
-							removedIds.map((id) => ({
-								id,
-								type: "select",
-								selected: false,
-							})),
-						);
-					}}
-					onSelectEnd={(e) => {
-						onNodesChange(
-							e.selected.map((el) => ({
-								id: el.id,
-								type: "select",
+						findAndUpdateNode(
+							(n) => addedIds.includes(n.id),
+							(node) => ({
+								...node,
 								selected: true,
-							})),
+							}),
+						);
+
+						findAndUpdateNode(
+							(n) => removedIds.includes(n.id),
+							(node) => ({
+								...node,
+								selected: false,
+							}),
 						);
 					}}
 				/>
