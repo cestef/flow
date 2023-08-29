@@ -18,6 +18,60 @@ import { combine } from "zustand/middleware";
 import { shallow } from "zustand/shallow";
 import { createWithEqualityFn } from "zustand/traditional";
 
+interface Editing {
+	[id: string]: {
+		name?: {
+			status: boolean;
+			value: string;
+		};
+		font?: {
+			status: "size" | "color" | "weight" | "family" | undefined;
+			size: number;
+			color: string;
+			weight: string;
+			family: string;
+		};
+		picker?: {
+			status: boolean;
+			value: string;
+		};
+		comment?: {
+			status: boolean;
+		};
+		handle?: {
+			status: boolean;
+			position: string;
+			value: string;
+		};
+	};
+}
+
+const DEFAULT_EDITING: Editing[string] = {
+	name: {
+		status: false,
+		value: "",
+	},
+	font: {
+		status: undefined,
+		size: 14,
+		color: "#000000",
+		weight: "normal",
+		family: "Arial",
+	},
+	picker: {
+		status: false,
+		value: "",
+	},
+	comment: {
+		status: false,
+	},
+	handle: {
+		status: false,
+		position: "",
+		value: "",
+	},
+};
+
 export const useStore = createWithEqualityFn(
 	temporal(
 		combine(
@@ -65,22 +119,7 @@ export const useStore = createWithEqualityFn(
 				shouldEmit: false,
 				brushesOpen: false,
 				selectedBrush: "pointer" as string | undefined,
-				editing: {} as {
-					[id: string]: {
-						nameValue: string;
-						nameStatus: boolean;
-						fontStatus: boolean;
-						fontSize: number;
-						fontColor: string;
-						fontWeight: string;
-						pickerStatus: boolean;
-						pickerValue: string;
-						commentStatus: boolean;
-						handleStatus: boolean;
-						handlePosition: string;
-						handleValue: string;
-					};
-				},
+				editing: {} as Editing,
 				selecting: false,
 			},
 			(set) => ({
@@ -288,32 +327,26 @@ export const useStore = createWithEqualityFn(
 				setBrushesOpen: (brushesOpen: boolean) => set({ brushesOpen }),
 				setSelectedBrush: (selectedBrush: string | undefined) =>
 					set({ selectedBrush }),
-				setEditing: (
-					id: string,
-					editing: Partial<{
-						nameValue: string;
-						nameStatus: boolean;
-						fontStatus: boolean;
-						fontSize: number;
-						fontColor: string;
-						fontWeight: string;
-						pickerStatus: boolean;
-						pickerValue: string;
-						commentStatus: boolean;
-						handleStatus: boolean;
-						handlePosition: string;
-						handleValue: string;
-					}>,
-				) =>
+				setEditing: (id: string, key: keyof Editing[string], value: any) => {
 					set((state) => ({
 						editing: {
 							...state.editing,
 							[id]: {
 								...state.editing[id],
-								...editing,
+								[key]: {
+									...state.editing[id]?.[key],
+									...value,
+								},
 							},
 						},
-					})),
+					}));
+				},
+				getEditing: (id: string, key: keyof Editing[string]): any => {
+					return shallowMerge(
+						DEFAULT_EDITING,
+						useStore.getState().editing[id] || {},
+					)[key];
+				},
 			}),
 		),
 		{

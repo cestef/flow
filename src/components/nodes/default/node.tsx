@@ -4,15 +4,21 @@ import {
 	ContextMenuContent,
 	ContextMenuItem,
 	ContextMenuSeparator,
+	ContextMenuSub,
+	ContextMenuSubContent,
+	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import { cn, trpc } from "@/lib/utils";
 import {
+	Bold,
+	CaseSensitive,
 	Copy,
 	MessageSquare,
 	Pipette,
 	Plus,
+	Ruler,
 	TextCursor,
 	Trash,
 	Type,
@@ -91,7 +97,7 @@ function DefaultNode({
 				<NodeResizer
 					handleClassName="h-3 w-3 rounded-md bg-primary"
 					color="#fff"
-					isVisible={selected && !editing[id]?.fontStatus}
+					isVisible={selected}
 					minWidth={100}
 					minHeight={50}
 					onResizeEnd={(event, params) => {
@@ -113,23 +119,24 @@ function DefaultNode({
 						"px-4 py-2 shadow-md border-2 min-w-[100px] min-h-[50px]",
 						"flex flex-col justify-center relative items-center h-full w-full transition-none",
 						selected ? "border-primary" : "border-stone-400",
-						!data.color && !editing[id]?.pickerValue && "bg-accent",
-						!data.fontColor && !editing[id]?.fontColor && "text-primary",
+						!data.color && !editing[id]?.picker?.value && "bg-accent",
+						!data.fontColor &&
+							editing[id]?.font?.status !== "color" &&
+							"text-primary",
 						user.data && "border-primary",
-						editing[id]?.fontStatus && "min-h-[300px] min-w-[200px]",
 					)}
 					id={id}
 					style={{
-						color: editing[id]?.fontColor ?? data.fontColor,
-						fontSize: editing[id]?.fontSize ?? data.fontSize ?? 16,
-						fontWeight: editing[id]?.fontWeight ?? data.fontWeight,
-						background: editing[id]?.pickerValue ?? data.color,
+						color: editing[id]?.font?.color ?? data.fontColor,
+						fontSize: editing[id]?.font?.size ?? data.fontSize ?? 16,
+						fontWeight: editing[id]?.font?.weight ?? data.fontWeight,
+						background: editing[id]?.picker?.value ?? data.color,
 						borderRadius: data.borderRadius ?? 15,
 					}}
 					onDoubleClick={() => {
-						setEditing(id, {
-							nameStatus: true,
-							nameValue: data.label,
+						setEditing(id, "name", {
+							status: true,
+							value: data.label,
 						});
 					}}
 				>
@@ -143,10 +150,10 @@ function DefaultNode({
 					)}
 
 					<Popover
-						open={editing[id]?.commentStatus}
+						open={editing[id]?.comment?.status}
 						onOpenChange={(e) => {
-							setEditing(id, {
-								commentStatus: e,
+							setEditing(id, "comment", {
+								status: e,
 							});
 						}}
 					>
@@ -157,8 +164,8 @@ function DefaultNode({
 									variant="ghost"
 									className="absolute top-1/2 -translate-y-1/2 -right-12 text-primary"
 									onClick={() => {
-										setEditing(id, {
-											commentStatus: true,
+										setEditing(id, "comment", {
+											status: true,
 										});
 									}}
 								>
@@ -175,8 +182,8 @@ function DefaultNode({
 									className="text-destructive"
 									onClick={(e) => {
 										e.stopPropagation();
-										setEditing(id, {
-											commentStatus: false,
+										setEditing(id, "comment", {
+											status: false,
 										});
 									}}
 								>
@@ -202,8 +209,11 @@ function DefaultNode({
 					</Popover>
 
 					<NodeEditor label={data.label} />
-					{/* <Handle type={"source"} position={Position.Top} /> */}
 					{data.handles &&
+						!Object.keys(editing[id] || {})
+							.filter((k) => k !== "handle")
+							.map((k) => (editing as any)[id][k].status)
+							.some(Boolean) &&
 						[Position.Left, Position.Right, Position.Bottom, Position.Top].map(
 							(position) => {
 								const handle = data.handles.find(
@@ -229,8 +239,8 @@ function DefaultNode({
 									<Popover
 										key={position}
 										open={
-											editing[id]?.handleStatus &&
-											editing[id]?.handlePosition === position
+											editing[id]?.handle?.status &&
+											editing[id]?.handle?.position === position
 										}
 									>
 										<PopoverTrigger asChild>
@@ -248,9 +258,9 @@ function DefaultNode({
 													},
 												)}
 												onClick={() => {
-													setEditing(id, {
-														handleStatus: true,
-														handlePosition: position,
+													setEditing(id, "handle", {
+														status: true,
+														position: position,
 													});
 												}}
 											>
@@ -272,8 +282,8 @@ function DefaultNode({
 															},
 														],
 													});
-													setEditing(id, {
-														handleStatus: false,
+													setEditing(id, "handle", {
+														status: false,
 													});
 												}}
 											>
@@ -295,9 +305,9 @@ function DefaultNode({
 			<ContextMenuContent>
 				<ContextMenuItem
 					onClick={() =>
-						setEditing(id, {
-							nameStatus: !editing[id]?.nameStatus,
-							nameValue: data.label,
+						setEditing(id, "name", {
+							status: !editing[id]?.name?.status,
+							value: data.label,
 						})
 					}
 				>
@@ -318,18 +328,67 @@ function DefaultNode({
 				</ContextMenuItem>
 				<ContextMenuItem
 					onClick={() =>
-						setEditing(id, {
-							pickerStatus: !editing[id]?.pickerStatus,
-							pickerValue: data.color,
+						setEditing(id, "picker", {
+							status: !editing[id]?.picker?.status,
+							value: data.color,
 						})
 					}
 				>
 					<Pipette className="w-4 h-4 mr-2" />
 					Color
 				</ContextMenuItem>
-				<ContextMenuItem
+				<ContextMenuSub>
+					<ContextMenuSubTrigger>
+						<Type className="w-4 h-4 mr-2" />
+						Font
+					</ContextMenuSubTrigger>
+					<ContextMenuSubContent>
+						<ContextMenuItem
+							onClick={() =>
+								setEditing(id, "font", {
+									status: "color",
+									color: data.fontColor,
+								})
+							}
+						>
+							<Pipette className="w-4 h-4 mr-2" />
+							Color
+						</ContextMenuItem>
+						<ContextMenuItem
+							onClick={() =>
+								setEditing(id, "font", { status: "size", size: data.fontSize })
+							}
+						>
+							<Ruler className="w-4 h-4 mr-2" />
+							Size
+						</ContextMenuItem>
+						<ContextMenuItem
+							onClick={() =>
+								setEditing(id, "font", {
+									status: "weight",
+									weight: data.fontWeight,
+								})
+							}
+						>
+							<Bold className="w-4 h-4 mr-2" />
+							Weight
+						</ContextMenuItem>
+						<ContextMenuItem
+							onClick={() => {
+								setEditing(id, "font", {
+									status: "family",
+									// family: data.fontFamily,
+								});
+							}}
+						>
+							<CaseSensitive className="w-4 h-4 mr-2" />
+							Family
+						</ContextMenuItem>
+					</ContextMenuSubContent>
+				</ContextMenuSub>
+				{/* <ContextMenuItem
 					onClick={() =>
-						setEditing(id, {
+						setEditing(id, "font", {
 							fontStatus: !editing[id]?.fontStatus,
 							fontColor: data.fontColor,
 							fontSize: data.fontSize,
@@ -339,7 +398,7 @@ function DefaultNode({
 				>
 					<Type className="w-4 h-4 mr-2" />
 					Font
-				</ContextMenuItem>
+				</ContextMenuItem> */}
 				{parent && (
 					<ContextMenuItem
 						onClick={() => {

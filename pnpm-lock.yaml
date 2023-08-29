@@ -53,6 +53,9 @@ dependencies:
   '@radix-ui/react-tooltip':
     specifier: ^1.0.6
     version: 1.0.6(@types/react-dom@18.2.7)(@types/react@18.2.20)(react-dom@18.2.0)(react@18.2.0)
+  '@remotion/google-fonts':
+    specifier: ^4.0.28
+    version: 4.0.28(react-dom@18.2.0)(react@18.2.0)
   '@tanstack/react-query':
     specifier: ^4.32.6
     version: 4.32.6(react-dom@18.2.0)(react@18.2.0)
@@ -3180,6 +3183,15 @@ packages:
       - immer
     dev: false
 
+  /@remotion/google-fonts@4.0.28(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-Cktilv/IhKLhFhHQPuRNZNVxkxNAbU0UX0LACV1mAHUQdDZd0zCBMPWx1MLSdB8IXuePb42BXmrjcw91k7XJrg==}
+    dependencies:
+      remotion: 4.0.28(react-dom@18.2.0)(react@18.2.0)
+    transitivePeerDependencies:
+      - react
+      - react-dom
+    dev: false
+
   /@scena/dragscroll@1.4.0:
     resolution: {integrity: sha512-3O8daaZD9VXA9CP3dra6xcgt/qrm0mg0xJCwiX6druCteQ9FFsXffkF8PrqxY4Z4VJ58fFKEa0RlKqbsi/XnRA==}
     dependencies:
@@ -5337,6 +5349,16 @@ packages:
     hasBin: true
     dependencies:
       jsesc: 0.5.0
+    dev: false
+
+  /remotion@4.0.28(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-84uR+JIkFen//hHjcZSKzxzw/JZ7i7DKHx/qP2O0il/5KMMjNxt8ZJMq2m4lQrsGRuwu84Y4CeEUmJ15pw6Jgg==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /resolve-pkg-maps@1.0.0:
