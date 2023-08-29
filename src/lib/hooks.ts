@@ -50,16 +50,14 @@ export const registerHooks = () => {
 	}, [remoteComments.data]);
 
 	useEffect(() => {
-		if (
-			(!canvasId && session?.user.id && !remoteNodes.isLoading) ||
-			canvasId === "welcome" ||
-			(remoteNodes.isStale && session?.user.id)
-		) {
-			// console.log("welcomeNodes", welcomeNodes);
+		if ((!canvasId && session?.user.id) || canvasId === "welcome") {
+			console.log("welcomeNodes", welcomeNodes);
 			setNodes(welcomeNodes);
 		} else if (remoteNodes.data) {
-			// console.log("remoteNodes.data", remoteNodes.data);
-			setNodes(formatRemoteNodes(remoteNodes.data, true));
+			console.log("remoteNodes.data", remoteNodes.data);
+			const formattedNodes = formatRemoteNodes(remoteNodes.data, true);
+			console.log("formattedNodes", formattedNodes);
+			setNodes(formattedNodes);
 		} else if (
 			(remoteNodes.error && remoteNodes.error.data?.code === "UNAUTHORIZED") ||
 			!session?.user?.id
@@ -69,11 +67,7 @@ export const registerHooks = () => {
 	}, [remoteNodes.data, canvasId]);
 
 	useEffect(() => {
-		if (
-			(!canvasId && session?.user.id && !remoteEdges.isLoading) ||
-			canvasId === "welcome" ||
-			(remoteEdges.isStale && session?.user.id)
-		) {
+		if ((!canvasId && session?.user.id) || canvasId === "welcome") {
 			setEdges(welcomeEdges);
 		} else if (remoteEdges.data) {
 			setEdges(formatRemoteEdges(remoteEdges.data));
