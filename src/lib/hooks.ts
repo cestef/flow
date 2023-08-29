@@ -1,12 +1,12 @@
-import { formatRemoteData, trpc } from "./utils";
 import { loginEdges, loginNodes } from "@/lib/node-presets/login-nodes";
 import { useEffect, useRef } from "react";
 import { welcomeEdges, welcomeNodes } from "./node-presets/welcome-nodes";
+import { formatRemoteData, trpc } from "./utils";
 
-import { flowSelector } from "./constants";
-import { useReactFlow } from "reactflow";
-import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import { useReactFlow } from "reactflow";
+import { flowSelector } from "./constants";
 import { useStore } from "./store";
 
 export const registerHooks = () => {
@@ -41,7 +41,10 @@ export const registerHooks = () => {
 	}, [remoteComments.data]);
 
 	useEffect(() => {
-		if ((!canvasId && session?.user.id) || canvasId === "welcome") {
+		if (
+			((!canvasId && session?.user.id) || canvasId === "welcome") &&
+			!remoteNodes.isLoading
+		) {
 			setNodes(welcomeNodes);
 		} else if (remoteNodes.data) {
 			console.log("remoteNodes.data", remoteNodes.data);
@@ -55,7 +58,10 @@ export const registerHooks = () => {
 	}, [remoteNodes.data, canvasId]);
 
 	useEffect(() => {
-		if ((!canvasId && session?.user.id) || canvasId === "welcome") {
+		if (
+			((!canvasId && session?.user.id) || canvasId === "welcome") &&
+			!remoteEdges.isLoading
+		) {
 			setEdges(welcomeEdges);
 		} else if (remoteEdges.data) {
 			setEdges(
