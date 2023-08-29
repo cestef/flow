@@ -29,40 +29,11 @@ const { APP_URL, WS_URL } = publicRuntimeConfig;
 
 export default function MembersPanel() {
 	const { data: session } = useSession();
+
 	const currentCanvasId = useStore((state) => state.currentCanvasId);
-	// const createCanvas = trpc.canvas.add.useMutation();
-	const currentCanvas = trpc.canvas.get.useQuery(
-		{ id: currentCanvasId },
-		{ enabled: !!currentCanvasId },
-	);
 	const addNewMemberState = useStore((state) => state.addNewMember);
 	const toggleAddNewMember = useStore((state) => state.toggleAddNewMember);
 	const setAddNewMemberEmail = useStore((state) => state.setAddNewMemberEmail);
-
-	const addMember = trpc.members.add.useMutation({
-		onSuccess() {
-			toggleAddNewMember(false);
-			currentCanvas.refetch();
-		},
-	});
-	const deleteMember = trpc.members.delete.useMutation({
-		onSuccess() {
-			currentCanvas.refetch();
-		},
-	});
-
-	const [debouncedEmail] = useDebounce(addNewMemberState.email, 500);
-
-	const findUser = trpc.users.find.useQuery(
-		{
-			emailOrName: debouncedEmail,
-		},
-		{
-			enabled: !!debouncedEmail,
-		},
-	);
-
-	const { confirm, modal } = useConfirm();
 	const togglePanel = useStore((state) => state.toggleMembersPanel);
 	const panelHidden = useStore((state) => state.membersPanelHidden);
 	const {
@@ -79,13 +50,65 @@ export default function MembersPanel() {
 		setCopied: state.setCreateInvitePanelCopied,
 	}));
 
+	const [debouncedEmail] = useDebounce(addNewMemberState.email, 500);
+
+	// const createCanvas = trpc.canvas.add.useMutation();
+	const currentCanvas = trpc.canvas.get.useQuery(
+		{ id: currentCanvasId },
+		{
+			enabled: !!currentCanvasId && !["welcome", ""].includes(currentCanvasId),
+		},
+	);
+	const addMember = trpc.members.add.useMutation({
+		onSuccess() {
+			toggleAddNewMember(false);
+			currentCanvas.refetch();
+		},
+		onError(err) {
+			toast({
+				title: "An error occurred",
+				description: err.message,
+				variant: "destructive",
+			});
+		},
+	});
+	const deleteMember = trpc.members.delete.useMutation({
+		onSuccess() {
+			currentCanvas.refetch();
+		},
+		onError(err) {
+			toast({
+				title: "An error occurred",
+				description: err.message,
+				variant: "destructive",
+			});
+		},
+	});
+	const findUser = trpc.users.find.useQuery(
+		{
+			emailOrName: debouncedEmail,
+		},
+		{
+			enabled: !!debouncedEmail,
+		},
+	);
 	const createInvite = trpc.invites.create.useMutation({
 		onSuccess(data) {
 			toggleAddNewMember(false);
 			setShowResult(data.code);
 		},
+		onError(err) {
+			toast({
+				title: "An error occurred",
+				description: err.message,
+				variant: "destructive",
+			});
+		},
 	});
+
+	const { confirm, modal } = useConfirm();
 	const { toast } = useToast();
+
 	return (
 		<>
 			{modal}
@@ -287,11 +310,6 @@ export default function MembersPanel() {
 														No users found.
 													</p>
 												</div>
-											)}
-											{addMember.error?.message && (
-												<p className="text-red-500 text-sm">
-													An error occurred: {addMember.error.message}
-												</p>
 											)}
 										</div>
 									</TabsContent>

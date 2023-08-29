@@ -1,6 +1,5 @@
-import { EDGES_TYPES, NODES_TYPES } from "./lib/constants";
+import { EDGES_TYPES, NODES_TYPES } from "../constants";
 
-import { Button } from "./components/ui/button";
 import { signIn } from "next-auth/react";
 
 export const loginNodes = [

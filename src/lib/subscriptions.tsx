@@ -43,6 +43,7 @@ export const subscribe = () => {
 			onError(err) {
 				console.log(err);
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 	trpc.nodes.onUpdate.useSubscription(
@@ -57,6 +58,7 @@ export const subscribe = () => {
 			onError(err) {
 				console.log(err);
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 	trpc.nodes.onDelete.useSubscription(
@@ -85,6 +87,7 @@ export const subscribe = () => {
 			onError(err) {
 				console.log(err);
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 
@@ -94,6 +97,7 @@ export const subscribe = () => {
 		},
 		{
 			async onData(node) {},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 	trpc.nodes.onDragUpdate.useSubscription(
@@ -117,6 +121,7 @@ export const subscribe = () => {
 					},
 				});
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 	trpc.nodes.onDragEnd.useSubscription(
@@ -134,6 +139,7 @@ export const subscribe = () => {
 					},
 				});
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 
@@ -154,6 +160,7 @@ export const subscribe = () => {
 			onError(err) {
 				console.log(err);
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 	trpc.edges.onDelete.useSubscription(
@@ -168,6 +175,7 @@ export const subscribe = () => {
 			onError(err) {
 				console.log(err);
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 
@@ -179,6 +187,7 @@ export const subscribe = () => {
 		onError(err) {
 			console.log(err);
 		},
+		enabled: !!session && !["welcome", ""].includes(canvasId),
 	});
 
 	trpc.members.onSelfAddMember.useSubscription(undefined, {
@@ -198,6 +207,7 @@ export const subscribe = () => {
 				),
 			});
 		},
+		enabled: !!session && !["welcome", ""].includes(canvasId),
 	});
 
 	trpc.comments.onAdd.useSubscription(
@@ -212,6 +222,7 @@ export const subscribe = () => {
 			onError(err) {
 				console.log(err);
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 	trpc.comments.onUpdate.useSubscription(
@@ -225,6 +236,7 @@ export const subscribe = () => {
 			onError(err) {
 				console.log(err);
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 	trpc.comments.onDelete.useSubscription(
@@ -238,6 +250,7 @@ export const subscribe = () => {
 			onError(err) {
 				console.log(err);
 			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
 };

@@ -154,6 +154,23 @@ export const canvasRouter = router({
 			},
 		});
 	}),
+	delete: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			await prisma.canvas.deleteMany({
+				where: {
+					id: input.id,
+					owner: {
+						id: ctx.user.id,
+					},
+				},
+			});
+		}),
+
 	clear: protectedProcedure
 		.input(
 			z.object({

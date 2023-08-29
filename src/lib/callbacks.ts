@@ -65,7 +65,7 @@ export const registerCallbacks = () => {
 		(event: React.MouseEvent, node: Node) => void
 	>(
 		async (_, node) => {
-			if (!canvasId) return;
+			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
 			if (!session?.user?.id) return;
 			const should = await trcpProxyClient.nodes.shouldEmit.query({
 				canvasId,
@@ -123,7 +123,7 @@ export const registerCallbacks = () => {
 						},
 					},
 				});
-				if (session?.user?.id)
+				if (session?.user?.id && !["welcome", ""].includes(canvasId) && node.id)
 					dragEndNode.mutate({
 						id: node.id,
 						x: node.position.x,
@@ -137,7 +137,11 @@ export const registerCallbacks = () => {
 	const onEdgesChangeProxy = (edgeChanges: EdgeChange[]) => {
 		onEdgesChange(edgeChanges);
 		for (const change of edgeChanges) {
-			if (change.type === "remove" && session?.user?.id) {
+			if (
+				change.type === "remove" &&
+				session?.user?.id &&
+				!["welcome", ""].includes(canvasId)
+			) {
 				removeEdge.mutate({
 					id: change.id,
 				});
@@ -173,7 +177,7 @@ export const registerCallbacks = () => {
 						parentNode: undefined,
 					}),
 				);
-				if (session?.user.id) {
+				if (session?.user.id && !["welcome", ""].includes(canvasId)) {
 					updateManyNodes.mutate({
 						nodes: childrenNodesIds.map((node) => ({
 							id: node,
@@ -218,7 +222,8 @@ export const registerCallbacks = () => {
 		if (shouldEmit) updateNodePositionThrottled(positionChanges);
 		for (const change of nodeChanges) {
 			if (change.type === "remove") {
-				if (session?.user?.id) deleteNode.mutate({ id: change.id });
+				if (session?.user?.id && !["welcome", ""].includes(canvasId))
+					deleteNode.mutate({ id: change.id });
 			}
 		}
 		onNodesChange(
@@ -259,7 +264,7 @@ export const registerCallbacks = () => {
 	const updateNodePositionThrottled = useCallback(
 		throttle(UPDATE_THROTTLE, (changes: NodePositionChange[]) => {
 			if (!shouldEmit) return;
-			if (!canvasId) return;
+			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
 			if (!session?.user?.id) return;
 			dragUpdateNode.mutate({
 				changes: changes.map((change) => ({
@@ -275,6 +280,7 @@ export const registerCallbacks = () => {
 		(params: Connection) => {
 			const newEdge = onConnect(params);
 			if (!newEdge) return console.log("No edge found");
+			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
 			MaddEdge.mutate({
 				canvasId,
 				id: newEdge.id,

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Cross, X } from "lucide-react";
 import {
 	Command,
 	CommandEmpty,
@@ -24,14 +24,17 @@ export default function ComboBox({
 	onSelect,
 	data,
 	label,
+	onRemove,
 }: {
 	open: boolean;
 	value: string;
 	onOpenChange: (open: boolean) => void;
 	onSelect: (value: string) => void;
+	onRemove: (value: string) => void;
 	data: {
 		value: any;
 		label: string;
+		deletable?: boolean;
 	}[];
 	label: string;
 }) {
@@ -53,7 +56,11 @@ export default function ComboBox({
 					<CommandInput placeholder="Search..." />
 					<CommandGroup>
 						{data.map((e) => (
-							<CommandItem key={e.value} onSelect={() => onSelect(e.value)}>
+							<CommandItem
+								key={e.value}
+								onSelect={() => onSelect(e.value)}
+								className="mt-1"
+							>
 								<Check
 									className={cn(
 										"mr-2 h-4 w-4",
@@ -61,6 +68,16 @@ export default function ComboBox({
 									)}
 								/>
 								{e.label}
+								{e.deletable && (
+									<Button
+										size="icon"
+										className="ml-auto"
+										variant="ghost"
+										onClick={() => onRemove(e.value)}
+									>
+										<X className="h-4 w-4 text-red-500" />
+									</Button>
+								)}
 							</CommandItem>
 						))}
 						{data.length === 0 && (
