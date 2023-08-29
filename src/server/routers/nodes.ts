@@ -3,8 +3,8 @@ import { protectedProcedure, router } from "../trpc";
 import EventEmitter from "events";
 import { Node } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
-import { prisma } from "../../lib/prisma";
 import { z } from "zod";
+import { prisma } from "../../lib/prisma";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -45,6 +45,9 @@ export const nodesRouter = router({
 							},
 						},
 					],
+				},
+				include: {
+					handles: true,
 				},
 			});
 		}),
@@ -167,6 +170,14 @@ export const nodesRouter = router({
 				fontSize: z.number().optional(),
 				fontWeight: z.string().optional(),
 				borderRadius: z.number().optional(),
+				handles: z
+					.array(
+						z.object({
+							position: z.string(),
+							type: z.string(),
+						}),
+					)
+					.optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -217,6 +228,16 @@ export const nodesRouter = router({
 					fontSize: input.fontSize,
 					fontWeight: input.fontWeight,
 					borderRadius: input.borderRadius,
+					handles: {
+						create:
+							input.handles?.map((handle) => ({
+								type: handle.type,
+								position: handle.position,
+							})) ?? [],
+					},
+				},
+				include: {
+					handles: true,
 				},
 			});
 
@@ -635,6 +656,7 @@ export const nodesRouter = router({
 							members: true,
 						},
 					},
+					handles: true,
 				},
 			});
 
@@ -664,6 +686,12 @@ export const nodesRouter = router({
 					color: node.color,
 					canvasId: node.canvas.id,
 					parentId: node.parentId ?? undefined,
+					handles: {
+						create: node.handles.map((handle) => ({
+							type: handle.type,
+							position: handle.position,
+						})),
+					},
 				},
 			});
 
@@ -693,6 +721,7 @@ export const nodesRouter = router({
 							members: true,
 						},
 					},
+					handles: true,
 				},
 			});
 
@@ -724,6 +753,16 @@ export const nodesRouter = router({
 						height: node.height,
 						color: node.color,
 						borderRadius: node.borderRadius,
+						handles: {
+							create:
+								node.handles?.map((handle) => ({
+									type: handle.type,
+									position: handle.position,
+								})) ?? [],
+						},
+					},
+					include: {
+						handles: true,
 					},
 				}),
 			);

@@ -1,3 +1,4 @@
+import { Group, MessageSquare, Trash, Workflow } from "lucide-react";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -6,12 +7,11 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "./ui/context-menu";
-import { Group, MessageSquare, Trash, Workflow } from "lucide-react";
 
 import { NODES_TYPES } from "@/lib/constants";
-import { trpc } from "@/lib/utils";
-import useConfirm from "@/lib/useConfirm";
 import { useStore } from "@/lib/store";
+import useConfirm from "@/lib/useConfirm";
+import { trpc } from "@/lib/utils";
 
 export default function CanvasContext({
 	children,
@@ -84,8 +84,9 @@ export default function CanvasContext({
 							if (!result) return;
 							clearCanvas.mutate({ id: canvasId });
 						}}
+						className="text-destructive"
 					>
-						<Trash className="mr-2 w-4 h-4" />
+						<Trash className="mr-2 w-4 h-4 text-destructive" />
 						Clear canvas
 					</ContextMenuItem>
 				</ContextMenuContent>

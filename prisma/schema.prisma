@@ -83,11 +83,12 @@ model Canvas {
 }
 
 model Node {
-    id           String    @id @default(cuid())
+    id           String       @id @default(cuid())
     canvasId     String
-    canvas       Canvas    @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+    canvas       Canvas       @relation(fields: [canvasId], references: [id], onDelete: Cascade)
     name         String
     type         String
+    handles      NodeHandle[]
     x            Float
     y            Float
     width        Float?
@@ -98,26 +99,41 @@ model Node {
     fontWeight   String?
     borderRadius Float?
     parentId     String?
-    parent       Node?     @relation("Parent", fields: [parentId], references: [id])
-    children     Node[]    @relation("Parent")
-    createdAt    DateTime  @default(now())
-    updatedAt    DateTime  @updatedAt
-    fromEdges    Edge[]    @relation("FromEdges")
-    toEdges      Edge[]    @relation("ToEdges")
+    parent       Node?        @relation("Parent", fields: [parentId], references: [id])
+    children     Node[]       @relation("Parent")
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
+    fromEdges    Edge[]       @relation("FromEdges")
+    toEdges      Edge[]       @relation("ToEdges")
     comments     Comment[]
 }
 
+model NodeHandle {
+    id       String @id @default(cuid())
+    nodeId   String
+    node     Node   @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+    position String
+    type     String
+    outEdges Edge[] @relation("OutEdges")
+    inEdges  Edge[] @relation("InEdges")
+}
+
 model Edge {
-    id        String   @id @default(cuid())
-    canvasId  String
-    canvas    Canvas   @relation(fields: [canvasId], references: [id], onDelete: Cascade)
-    type      String
-    fromId    String
-    from      Node     @relation("FromEdges", fields: [fromId], references: [id], onDelete: Cascade)
-    toId      String
-    to        Node     @relation("ToEdges", fields: [toId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id           String      @id @default(cuid())
+    canvasId     String
+    canvas       Canvas      @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+    type         String
+    animated     Boolean     @default(false)
+    fromId       String
+    from         Node        @relation("FromEdges", fields: [fromId], references: [id], onDelete: Cascade)
+    fromHandleId String?
+    fromHandle   NodeHandle? @relation("OutEdges", fields: [fromHandleId], references: [id])
+    toHandleId   String?
+    toHandle     NodeHandle? @relation("InEdges", fields: [toHandleId], references: [id])
+    toId         String
+    to           Node        @relation("ToEdges", fields: [toId], references: [id], onDelete: Cascade)
+    createdAt    DateTime    @default(now())
+    updatedAt    DateTime    @updatedAt
 }
 
 model Comment {

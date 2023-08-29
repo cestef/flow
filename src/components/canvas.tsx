@@ -1,5 +1,5 @@
 import { edgeTypes, flowSelector, nodeTypes } from "@/lib/constants";
-import { useKeyPress, useReactFlow } from "reactflow";
+import { ConnectionLineType, useKeyPress, useReactFlow } from "reactflow";
 import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
 import { registerCallbacks } from "@/lib/callbacks";

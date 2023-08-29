@@ -12,18 +12,33 @@ import {
 	Copy,
 	MessageSquare,
 	Pipette,
+	Plus,
 	TextCursor,
 	Trash,
 	Type,
 	Unlink,
 	X,
 } from "lucide-react";
-import { Handle, NodeResizer, Position, useKeyPress } from "reactflow";
+import {
+	Handle,
+	HandleType,
+	NodeResizer,
+	Position,
+	useKeyPress,
+} from "reactflow";
 
 import BorderResizer from "@/components/border-resizer";
 import { Button } from "@/components/ui/button";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { flowSelector } from "@/lib/constants";
 import { useStore } from "@/lib/store";
+import { NodeHandle } from "@prisma/client";
 import { PopoverTrigger } from "@radix-ui/react-popover";
 import { memo } from "react";
 import NodeEditor from "./editor";
@@ -42,6 +57,7 @@ function DefaultNode({
 		fontSize: number;
 		fontWeight: string;
 		borderRadius: number;
+		handles: NodeHandle[];
 	};
 	selected: boolean;
 	id: string;
@@ -64,25 +80,6 @@ function DefaultNode({
 	const duplicateNode = trpc.nodes.duplicate.useMutation();
 	const createComment = trpc.comments.add.useMutation();
 
-	const getHandles = () => {
-		switch (type) {
-			default:
-				return (
-					<>
-						<Handle
-							type="target"
-							position={Position.Top}
-							className="bg-red-500 w-6 h-3 rounded-sm"
-						/>
-						<Handle
-							type="source"
-							position={Position.Bottom}
-							className="bg-green-500 w-6 h-3 rounded-sm"
-						/>
-					</>
-				);
-		}
-	};
 	const editing = useStore((state) => state.editing);
 	const setEditing = useStore((state) => state.setEditing);
 
@@ -113,7 +110,7 @@ function DefaultNode({
 				<BorderResizer visible={selected} />
 				<div
 					className={cn(
-						"px-4 py-2 shadow-md border-2 min-w-[120px] min-h-[60px]",
+						"px-4 py-2 shadow-md border-2 min-w-[100px] min-h-[50px]",
 						"flex flex-col justify-center relative items-center h-full w-full transition-none",
 						selected ? "border-primary" : "border-stone-400",
 						!data.color && !editing[id]?.pickerValue && "bg-accent",
@@ -205,7 +202,91 @@ function DefaultNode({
 					</Popover>
 
 					<NodeEditor label={data.label} />
-					{getHandles()}
+					{/* <Handle type={"source"} position={Position.Top} /> */}
+					{[Position.Left, Position.Right, Position.Bottom, Position.Top].map(
+						(position) => {
+							const handle = data.handles.find((h) => h.position === position);
+							if (handle)
+								return (
+									<Handle
+										type={
+											(data.handles.find((h) => h.position === position)
+												?.type ?? "target") as HandleType
+										}
+										position={position}
+										key={position}
+										className={cn({
+											"bg-primary": handle.type === "source",
+											"bg-accent": handle.type === "target",
+										})}
+										id={handle.id}
+									/>
+								);
+							return (
+								<Popover
+									key={position}
+									open={
+										editing[id]?.handleStatus &&
+										editing[id]?.handlePosition === position
+									}
+								>
+									<PopoverTrigger asChild>
+										<Button
+											size="smallIcon"
+											variant="dotted"
+											key={position}
+											className={cn(
+												"border absolute nodrag opacity-0 hover:opacity-100 transition-opacity",
+												{
+													"-top-8": position === Position.Top,
+													"-left-8": position === Position.Left,
+													"-right-8": position === Position.Right,
+													"-bottom-8": position === Position.Bottom,
+												},
+											)}
+											onClick={() => {
+												setEditing(id, {
+													handleStatus: true,
+													handlePosition: position,
+												});
+											}}
+										>
+											<Plus className="w-4 h-4 text-primary" />
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent
+										side={position}
+										className="bg-transparent shadow-none border-none w-40"
+									>
+										<Select
+											onValueChange={(e) => {
+												updateNode.mutate({
+													id,
+													handles: [
+														{
+															position,
+															type: e,
+														},
+													],
+												});
+												setEditing(id, {
+													handleStatus: false,
+												});
+											}}
+										>
+											<SelectTrigger className="w-full">
+												<SelectValue placeholder="Type" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="source">Source</SelectItem>
+												<SelectItem value="target">Target</SelectItem>
+											</SelectContent>
+										</Select>
+									</PopoverContent>
+								</Popover>
+							);
+						},
+					)}
 				</div>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
@@ -305,8 +386,9 @@ function DefaultNode({
 							id,
 						})
 					}
+					className="text-destructive"
 				>
-					<Trash className="w-4 h-4 mr-2" />
+					<Trash className="w-4 h-4 mr-2 text-destructive" />
 					Remove
 				</ContextMenuItem>
 			</ContextMenuContent>

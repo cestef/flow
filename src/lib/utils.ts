@@ -1,5 +1,9 @@
 import type { AppRouter } from "@/server/routers/_app";
-import { Node as PrismaNode } from "@prisma/client";
+import {
+	Edge as PrismaEdge,
+	Node as PrismaNode,
+	NodeHandle,
+} from "@prisma/client";
 import { createTRPCProxyClient } from "@trpc/client";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { loggerLink } from "@trpc/client/links/loggerLink";
@@ -9,7 +13,7 @@ import type { inferProcedureOutput } from "@trpc/server";
 import { type ClassValue, clsx } from "clsx";
 import { NextPageContext } from "next";
 import getConfig from "next/config";
-import { Node, NodePositionChange, XYPosition } from "reactflow";
+import { Edge, Node, NodePositionChange, XYPosition } from "reactflow";
 import superjson from "superjson";
 import { twMerge } from "tailwind-merge";
 
@@ -384,7 +388,10 @@ export const isNodeInGroupBounds = (node: Node, nodes: Node[]): Node | null => {
 	);
 };
 
-export const formatRemoteData = (data: PrismaNode[], order = false): Node[] => {
+export const formatRemoteNodes = (
+	data: (PrismaNode & { handles?: NodeHandle[] })[],
+	order = false,
+): Node[] => {
 	const formatted = data.map((node) => ({
 		id: node.id,
 		type: node.type,
@@ -400,6 +407,7 @@ export const formatRemoteData = (data: PrismaNode[], order = false): Node[] => {
 			fontSize: node.fontSize,
 			fontWeight: node.fontWeight,
 			borderRadius: node.borderRadius,
+			handles: node.handles || [],
 		},
 		position: { x: node.x, y: node.y },
 		...((node.width || node.height) && {
@@ -414,27 +422,22 @@ export const formatRemoteData = (data: PrismaNode[], order = false): Node[] => {
 
 	// children nodes need to be added before parent nodes
 	if (order) {
-		interface TreeNode {
-			node: Node;
-			children: TreeNode[];
-		}
-		const traverse = (node: Node): TreeNode => {
-			const children = formatted.filter((n) => n.parentNode === node.id);
-			return {
-				node,
-				children: children.map(traverse),
-			};
-		};
-		const trees = formatted.filter((n) => !n.parentNode).map(traverse);
-
-		const flatten = (tree: TreeNode): Node[] => {
-			return [tree.node, ...tree.children.flatMap(flatten)];
-		};
-
-		return trees.flatMap(flatten);
+		return orderNodes(formatted);
 	}
 
 	return formatted;
+};
+
+export const formatRemoteEdges = (data: PrismaEdge[]): Edge[] => {
+	return data.map((edge) => ({
+		id: edge.id,
+		source: edge.fromId,
+		target: edge.toId,
+		type: edge.type,
+		animated: edge.animated,
+		sourceHandle: edge.fromHandleId,
+		targetHandle: edge.toHandleId,
+	}));
 };
 
 export const orderNodes = (nodes: Node[]) => {

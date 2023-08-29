@@ -76,6 +76,9 @@ export const useStore = createWithEqualityFn(
 						pickerStatus: boolean;
 						pickerValue: string;
 						commentStatus: boolean;
+						handleStatus: boolean;
+						handlePosition: string;
+						handleValue: string;
 					};
 				},
 				selecting: false,
@@ -160,6 +163,16 @@ export const useStore = createWithEqualityFn(
 						edges: [...state.edges, edge],
 					}));
 				},
+				updateEdge: (edge: Partial<Edge> & { id: string }) => {
+					set((state) => ({
+						edges: state.edges.map((e) => {
+							if (e.id === edge.id) {
+								return shallowMerge(e, edge);
+							}
+							return e;
+						}),
+					}));
+				},
 				setComments: (comments: Comment[]) => {
 					set({ comments });
 				},
@@ -184,7 +197,7 @@ export const useStore = createWithEqualityFn(
 					}));
 				},
 
-				onConnect: (connection: Connection) => {
+				onConnect: (connection: Connection | Edge) => {
 					const newEdges = addEdge(connection, useStore.getState().edges);
 					set(() => ({
 						edges: newEdges,
@@ -287,6 +300,9 @@ export const useStore = createWithEqualityFn(
 						pickerStatus: boolean;
 						pickerValue: string;
 						commentStatus: boolean;
+						handleStatus: boolean;
+						handlePosition: string;
+						handleValue: string;
 					}>,
 				) =>
 					set((state) => ({

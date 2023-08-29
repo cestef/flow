@@ -1,3 +1,8 @@
+import { NODES_TYPES, flowSelector } from "@/lib/constants";
+import { cn, trpc } from "@/lib/utils";
+import { Copy, TextCursor, Trash, Unlink, Workflow } from "lucide-react";
+import { memo, useState } from "react";
+import { NodeResizer, useKeyPress } from "reactflow";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	ContextMenu,
@@ -7,14 +12,9 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "../ui/context-menu";
-import { Copy, TextCursor, Trash, Unlink, Workflow } from "lucide-react";
-import { NODES_TYPES, flowSelector } from "@/lib/constants";
-import { NodeResizer, useKeyPress } from "reactflow";
-import { cn, trpc } from "@/lib/utils";
-import { memo, useState } from "react";
 
-import { Input } from "../ui/input";
 import { useStore } from "@/lib/store";
+import { Input } from "../ui/input";
 
 const GroupNode = ({
 	data,
@@ -212,8 +212,9 @@ const GroupNode = ({
 							id,
 						});
 					}}
+					className="text-destructive"
 				>
-					<Trash className="w-4 h-4 mr-2" />
+					<Trash className="w-4 h-4 mr-2 text-destructive" />
 					Remove
 				</ContextMenuItem>
 			</ContextMenuContent>

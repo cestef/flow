@@ -1,10 +1,10 @@
 import { protectedProcedure, router } from "../trpc";
 
-import { Edge } from "@prisma/client";
 import EventEmitter from "events";
+import { Edge } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
-import { prisma } from "../../lib/prisma";
 import { z } from "zod";
+import { prisma } from "../../lib/prisma";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -53,10 +53,12 @@ export const edgesRouter = router({
 		.input(
 			z.object({
 				canvasId: z.string(),
-				id: z.string(),
+				id: z.string().optional(),
 				from: z.string(),
 				to: z.string(),
 				type: z.string(),
+				fromHandle: z.string().optional(),
+				toHandle: z.string().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -101,6 +103,30 @@ export const edgesRouter = router({
 					},
 					id: input.id,
 					type: input.type,
+					// fromHandle: {
+					// 	connect: {
+					// 		id: input.fromHandle,
+					// 	},
+					// },
+					// toHandle: {
+					// 	connect: {
+					// 		id: input.toHandle,
+					// 	},
+					// },
+					...(input.fromHandle && {
+						fromHandle: {
+							connect: {
+								id: input.fromHandle,
+							},
+						},
+					}),
+					...(input.toHandle && {
+						toHandle: {
+							connect: {
+								id: input.toHandle,
+							},
+						},
+					}),
 				},
 			});
 
@@ -165,6 +191,7 @@ export const edgesRouter = router({
 				id: z.string(),
 				from: z.string().optional(),
 				to: z.string().optional(),
+				animated: z.boolean().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -193,22 +220,81 @@ export const edgesRouter = router({
 				throw new Error("User is not allowed to update edge");
 			}
 
-			return prisma.edge.update({
+			const res = await prisma.edge.update({
 				where: {
 					id: input.id,
 				},
 				data: {
-					from: {
-						connect: {
-							id: input.from,
+					...(input.from && {
+						from: {
+							connect: {
+								id: input.from,
+							},
 						},
-					},
-					to: {
-						connect: {
-							id: input.to,
+					}),
+					...(input.to && {
+						to: {
+							connect: {
+								id: input.to,
+							},
 						},
-					},
+					}),
+					animated: input.animated,
 				},
+			});
+
+			emitter(edge.canvas.id).emit("update", {
+				edge: res,
+				userId: ctx.user.id,
+			});
+
+			return res;
+		}),
+
+	onUpdate: protectedProcedure
+		.input(
+			z.object({
+				canvasId: z.string(),
+			}),
+		)
+		.subscription(async ({ ctx, input }) => {
+			// Check if the user is allowed to subscribe to this canvas
+			const canvas = await prisma.canvas.findUnique({
+				where: {
+					id: input.canvasId,
+				},
+				include: {
+					owner: true,
+					members: true,
+				},
+			});
+
+			if (!canvas) {
+				throw new Error("Canvas not found");
+			}
+
+			if (
+				canvas.owner.id !== ctx.user.id &&
+				!canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to subscribe to this canvas");
+			}
+
+			return observable<{
+				edge: Edge;
+				userId: string;
+			}>((observer) => {
+				const onUpdate = (event: {
+					edge: Edge;
+					userId: string;
+				}) => {
+					observer.next(event);
+				};
+
+				emitter(input.canvasId).on("update", onUpdate);
+				return () => {
+					emitter(input.canvasId).off("update", onUpdate);
+				};
 			});
 		}),
 

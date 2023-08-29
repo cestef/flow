@@ -1,5 +1,5 @@
-import ButtonNode from "@/components/nodes/button-node";
 import DefaultEdge from "@/components/edges/default-edge";
+import ButtonNode from "@/components/nodes/button-node";
 import DefaultNode from "@/components/nodes/default/node";
 import GroupNode from "@/components/nodes/group-node";
 import { StoreState } from "./store";
@@ -48,5 +48,5 @@ export const flowSelector = (state: StoreState) => ({
 	addComment: state.addComment,
 	deleteComment: state.deleteComment,
 	updateComment: state.updateComment,
-	// updateEdge: state.updateEdge,
+	updateEdge: state.updateEdge,
 });

@@ -1,11 +1,12 @@
-import { formatRemoteData, trpc } from "./utils";
+import { formatRemoteNodes, trpc } from "./utils";
 
 import { Button } from "@/components/ui/button";
-import { flowSelector } from "./constants";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { useStore } from "./store";
 import { useToast } from "@/components/ui/use-toast";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useUpdateNodeInternals } from "reactflow";
+import { flowSelector } from "./constants";
+import { useStore } from "./store";
 
 export const subscribe = () => {
 	const canvasId = useStore((state) => state.currentCanvasId);
@@ -25,7 +26,9 @@ export const subscribe = () => {
 		addComment,
 		updateComment,
 		deleteComment,
+		updateEdge,
 	} = useStore(flowSelector);
+	const updateNodeInternal = useUpdateNodeInternals();
 	const { data: session } = useSession();
 	const { toast } = useToast();
 	const router = useRouter();
@@ -37,7 +40,7 @@ export const subscribe = () => {
 		{
 			async onData(node) {
 				if (nodes.find((n) => n.id === node.id)) return;
-				const [formatted] = formatRemoteData([node]);
+				const [formatted] = formatRemoteNodes([node]);
 				addNode(formatted);
 			},
 			onError(err) {
@@ -52,8 +55,9 @@ export const subscribe = () => {
 		},
 		{
 			async onData(node) {
-				const [formatted] = formatRemoteData([node]);
+				const [formatted] = formatRemoteNodes([node]);
 				updateNode(formatted);
+				updateNodeInternal(node.id);
 			},
 			onError(err) {
 				console.log(err);
@@ -171,6 +175,25 @@ export const subscribe = () => {
 			async onData({ edge, userId }) {
 				if (userId === session?.user.id) return;
 				deleteEdge(edge.id);
+			},
+			onError(err) {
+				console.log(err);
+			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
+		},
+	);
+
+	trpc.edges.onUpdate.useSubscription(
+		{
+			canvasId,
+		},
+		{
+			async onData({ edge, userId }) {
+				// if (userId === session?.user.id) return;
+				updateEdge({
+					id: edge.id,
+					animated: edge.animated,
+				});
 			},
 			onError(err) {
 				console.log(err);

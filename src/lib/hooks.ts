@@ -1,11 +1,11 @@
 import { loginEdges, loginNodes } from "@/lib/node-presets/login-nodes";
 import { useEffect, useRef } from "react";
 import { welcomeEdges, welcomeNodes } from "./node-presets/welcome-nodes";
-import { formatRemoteData, trpc } from "./utils";
+import { formatRemoteEdges, formatRemoteNodes, trpc } from "./utils";
 
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { useReactFlow } from "reactflow";
+import { MarkerType, useReactFlow } from "reactflow";
 import { flowSelector } from "./constants";
 import { useStore } from "./store";
 
@@ -48,7 +48,7 @@ export const registerHooks = () => {
 			setNodes(welcomeNodes);
 		} else if (remoteNodes.data) {
 			console.log("remoteNodes.data", remoteNodes.data);
-			setNodes(formatRemoteData(remoteNodes.data, true));
+			setNodes(formatRemoteNodes(remoteNodes.data, true));
 		} else if (
 			(remoteNodes.error && remoteNodes.error.data?.code === "UNAUTHORIZED") ||
 			!session?.user?.id
@@ -64,14 +64,7 @@ export const registerHooks = () => {
 		) {
 			setEdges(welcomeEdges);
 		} else if (remoteEdges.data) {
-			setEdges(
-				remoteEdges.data.map((edge) => ({
-					id: edge.id,
-					source: edge.fromId,
-					target: edge.toId,
-					type: edge.type,
-				})),
-			);
+			setEdges(formatRemoteEdges(remoteEdges.data));
 		} else if (
 			(remoteEdges.error && remoteEdges.error.data?.code === "UNAUTHORIZED") ||
 			!session?.user?.id

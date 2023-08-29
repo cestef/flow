@@ -83,7 +83,7 @@ export default function NodeEditor({
 										name: editing[id].nameValue,
 									});
 								}}
-								className="w-full h-full resize-none bg-transparent text-center outline-none"
+								className="w-full resize-none bg-transparent text-center outline-none min-h-6"
 							/>
 						</form>
 					) : (

@@ -6,7 +6,7 @@ import {
 	NodePositionChange,
 	useKeyPress,
 } from "reactflow";
-import { UPDATE_THROTTLE, flowSelector } from "./constants";
+import { EDGES_TYPES, UPDATE_THROTTLE, flowSelector } from "./constants";
 import {
 	getHelperLines,
 	isNodeInGroupBounds,
@@ -54,7 +54,18 @@ export const registerCallbacks = () => {
 	const { data: session } = useSession();
 
 	const MupdateNode = trpc.nodes.update.useMutation();
-	const MaddEdge = trpc.edges.add.useMutation();
+	const MaddEdge = trpc.edges.add.useMutation({
+		onSuccess: (data) => {
+			onConnect({
+				id: data.id,
+				source: data.fromId,
+				target: data.toId,
+				type: data.type,
+				sourceHandle: data.fromHandleId,
+				targetHandle: data.toHandleId,
+			});
+		},
+	});
 	const dragUpdateNode = trpc.nodes.dragUpdate.useMutation();
 	const dragEndNode = trpc.nodes.dragEnd.useMutation();
 	const deleteNode = trpc.nodes.delete.useMutation();
@@ -285,15 +296,15 @@ export const registerCallbacks = () => {
 	);
 	const onConnectProxy = useCallback(
 		(params: Connection) => {
-			const newEdge = onConnect(params);
-			if (!newEdge) return console.log("No edge found");
 			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
+			if (!params.source || !params.target) return;
 			MaddEdge.mutate({
 				canvasId,
-				id: newEdge.id,
-				from: newEdge.source,
-				to: newEdge.target,
-				type: newEdge.type || "default",
+				from: params.source,
+				to: params.target,
+				type: EDGES_TYPES.DEFAULT,
+				fromHandle: params.sourceHandle ?? undefined,
+				toHandle: params.targetHandle ?? undefined,
 			});
 		},
 		[edges, canvasId],
