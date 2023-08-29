@@ -1,4 +1,6 @@
+import { cn, trpc } from "@/lib/utils";
 import { D3DragEvent, SubjectPosition, drag } from "d3-drag";
+import { useEffect, useRef } from "react";
 import {
 	NodeChange,
 	NodeDimensionChange,
@@ -8,12 +10,10 @@ import {
 	useNodeId,
 	useStoreApi,
 } from "reactflow";
-import { cn, trpc } from "@/lib/utils";
-import { useEffect, useRef } from "react";
 
 import { flowSelector } from "@/lib/constants";
-import { select } from "d3-selection";
 import { useStore } from "@/lib/store";
+import { select } from "d3-selection";
 
 type Position = "bottom-right" | "bottom-left" | "top-right" | "top-left";
 
@@ -62,7 +62,7 @@ const BorderResizerControl = ({
 					pointerX: xSnapped,
 					pointerY: ySnapped,
 				};
-				console.log("start", startValues.current);
+				// console.log("start", startValues.current);
 			})
 			.on("drag", (event: ResizeDragEvent) => {
 				const { nodeInternals, triggerNodeChanges } = storeApi.getState();
@@ -75,7 +75,7 @@ const BorderResizerControl = ({
 
 				const distX = Math.floor(xSnapped - startX);
 				const distY = Math.floor(ySnapped - startY);
-				console.log(distX, distY, position);
+				// console.log(distX, distY, position);
 
 				let dist = 0;
 

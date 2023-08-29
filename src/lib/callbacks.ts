@@ -105,7 +105,7 @@ export const registerCallbacks = () => {
 				}),
 			);
 			const selectedNodes = nodes.filter((n) => n.selected);
-			console.log(selectedNodes);
+			// console.log(selectedNodes);
 			for (const node of selectedNodes) {
 				const group = isNodeInGroupBounds(node, nodes);
 				if (group) {
@@ -241,8 +241,8 @@ export const registerCallbacks = () => {
 					deleteNode.mutate({ id: change.id });
 			}
 		}
-		console.log("onNodesChangeProxy", nodeChanges);
-		console.log("selecting", selecting);
+		// console.log("onNodesChangeProxy", nodeChanges);
+		// console.log("selecting", selecting);
 		// This is done to avoid the instant unselection of the nodes after selection (we update the selected attribute manually)
 		onNodesChange(
 			selectedBrush === "select"

@@ -71,9 +71,9 @@ const useLayoutedElements = ({
 		const groupNodes = nodes.filter((node) => node.type !== "customGroup");
 
 		const rootNodes = groupNodes.filter((node) => !node.parentNode);
-		console.log("rootNodes", rootNodes);
+		// console.log("rootNodes", rootNodes);
 		const rect = getRectOfNodes(rootNodes);
-		console.log("rect", rect);
+		// console.log("rect", rect);
 		groups.push({
 			id: "rootGroup",
 			width: rect.width,
@@ -82,8 +82,8 @@ const useLayoutedElements = ({
 			data: {},
 		});
 
-		console.log("groups", groups);
-		console.log("groupNodes", groupNodes);
+		// console.log("groups", groups);
+		// console.log("groupNodes", groupNodes);
 		const graph: ElkNode = {
 			id: "root",
 			layoutOptions: layoutOptions,
@@ -131,7 +131,7 @@ const useLayoutedElements = ({
 
 				return result;
 			}, [] as any[]);
-			console.log("nodes", nodes);
+			// console.log("nodes", nodes);
 			onLayouted?.(nodes as any[]);
 			window.requestAnimationFrame(() => {
 				setTimeout(() => {
@@ -172,7 +172,7 @@ export default function ActionsPanel() {
 	});
 
 	const copy = useCallback(() => {
-		console.log("copy", selected.nodes, selected.edges);
+		// console.log("copy", selected.nodes, selected.edges);
 		if (selected.nodes.length === 0 && selected.edges.length === 0) return;
 		setClipboard(selected.nodes, selected.edges);
 	}, [selected]);
@@ -187,7 +187,7 @@ export default function ActionsPanel() {
 	});
 
 	const paste = useCallback(() => {
-		console.log("paste", clipboard.nodes, clipboard.edges);
+		// console.log("paste", clipboard.nodes, clipboard.edges);
 		if (clipboard.nodes.length === 0) return;
 		const { nodes } = clipboard;
 

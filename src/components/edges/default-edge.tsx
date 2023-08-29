@@ -1,5 +1,5 @@
 import { cn, trpc } from "@/lib/utils";
-import { Check, MoreHorizontal, Trash, X } from "lucide-react";
+import { Check, MoreHorizontal, Trash } from "lucide-react";
 import {
 	BaseEdge,
 	EdgeLabelRenderer,
@@ -11,8 +11,6 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 

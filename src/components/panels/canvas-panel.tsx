@@ -8,14 +8,14 @@ import {
 } from "../ui/dialog";
 import { DialogFooter, DialogHeader } from "../ui/dialog";
 
-import { Button } from "../ui/button";
-import ComboBox from "../combobox";
-import { Input } from "../ui/input";
-import { trpc } from "@/lib/utils";
-import useConfirm from "@/lib/useConfirm";
-import { useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
+import useConfirm from "@/lib/useConfirm";
+import { trpc } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import ComboBox from "../combobox";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 export default function CanvasPanel() {
 	const { data: session } = useSession();
@@ -105,7 +105,7 @@ export default function CanvasPanel() {
 									)}
 									value={currentCanvasId || "welcome"}
 									onSelect={(e) => {
-										console.log(e);
+										// console.log(e);
 										setCurrentCanvasId(e);
 										toggleChooseCanvas(false);
 									}}

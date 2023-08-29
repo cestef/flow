@@ -1,6 +1,5 @@
 import { EDGES_TYPES, NODES_TYPES } from "../constants";
 
-import { signIn } from "next-auth/react";
 import { useStore } from "../store";
 
 export const welcomeNodes = [
@@ -10,6 +9,13 @@ export const welcomeNodes = [
 		data: {
 			label: "Let's get started",
 			fontWeight: "bolder",
+			handles: [
+				{
+					id: "a",
+					position: "bottom",
+					type: "source",
+				},
+			],
 		},
 		position: { x: -500, y: 0 },
 		style: {
@@ -66,6 +72,7 @@ export const welcomeEdges = [
 	{
 		id: "1->1.1",
 		source: "1",
+		sourceHandle: "a",
 		target: "1.1",
 		animated: true,
 		type: EDGES_TYPES.DEFAULT,

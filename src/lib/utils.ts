@@ -41,7 +41,7 @@ function getEndingLink(ctx: NextPageContext | undefined) {
 			},
 		});
 	}
-	console.log(WS_URL);
+	// console.log(WS_URL);
 	const client = createWSClient({
 		url: WS_URL,
 	});

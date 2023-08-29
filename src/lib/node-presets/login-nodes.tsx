@@ -9,6 +9,12 @@ export const loginNodes = [
 		data: {
 			label: "I want to build",
 			fontWeight: "bolder",
+			handles: [
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
 		},
 		position: { x: -500, y: 0 },
 		style: {
@@ -21,6 +27,16 @@ export const loginNodes = [
 		data: {
 			label: "A flowchart",
 			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
 		},
 		position: { x: -730, y: 150 },
 		style: {
@@ -33,6 +49,16 @@ export const loginNodes = [
 		data: {
 			label: "A mindmap",
 			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
 		},
 		position: { x: -500, y: 150 },
 		style: {
@@ -45,6 +71,16 @@ export const loginNodes = [
 		data: {
 			label: "A sandwich",
 			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
 		},
 		position: { x: -270, y: 150 },
 		style: {
@@ -57,6 +93,12 @@ export const loginNodes = [
 		data: {
 			label: "You don't need Flow.",
 			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+			],
 		},
 		position: { x: -270, y: 300 },
 		style: {
@@ -66,7 +108,20 @@ export const loginNodes = [
 	{
 		id: "2",
 		type: NODES_TYPES.DEFAULT,
-		data: { label: "I want to collaborate with", fontWeight: "bolder" },
+		data: {
+			label: "I want to collaborate with",
+			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
+		},
 		position: { x: -630, y: 300 },
 		style: {
 			width: 240,
@@ -75,7 +130,20 @@ export const loginNodes = [
 	{
 		id: "2.1",
 		type: NODES_TYPES.DEFAULT,
-		data: { label: "Friends", fontWeight: "bolder" },
+		data: {
+			label: "Friends",
+			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
+		},
 		position: { x: -845, y: 450 },
 		style: {
 			width: 210,
@@ -84,7 +152,20 @@ export const loginNodes = [
 	{
 		id: "2.2",
 		type: NODES_TYPES.DEFAULT,
-		data: { label: "Teammates", fontWeight: "bolder" },
+		data: {
+			label: "Teammates",
+			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
+		},
 		position: { x: -615, y: 450 },
 		style: {
 			width: 210,
@@ -93,7 +174,20 @@ export const loginNodes = [
 	{
 		id: "2.3",
 		type: NODES_TYPES.DEFAULT,
-		data: { label: "My cat", fontWeight: "bolder" },
+		data: {
+			label: "My cat",
+			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
+		},
 		position: { x: -385, y: 450 },
 		style: {
 			width: 210,
@@ -101,7 +195,20 @@ export const loginNodes = [
 	},
 	{
 		id: "3",
-		data: { label: "You need Flow.", fontWeight: "bolder" },
+		data: {
+			label: "You need Flow.",
+			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
+		},
 		position: { x: -615, y: 600 },
 		type: NODES_TYPES.DEFAULT,
 		style: {
@@ -110,7 +217,20 @@ export const loginNodes = [
 	},
 	{
 		id: "3.1",
-		data: { label: "You need help.", fontWeight: "bolder" },
+		data: {
+			label: "You need help.",
+			fontWeight: "bolder",
+			handles: [
+				{
+					position: "top",
+					type: "target",
+				},
+				{
+					position: "bottom",
+					type: "source",
+				},
+			],
+		},
 		position: { x: -270, y: 600 },
 		type: NODES_TYPES.DEFAULT,
 		style: {

@@ -61,7 +61,7 @@ const Flow = ({
 				);
 
 				if (targetIsPane) {
-					console.log(event);
+					// console.log(event);
 					// we need to remove the wrapper bounds, in order to get the correct position
 					const { top, left } =
 						reactFlowWrapper.current!.getBoundingClientRect();
@@ -117,11 +117,11 @@ const Flow = ({
 							.map((el) => el.getAttribute("data-id"))
 							.filter(Boolean) as string[];
 
-						console.log(
-							addedIds,
-							removedIds,
-							e.selected.map((el) => el.getAttribute("data-id")),
-						);
+						// console.log(
+						// 	addedIds,
+						// 	removedIds,
+						// 	e.selected.map((el) => el.getAttribute("data-id")),
+						// );
 
 						findAndUpdateNode(
 							(n) => addedIds.includes(n.id),

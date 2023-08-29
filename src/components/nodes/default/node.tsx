@@ -203,90 +203,93 @@ function DefaultNode({
 
 					<NodeEditor label={data.label} />
 					{/* <Handle type={"source"} position={Position.Top} /> */}
-					{[Position.Left, Position.Right, Position.Bottom, Position.Top].map(
-						(position) => {
-							const handle = data.handles.find((h) => h.position === position);
-							if (handle)
-								return (
-									<Handle
-										type={
-											(data.handles.find((h) => h.position === position)
-												?.type ?? "target") as HandleType
-										}
-										position={position}
-										key={position}
-										className={cn({
-											"bg-primary": handle.type === "source",
-											"bg-accent": handle.type === "target",
-										})}
-										id={handle.id}
-									/>
+					{data.handles &&
+						[Position.Left, Position.Right, Position.Bottom, Position.Top].map(
+							(position) => {
+								const handle = data.handles.find(
+									(h) => h.position === position,
 								);
-							return (
-								<Popover
-									key={position}
-									open={
-										editing[id]?.handleStatus &&
-										editing[id]?.handlePosition === position
-									}
-								>
-									<PopoverTrigger asChild>
-										<Button
-											size="smallIcon"
-											variant="dotted"
+								if (handle)
+									return (
+										<Handle
+											type={
+												(data.handles.find((h) => h.position === position)
+													?.type ?? "target") as HandleType
+											}
+											position={position}
 											key={position}
-											className={cn(
-												"border absolute nodrag opacity-0 hover:opacity-100 transition-opacity",
-												{
-													"-top-8": position === Position.Top,
-													"-left-8": position === Position.Left,
-													"-right-8": position === Position.Right,
-													"-bottom-8": position === Position.Bottom,
-												},
-											)}
-											onClick={() => {
-												setEditing(id, {
-													handleStatus: true,
-													handlePosition: position,
-												});
-											}}
-										>
-											<Plus className="w-4 h-4 text-primary" />
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent
-										side={position}
-										className="bg-transparent shadow-none border-none w-40"
+											className={cn({
+												"bg-primary": handle.type === "source",
+												"bg-accent": handle.type === "target",
+											})}
+											id={handle.id}
+										/>
+									);
+								return (
+									<Popover
+										key={position}
+										open={
+											editing[id]?.handleStatus &&
+											editing[id]?.handlePosition === position
+										}
 									>
-										<Select
-											onValueChange={(e) => {
-												updateNode.mutate({
-													id,
-													handles: [
-														{
-															position,
-															type: e,
-														},
-													],
-												});
-												setEditing(id, {
-													handleStatus: false,
-												});
-											}}
+										<PopoverTrigger asChild>
+											<Button
+												size="smallIcon"
+												variant="dotted"
+												key={position}
+												className={cn(
+													"border absolute nodrag opacity-0 hover:opacity-100 transition-opacity",
+													{
+														"-top-8": position === Position.Top,
+														"-left-8": position === Position.Left,
+														"-right-8": position === Position.Right,
+														"-bottom-8": position === Position.Bottom,
+													},
+												)}
+												onClick={() => {
+													setEditing(id, {
+														handleStatus: true,
+														handlePosition: position,
+													});
+												}}
+											>
+												<Plus className="w-4 h-4 text-primary" />
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent
+											side={position}
+											className="bg-transparent shadow-none border-none w-40"
 										>
-											<SelectTrigger className="w-full">
-												<SelectValue placeholder="Type" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="source">Source</SelectItem>
-												<SelectItem value="target">Target</SelectItem>
-											</SelectContent>
-										</Select>
-									</PopoverContent>
-								</Popover>
-							);
-						},
-					)}
+											<Select
+												onValueChange={(e) => {
+													updateNode.mutate({
+														id,
+														handles: [
+															{
+																position,
+																type: e,
+															},
+														],
+													});
+													setEditing(id, {
+														handleStatus: false,
+													});
+												}}
+											>
+												<SelectTrigger className="w-full">
+													<SelectValue placeholder="Type" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="source">Source</SelectItem>
+													<SelectItem value="target">Target</SelectItem>
+												</SelectContent>
+											</Select>
+										</PopoverContent>
+									</Popover>
+								);
+							},
+						)}
 				</div>
 			</ContextMenuTrigger>
 			<ContextMenuContent>

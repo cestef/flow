@@ -93,7 +93,7 @@ export const useStore = createWithEqualityFn(
 					}));
 				},
 				setNodes: (nodes: Node[]) => {
-					console.log("setNodes", nodes);
+					// console.log("setNodes", nodes);
 					const ordered = nodes.sort((a, b) => {
 						if (a.type === "customGroup" && b.type !== "customGroup") return -1;
 						if (a.type !== "customGroup" && b.type === "customGroup") return 1;
@@ -114,7 +114,7 @@ export const useStore = createWithEqualityFn(
 					where: (node: Node) => boolean,
 					update: (node: Node) => Node,
 				) => {
-					console.log("findAndUpdateNode", where, update);
+					// console.log("findAndUpdateNode", where, update);
 					set((state) => ({
 						nodes: state.nodes.map((node) => {
 							if (where(node)) {
@@ -125,7 +125,7 @@ export const useStore = createWithEqualityFn(
 					}));
 				},
 				updateNode: (node: Partial<Node> & { id: string }) => {
-					console.log("updateNode", node);
+					// console.log("updateNode", node);
 					set((state) => ({
 						nodes: state.nodes.map((n) => {
 							if (n.id === node.id) {

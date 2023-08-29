@@ -90,7 +90,7 @@ const GroupNode = ({
 							const { top, left, bottom, right } = (
 								e.target as any
 							).getBoundingClientRect();
-							console.log(top, left, bottom, right);
+							// console.log(top, left, bottom, right);
 							// get the relative position of the context menu to the node
 							const relativeX = e.clientX - left;
 							const relativeY = e.clientY - top;

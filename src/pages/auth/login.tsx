@@ -14,12 +14,13 @@ import { getProviders, signIn } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import { Github } from "lucide-react";
+import { Github, MessageSquare } from "lucide-react";
 import { getServerSession } from "next-auth/next";
 import { useSearchParams } from "next/navigation";
 
 const icons = {
 	github: <Github className="mr-2 h-6 w-6" />,
+	discord: <MessageSquare className="mr-2 h-6 w-6" />,
 };
 
 export default function Login({
