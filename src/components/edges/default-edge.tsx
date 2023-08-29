@@ -1,5 +1,5 @@
 import { cn, trpc } from "@/lib/utils";
-import { Check, MoreHorizontal, Trash } from "lucide-react";
+import { Check, MoreHorizontal, Play, Trash } from "lucide-react";
 import {
 	BaseEdge,
 	EdgeLabelRenderer,
@@ -71,7 +71,8 @@ export default function DefaultEdge({
 									});
 								}}
 							>
-								Animated
+								<Play className="w-4 h-4 mr-2" />
+								Animate
 								{animated && <Check className="w-4 h-4 ml-auto" />}
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => {}} className="text-destructive">
