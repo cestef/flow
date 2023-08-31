@@ -44,6 +44,8 @@ WS_URL="ws://localhost:3001"
 NEXTAUTH_URL="http://localhost:3000/api/auth"
 GITHUB_ID="github-oauth-client-id"
 GITHUB_SECRET="github-oauth-client-secret"
+DISCORD_CLIENT_ID="discord-oauth-client-id"
+DISCORD_CLIENT_SECRET="discord-oauth-client-secret"
 GOOGLE_ANALYTICS_ID="optional-google-analytics-id"
 ```
 
