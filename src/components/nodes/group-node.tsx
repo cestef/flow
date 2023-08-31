@@ -48,8 +48,10 @@ const GroupNode = ({
 		[id: string]: { value: string; status: boolean };
 	}>({});
 	const altPressed = useKeyPress("Alt");
+	const setInContextMenu = useStore((state) => state.setInContextMenu);
+
 	return (
-		<ContextMenu>
+		<ContextMenu onOpenChange={(o) => setInContextMenu(o)}>
 			<ContextMenuTrigger>
 				<>
 					{user.data && (

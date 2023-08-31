@@ -24,13 +24,15 @@ export default function CanvasContext({
 	const createComment = trpc.comments.add.useMutation();
 	const contextMenuPosition = useStore((state) => state.contextMenuPosition);
 	const canvasId = useStore((state) => state.currentCanvasId);
-
+	const inContextMenu = useStore((state) => state.inContextMenu);
 	return (
 		<>
 			{modal}
 
 			<ContextMenu>
-				<ContextMenuTrigger>{children}</ContextMenuTrigger>
+				<ContextMenuTrigger disabled={inContextMenu}>
+					{children}
+				</ContextMenuTrigger>
 				<ContextMenuContent>
 					<ContextMenuLabel>Add</ContextMenuLabel>
 					<ContextMenuItem

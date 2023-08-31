@@ -122,8 +122,10 @@ export const useStore = createWithEqualityFn(
 				selectedBrush: "pointer" as string | undefined,
 				editing: {} as Editing,
 				selecting: false,
+				inContextMenu: false,
 			},
 			(set) => ({
+				setInContextMenu: (inContextMenu: boolean) => set({ inContextMenu }),
 				setIsMobile: (isMobile: boolean) => set({ isMobile }),
 				setInstance: (instance: ReactFlowInstance) => set({ instance }),
 				setSelecting: (selecting: boolean) => set({ selecting }),

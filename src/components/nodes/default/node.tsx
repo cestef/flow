@@ -103,8 +103,10 @@ function DefaultNode({
 		}
 	}, [data.fontFamily]);
 
+	const setInContextMenu = useStore((state) => state.setInContextMenu);
+
 	return (
-		<ContextMenu>
+		<ContextMenu onOpenChange={(o) => setInContextMenu(o)}>
 			<ContextMenuTrigger>
 				<NodeResizer
 					handleClassName="h-3 w-3 rounded-md bg-primary"

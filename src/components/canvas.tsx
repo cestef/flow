@@ -48,7 +48,7 @@ const Flow = ({
 		onNodeDragStop,
 		onNodesChange,
 	} = registerCallbacks();
-
+	const inContextMenu = useStore((state) => state.inContextMenu);
 	if (session?.user?.id) subscribe();
 
 	return (
@@ -59,7 +59,6 @@ const Flow = ({
 				const targetIsPane = (event.target as any).classList.contains(
 					"react-flow__pane",
 				);
-
 				if (targetIsPane) {
 					// console.log(event);
 					// we need to remove the wrapper bounds, in order to get the correct position
