@@ -1,5 +1,6 @@
 import ReactFlow, { Background, Controls, MiniMap } from "reactflow";
 
+import { cn } from "@/lib/utils";
 import { ComponentProps } from "react";
 
 // export const MiniMapStyled = styled(MiniMap)`
@@ -31,8 +32,11 @@ import { ComponentProps } from "react";
 // 	}
 // `;
 
-export const BackgroundStyled = ({ ...props }) => (
-	<Background className="bg-background" {...props} />
+export const BackgroundStyled = ({
+	className,
+	...props
+}: React.ComponentProps<typeof Background>) => (
+	<Background className={cn("bg-background", className)} {...props} />
 );
 
 export const ControlsStyled = ({ ...props }) => (

@@ -56,6 +56,8 @@ export default function CanvasPanel() {
 		}
 	}, [canvases.data, currentCanvasId]);
 	const togglePanel = useStore((state) => state.toggleCanvasPanel);
+	const toggleMembersPanel = useStore((state) => state.toggleMembersPanel);
+	const isMobile = useStore((state) => state.isMobile);
 	const panelHidden = useStore((state) => state.canvasPanelHidden);
 	return (
 		<>
@@ -63,7 +65,7 @@ export default function CanvasPanel() {
 			<Card
 				className={`w-64 ${
 					panelHidden
-						? "transform -translate-x-[77%] translate-y-[70%]"
+						? "transform -translate-x-[77%] translate-y-[60%]"
 						: "transform translate-x-0"
 				} transition-all duration-300 ease-in-out`}
 			>
@@ -71,7 +73,12 @@ export default function CanvasPanel() {
 					size="icon"
 					className="absolute top-4 right-4"
 					variant="ghost"
-					onClick={() => togglePanel()}
+					onClick={() => {
+						togglePanel();
+						if (isMobile) {
+							toggleMembersPanel(true);
+						}
+					}}
 				>
 					<ArrowDownLeft
 						className={`w-4 h-4 ${

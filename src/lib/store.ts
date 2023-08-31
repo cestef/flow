@@ -76,6 +76,7 @@ export const useStore = createWithEqualityFn(
 	temporal(
 		combine(
 			{
+				isMobile: false,
 				instance: undefined as ReactFlowInstance | undefined,
 				nodes: [] as Node[],
 				edges: [] as Edge[],
@@ -123,6 +124,7 @@ export const useStore = createWithEqualityFn(
 				selecting: false,
 			},
 			(set) => ({
+				setIsMobile: (isMobile: boolean) => set({ isMobile }),
 				setInstance: (instance: ReactFlowInstance) => set({ instance }),
 				setSelecting: (selecting: boolean) => set({ selecting }),
 				onNodesChange: (changes: NodeChange[]) => {
@@ -283,11 +285,15 @@ export const useStore = createWithEqualityFn(
 					})),
 				toggleCanvasPanel: (hidden?: boolean) =>
 					set((state) => ({
-						canvasPanelHidden: hidden ?? !state.canvasPanelHidden,
+						canvasPanelHidden:
+							typeof hidden === "undefined" ? !state.canvasPanelHidden : hidden,
 					})),
 				toggleMembersPanel: (hidden?: boolean) =>
 					set((state) => ({
-						membersPanelHidden: hidden ?? !state.membersPanelHidden,
+						membersPanelHidden:
+							typeof hidden === "undefined"
+								? !state.membersPanelHidden
+								: hidden,
 					})),
 				setClipboard: (nodes: Node[], edges: Edge[]) =>
 					set({ clipboard: { nodes, edges } }),

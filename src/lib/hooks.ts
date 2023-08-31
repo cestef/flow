@@ -93,4 +93,29 @@ export const registerHooks = () => {
 			fitView();
 		}
 	}, [canvasId]);
+
+	const toggleCanvasPanel = useStore((state) => state.toggleCanvasPanel);
+	const toggleMembersPanel = useStore((state) => state.toggleMembersPanel);
+	const isMobile = useStore((state) => state.isMobile);
+	const setIsMobile = useStore((state) => state.setIsMobile);
+
+	useEffect(() => {
+		const updateWindowDimensions = () => {
+			const isMobile = window.innerWidth < 768;
+			setIsMobile(isMobile);
+		};
+
+		setIsMobile(window.innerWidth < 768);
+
+		window.addEventListener("resize", updateWindowDimensions);
+
+		return () => window.removeEventListener("resize", updateWindowDimensions);
+	}, []);
+
+	useEffect(() => {
+		if (isMobile) {
+			toggleCanvasPanel(true);
+			toggleMembersPanel(true);
+		}
+	}, [isMobile]);
 };

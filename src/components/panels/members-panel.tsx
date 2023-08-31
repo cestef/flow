@@ -10,17 +10,17 @@ import {
 } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
+import { useStore } from "@/lib/store";
+import useConfirm from "@/lib/useConfirm";
+import { trpc } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import getConfig from "next/config";
+import { useDebounce } from "use-debounce";
 import { Button } from "../ui/button";
 import { DatePicker } from "../ui/date-picker";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Slider } from "../ui/slider";
-import getConfig from "next/config";
-import { trpc } from "@/lib/utils";
-import useConfirm from "@/lib/useConfirm";
-import { useDebounce } from "use-debounce";
-import { useSession } from "next-auth/react";
-import { useStore } from "@/lib/store";
 import { useToast } from "../ui/use-toast";
 
 const { publicRuntimeConfig } = getConfig();
@@ -36,6 +36,8 @@ export default function MembersPanel() {
 	const setAddNewMemberEmail = useStore((state) => state.setAddNewMemberEmail);
 	const togglePanel = useStore((state) => state.toggleMembersPanel);
 	const panelHidden = useStore((state) => state.membersPanelHidden);
+	const isMobile = useStore((state) => state.isMobile);
+	const toggleCanvasPanel = useStore((state) => state.toggleCanvasPanel);
 	const {
 		setMaxUses,
 		setExpires,
@@ -179,7 +181,12 @@ export default function MembersPanel() {
 					size="icon"
 					className="absolute top-4 left-4"
 					variant="ghost"
-					onClick={() => togglePanel()}
+					onClick={() => {
+						togglePanel();
+						if (isMobile) {
+							toggleCanvasPanel(true);
+						}
+					}}
 				>
 					<ArrowDownRight
 						className={`w-4 h-4 ${
