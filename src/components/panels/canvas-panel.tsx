@@ -10,7 +10,7 @@ import { DialogFooter, DialogHeader } from "../ui/dialog";
 
 import { useStore } from "@/lib/store";
 import useConfirm from "@/lib/useConfirm";
-import { trpc } from "@/lib/utils";
+import { cn, trpc } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import ComboBox from "../combobox";
@@ -60,14 +60,18 @@ export default function CanvasPanel() {
 	const isMobile = useStore((state) => state.isMobile);
 	const panelHidden = useStore((state) => state.canvasPanelHidden);
 	return (
-		<>
+		<div className="relative">
 			{modal}
 			<Card
-				className={`w-64 ${
-					panelHidden
-						? "transform -translate-x-[77%] translate-y-[60%]"
-						: "transform translate-x-0"
-				} transition-all duration-300 ease-in-out`}
+				// className={`w-64 ${
+				// 	panelHidden
+				// 		? "transform -translate-x-[77%] translate-y-[70%]"
+				// 		: "transform translate-x-0"
+				// } transition-all duration-300 ease-in-out`}
+				className={cn("w-64 transition-all duration-300 ease-in-out", {
+					"transform -translate-x-[77%] translate-y-[70%]": panelHidden,
+					"transform translate-x-0": !panelHidden,
+				})}
 			>
 				<Button
 					size="icon"
@@ -196,6 +200,6 @@ export default function CanvasPanel() {
 					</Dialog>
 				</CardContent>
 			</Card>
-		</>
+		</div>
 	);
 }
