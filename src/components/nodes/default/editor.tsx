@@ -112,7 +112,7 @@ export default function NodeEditor({
 							});
 						}}
 						gradient={true}
-						className="w-full h-full"
+						className="w-full h-full nodrag"
 					/>
 				</div>
 			)}
@@ -121,6 +121,7 @@ export default function NodeEditor({
 				<div className="absolute -bottom-12 left-0 w-full flex flex-row items-center">
 					<Slider
 						id="font-size"
+						className="nodrag"
 						value={[editing[id]?.font?.size || 16]}
 						onValueChange={([value]) =>
 							setEditing(id, "font", {
@@ -237,6 +238,7 @@ export default function NodeEditor({
 								fontFamily: item.value,
 							};
 						}}
+						className="nodrag"
 					/>
 					<Button
 						size="icon"
