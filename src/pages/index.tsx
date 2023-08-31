@@ -17,7 +17,7 @@ export default () => {
 		);
 	}
 	return (
-		<div className="h-[100svh]">
+		<div className="h-[100svh] select-none">
 			<Flow>
 				<Panel position="top-left" className="pl-4 pt-4">
 					<ActionsPanel />
