@@ -169,6 +169,7 @@ export const nodesRouter = router({
 				fontColor: z.string().optional(),
 				fontSize: z.number().optional(),
 				fontWeight: z.string().optional(),
+				fontFamily: z.string().optional(),
 				borderRadius: z.number().optional(),
 				handles: z
 					.array(
@@ -227,6 +228,7 @@ export const nodesRouter = router({
 					fontColor: input.fontColor,
 					fontSize: input.fontSize,
 					fontWeight: input.fontWeight,
+					fontFamily: input.fontFamily,
 					borderRadius: input.borderRadius,
 					handles: {
 						create:

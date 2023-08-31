@@ -97,6 +97,7 @@ model Node {
     fontColor    String?
     fontSize     Float?
     fontWeight   String?
+    fontFamily   String?
     borderRadius Float?
     parentId     String?
     parent       Node?        @relation("Parent", fields: [parentId], references: [id])

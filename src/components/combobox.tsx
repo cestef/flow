@@ -25,14 +25,18 @@ export default function ComboBox({
 	data,
 	label,
 	onRemove,
+	popoverClassName,
+	getItemStyle,
 	className,
 }: {
+	popoverClassName?: string;
 	className?: string;
 	open?: boolean;
 	value?: string;
 	onOpenChange?: (open: boolean) => void;
 	onSelect?: (value: string) => void;
 	onRemove?: (value: string) => void;
+	getItemStyle?: (item: any) => any;
 	data: {
 		value: any;
 		label: string;
@@ -50,7 +54,7 @@ export default function ComboBox({
 					variant="outline"
 					role="combobox"
 					aria-expanded={open}
-					className="w-full justify-between"
+					className={cn("w-full justify-between", className)}
 				>
 					{value
 						? data.find((e) => e.value === value)?.label
@@ -58,16 +62,17 @@ export default function ComboBox({
 					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className={cn("w-full", className)}>
+			<PopoverContent className={cn("w-full", popoverClassName)}>
 				<Command className="w-full h-60">
 					<CommandInput placeholder="Search..." />
-					<CommandGroup className="w-full max-h-full">
+					<CommandGroup className="w-full max-h-full overflow-y-auto">
 						<div className="max-h-full ">
 							{data.map((e) => (
 								<CommandItem
 									key={e.value}
 									onSelect={() => onSelect?.(e.value)}
 									className="mt-1"
+									style={getItemStyle?.(e)}
 								>
 									<Check
 										className={cn(

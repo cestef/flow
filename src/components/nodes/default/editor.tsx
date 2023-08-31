@@ -13,16 +13,25 @@ import { Slider } from "@/components/ui/slider";
 import { top250 } from "@/lib/fonts";
 import { useStore } from "@/lib/store";
 import { sanitizeColor, trpc } from "@/lib/utils";
+import { getAvailableFonts } from "@remotion/google-fonts";
 import { Check } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useNodeId } from "reactflow";
 
-const fonts = top250;
+export const fonts = top250;
 
 export default function NodeEditor({
 	label,
+	color,
+	fontSize,
+	fontWeight,
+	fontFamily,
 }: {
 	label: string;
+	color: string;
+	fontSize: number;
+	fontWeight: string;
+	fontFamily: string;
 }) {
 	const editing = useStore((state) => state.editing);
 	const getEditing = useStore((state) => state.getEditing);
@@ -73,6 +82,10 @@ export default function NodeEditor({
 				<p
 					style={{
 						wordBreak: "break-word",
+						color: editing[id]?.font?.color ?? color,
+						fontSize: editing[id]?.font?.size ?? fontSize ?? 16,
+						fontWeight: editing[id]?.font?.weight ?? fontWeight,
+						fontFamily: editing[id]?.font?.family ?? fontFamily,
 					}}
 					className="text-center"
 				>
@@ -195,7 +208,7 @@ export default function NodeEditor({
 				</div>
 			)}
 			{editing[id]?.font?.status === "family" && (
-				<div className="absolute -bottom-12 left-0 w-full flex flex-row items-center">
+				<div className="absolute -bottom-12 flex flex-row items-center justify-center w-60">
 					<ComboBox
 						data={fonts.map((font) => ({
 							label: font.family,
@@ -208,29 +221,21 @@ export default function NodeEditor({
 							if (!font) {
 								return console.error("Font not found");
 							}
-							const loaded = font.load();
+							// For some reason, sometimes the font load fails
+							try {
+								const loaded = font.load();
+								loaded.then((l) => {
+									//@ts-ignore
+									l.loadFont();
+								});
+							} catch {}
 
-							loaded.then((l) => {
-								const info = l.getInfo();
-								const styles = Object.keys(info.fonts);
-								console.log("Font", info.fontFamily, " Styles", styles);
-								for (const style of styles) {
-									const weightObject =
-										info.fonts[style as keyof typeof info.fonts];
-									const weights = Object.keys(weightObject);
-									console.log("- Style", style, "supports weights", weights);
-									for (const weight of weights) {
-										const scripts = Object.keys((weightObject as any)[weight]);
-										console.log(
-											"-- Weight",
-											weight,
-											"supports scripts",
-											scripts,
-										);
-									}
-								}
-							});
 							setEditing(id, "font", { family: value });
+						}}
+						getItemStyle={(item) => {
+							return {
+								fontFamily: item.value,
+							};
 						}}
 					/>
 					<Button
@@ -240,10 +245,10 @@ export default function NodeEditor({
 							setEditing(id, "font", {
 								status: undefined,
 							});
-							// updateNode.mutate({
-							//     id,
-							//     fontFamily: editing[id]?.font?.family,
-							// });
+							updateNode.mutate({
+								id,
+								fontFamily: editing[id]?.font?.family,
+							});
 						}}
 					>
 						<Check className="w-4 h-4" />

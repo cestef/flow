@@ -7,6 +7,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 
+import { BackgroundStyled } from "@/components/themed-flow";
 import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
 import Link from "next/link";
@@ -15,7 +16,7 @@ import React from "react";
 const AboutPage = () => {
 	return (
 		<div className="flex flex-col items-center justify-center w-screen h-screen shadow-sm">
-			<Card className="w-[750px] p-3 relative">
+			<Card className="w-[750px] p-3 relative animate-in fade-in zoom-in-75 duration-300">
 				<CardHeader>
 					<CardTitle className="text-4xl font-bold">About Flow</CardTitle>
 					<CardDescription className="text-xl pt-2">
@@ -99,6 +100,7 @@ const AboutPage = () => {
 					</Link>
 				</CardFooter>
 			</Card>
+			<BackgroundStyled className="-z-10" />
 		</div>
 	);
 };

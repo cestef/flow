@@ -46,8 +46,8 @@ import { flowSelector } from "@/lib/constants";
 import { useStore } from "@/lib/store";
 import { NodeHandle } from "@prisma/client";
 import { PopoverTrigger } from "@radix-ui/react-popover";
-import { memo } from "react";
-import NodeEditor from "./editor";
+import { memo, useEffect } from "react";
+import NodeEditor, { fonts } from "./editor";
 
 function DefaultNode({
 	data,
@@ -62,6 +62,7 @@ function DefaultNode({
 		fontColor: string;
 		fontSize: number;
 		fontWeight: string;
+		fontFamily: string;
 		borderRadius: number;
 		handles: NodeHandle[];
 	};
@@ -90,6 +91,17 @@ function DefaultNode({
 	const setEditing = useStore((state) => state.setEditing);
 
 	const altPressed = useKeyPress("Alt");
+
+	useEffect(() => {
+		const font = fonts.find((f) => f.family === data.fontFamily);
+		if (font) {
+			// For some reason, sometimes the font load fails
+			try {
+				// @ts-ignore
+				font.load().then((l) => l.loadFont());
+			} catch {}
+		}
+	}, [data.fontFamily]);
 
 	return (
 		<ContextMenu>
@@ -127,13 +139,16 @@ function DefaultNode({
 					)}
 					id={id}
 					style={{
-						color: editing[id]?.font?.color ?? data.fontColor,
-						fontSize: editing[id]?.font?.size ?? data.fontSize ?? 16,
-						fontWeight: editing[id]?.font?.weight ?? data.fontWeight,
 						background: editing[id]?.picker?.value ?? data.color,
 						borderRadius: data.borderRadius ?? 15,
 					}}
 					onDoubleClick={() => {
+						if (
+							Object.keys(editing[id] || {})
+								.map((k) => (editing as any)[id][k].status)
+								.some(Boolean)
+						)
+							return;
 						setEditing(id, "name", {
 							status: true,
 							value: data.label,
@@ -208,7 +223,13 @@ function DefaultNode({
 						</PopoverContent>
 					</Popover>
 
-					<NodeEditor label={data.label} />
+					<NodeEditor
+						label={data.label}
+						color={data.fontColor}
+						fontFamily={data.fontFamily}
+						fontSize={data.fontSize}
+						fontWeight={data.fontWeight}
+					/>
 					{data.handles &&
 						!Object.keys(editing[id] || {})
 							.filter((k) => k !== "handle")
@@ -377,7 +398,7 @@ function DefaultNode({
 							onClick={() => {
 								setEditing(id, "font", {
 									status: "family",
-									// family: data.fontFamily,
+									family: data.fontFamily,
 								});
 							}}
 						>

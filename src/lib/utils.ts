@@ -406,6 +406,7 @@ export const formatRemoteNodes = (
 			fontColor: node.fontColor,
 			fontSize: node.fontSize,
 			fontWeight: node.fontWeight,
+			fontFamily: node.fontFamily,
 			borderRadius: node.borderRadius,
 			handles: node.handles || [],
 		},
