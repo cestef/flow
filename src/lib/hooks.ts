@@ -51,7 +51,7 @@ export const registerHooks = () => {
 			(!canvasId &&
 				session?.user.id &&
 				!remoteNodes.isFetching &&
-				!remoteNodes.data) ||
+				(!remoteNodes.data || remoteNodes.data?.length === 0)) ||
 			canvasId === "welcome"
 		) {
 			console.log("welcomeNodes", welcomeNodes);
