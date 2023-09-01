@@ -23,23 +23,20 @@ export const registerHooks = () => {
 	const remoteNodes = trpc.nodes.list.useQuery(
 		{ canvasId },
 		{
-			enabled:
-				!!session?.user?.id && !["welcome", "", undefined].includes(canvasId),
+			enabled: !!session?.user?.id,
 		},
 	);
 	const remoteEdges = trpc.edges.list.useQuery(
 		{ canvasId },
 		{
-			enabled:
-				!!session?.user?.id && !["welcome", "", undefined].includes(canvasId),
+			enabled: !!session?.user?.id,
 		},
 	);
 
 	const remoteComments = trpc.comments.get.useQuery(
 		{ canvasId },
 		{
-			enabled:
-				!!session?.user?.id && !["welcome", "", undefined].includes(canvasId),
+			enabled: !!session?.user?.id,
 		},
 	);
 
@@ -50,7 +47,13 @@ export const registerHooks = () => {
 	}, [remoteComments.data]);
 
 	useEffect(() => {
-		if ((!canvasId && session?.user.id) || canvasId === "welcome") {
+		if (
+			(!canvasId &&
+				session?.user.id &&
+				!remoteNodes.isFetching &&
+				!remoteNodes.data) ||
+			canvasId === "welcome"
+		) {
 			console.log("welcomeNodes", welcomeNodes);
 			setNodes(welcomeNodes);
 		} else if (remoteNodes.data) {
@@ -64,7 +67,7 @@ export const registerHooks = () => {
 		) {
 			setNodes(loginNodes);
 		}
-	}, [remoteNodes.data, canvasId]);
+	}, [remoteNodes.data, remoteNodes.isLoading, canvasId]);
 
 	useEffect(() => {
 		if ((!canvasId && session?.user.id) || canvasId === "welcome") {

@@ -36,7 +36,11 @@ export const BackgroundStyled = ({
 	className,
 	...props
 }: React.ComponentProps<typeof Background>) => (
-	<Background className={cn("bg-background", className)} {...props} />
+	<Background
+		className={cn("bg-background", className)}
+		size={1.5}
+		{...props}
+	/>
 );
 
 export const ControlsStyled = ({ ...props }) => (

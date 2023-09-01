@@ -83,30 +83,32 @@ model Canvas {
 }
 
 model Node {
-    id           String       @id @default(cuid())
-    canvasId     String
-    canvas       Canvas       @relation(fields: [canvasId], references: [id], onDelete: Cascade)
-    name         String
-    type         String
-    handles      NodeHandle[]
-    x            Float
-    y            Float
-    width        Float?
-    height       Float?
-    color        String?
-    fontColor    String?
-    fontSize     Float?
-    fontWeight   String?
-    fontFamily   String?
-    borderRadius Float?
-    parentId     String?
-    parent       Node?        @relation("Parent", fields: [parentId], references: [id])
-    children     Node[]       @relation("Parent")
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @updatedAt
-    fromEdges    Edge[]       @relation("FromEdges")
-    toEdges      Edge[]       @relation("ToEdges")
-    comments     Comment[]
+    id              String       @id @default(cuid())
+    canvasId        String
+    canvas          Canvas       @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+    name            String
+    type            String
+    handles         NodeHandle[]
+    x               Float
+    y               Float
+    width           Float?
+    height          Float?
+    color           String?
+    fontColor       String?
+    fontSize        Float?
+    fontWeight      String?
+    fontFamily      String?
+    borderRadius    Float?
+    parentId        String?
+    verticalAlign   String?
+    horizontalAlign String?
+    parent          Node?        @relation("Parent", fields: [parentId], references: [id])
+    children        Node[]       @relation("Parent")
+    createdAt       DateTime     @default(now())
+    updatedAt       DateTime     @updatedAt
+    fromEdges       Edge[]       @relation("FromEdges")
+    toEdges         Edge[]       @relation("ToEdges")
+    comments        Comment[]
 }
 
 model NodeHandle {

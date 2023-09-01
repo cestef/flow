@@ -408,6 +408,8 @@ export const formatRemoteNodes = (
 			fontWeight: node.fontWeight,
 			fontFamily: node.fontFamily,
 			borderRadius: node.borderRadius,
+			verticalAlign: node.verticalAlign,
+			horizontalAlign: node.horizontalAlign,
 			handles: node.handles || [],
 		},
 		position: { x: node.x, y: node.y },

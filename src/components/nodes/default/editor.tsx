@@ -28,18 +28,21 @@ export default function NodeEditor({
 	fontSize,
 	fontWeight,
 	fontFamily,
+	verticalAlign,
+	horizontalAlign,
 }: {
 	label: string;
 	color: string;
 	fontSize: number;
 	fontWeight: string;
 	fontFamily: string;
+	verticalAlign: string;
+	horizontalAlign: string;
 }) {
 	const editing = useStore((state) => state.editing);
 	const getEditing = useStore((state) => state.getEditing);
 	const setEditing = useStore((state) => state.setEditing);
 	const { findAndUpdateNode } = useStore(flowSelector);
-	const { theme } = useTheme();
 	const MupdateNode = trpc.nodes.update.useMutation();
 	const id = useNodeId();
 
@@ -55,7 +58,10 @@ export default function NodeEditor({
 					fontSize: editing[id]?.font?.size ?? fontSize ?? 16,
 					fontWeight: editing[id]?.font?.weight ?? fontWeight,
 					fontFamily: editing[id]?.font?.family ?? fontFamily,
+					justifyContent: verticalAlign ?? "center",
+					alignItems: horizontalAlign ?? "center",
 				}}
+				className="w-full h-full flex flex-col"
 			>
 				{editing[id]?.name?.status ? (
 					<form

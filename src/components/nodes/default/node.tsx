@@ -1,8 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	ContextMenu,
+	ContextMenuCheckboxItem,
 	ContextMenuContent,
 	ContextMenuItem,
+	ContextMenuLabel,
 	ContextMenuSeparator,
 	ContextMenuSub,
 	ContextMenuSubContent,
@@ -12,13 +14,23 @@ import {
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import { cn, trpc } from "@/lib/utils";
 import {
+	AlignHorizontalJustifyCenter,
+	AlignHorizontalJustifyEnd,
+	AlignHorizontalJustifyStart,
+	AlignVerticalJustifyCenter,
+	AlignVerticalJustifyEnd,
+	AlignVerticalJustifyStart,
 	Bold,
 	CaseSensitive,
 	Copy,
 	MessageSquare,
+	MoveHorizontal,
+	MoveVertical,
+	Paintbrush,
 	Pipette,
 	Plus,
 	Ruler,
+	Text,
 	TextCursor,
 	Trash,
 	Type,
@@ -65,6 +77,8 @@ function DefaultNode({
 		fontFamily: string;
 		borderRadius: number;
 		handles: NodeHandle[];
+		verticalAlign: string;
+		horizontalAlign: string;
 	};
 	selected: boolean;
 	id: string;
@@ -231,6 +245,8 @@ function DefaultNode({
 						fontFamily={data.fontFamily}
 						fontSize={data.fontSize}
 						fontWeight={data.fontWeight}
+						verticalAlign={data.verticalAlign}
+						horizontalAlign={data.horizontalAlign}
 					/>
 					{data.handles &&
 						!Object.keys(editing[id] || {})
@@ -350,79 +366,6 @@ function DefaultNode({
 					<Copy className="w-4 h-4 mr-2" />
 					Duplicate
 				</ContextMenuItem>
-				<ContextMenuItem
-					onClick={() =>
-						setEditing(id, "picker", {
-							status: !editing[id]?.picker?.status,
-							value: data.color,
-						})
-					}
-				>
-					<Pipette className="w-4 h-4 mr-2" />
-					Color
-				</ContextMenuItem>
-				<ContextMenuSub>
-					<ContextMenuSubTrigger>
-						<Type className="w-4 h-4 mr-2" />
-						Font
-					</ContextMenuSubTrigger>
-					<ContextMenuSubContent>
-						<ContextMenuItem
-							onClick={() =>
-								setEditing(id, "font", {
-									status: "color",
-									color: data.fontColor,
-								})
-							}
-						>
-							<Pipette className="w-4 h-4 mr-2" />
-							Color
-						</ContextMenuItem>
-						<ContextMenuItem
-							onClick={() =>
-								setEditing(id, "font", { status: "size", size: data.fontSize })
-							}
-						>
-							<Ruler className="w-4 h-4 mr-2" />
-							Size
-						</ContextMenuItem>
-						<ContextMenuItem
-							onClick={() =>
-								setEditing(id, "font", {
-									status: "weight",
-									weight: data.fontWeight,
-								})
-							}
-						>
-							<Bold className="w-4 h-4 mr-2" />
-							Weight
-						</ContextMenuItem>
-						<ContextMenuItem
-							onClick={() => {
-								setEditing(id, "font", {
-									status: "family",
-									family: data.fontFamily,
-								});
-							}}
-						>
-							<CaseSensitive className="w-4 h-4 mr-2" />
-							Family
-						</ContextMenuItem>
-					</ContextMenuSubContent>
-				</ContextMenuSub>
-				{/* <ContextMenuItem
-					onClick={() =>
-						setEditing(id, "font", {
-							fontStatus: !editing[id]?.fontStatus,
-							fontColor: data.fontColor,
-							fontSize: data.fontSize,
-							fontWeight: data.fontWeight,
-						})
-					}
-				>
-					<Type className="w-4 h-4 mr-2" />
-					Font
-				</ContextMenuItem> */}
 				{parent && (
 					<ContextMenuItem
 						onClick={() => {
@@ -465,6 +408,169 @@ function DefaultNode({
 					<MessageSquare className="mr-2 w-4 h-4" />
 					Comment
 				</ContextMenuItem>
+				<ContextMenuSeparator />
+				<ContextMenuLabel>Style</ContextMenuLabel>
+				<ContextMenuItem
+					onClick={() =>
+						setEditing(id, "picker", {
+							status: !editing[id]?.picker?.status,
+							value: data.color,
+						})
+					}
+				>
+					<Paintbrush className="w-4 h-4 mr-2" />
+					Color
+				</ContextMenuItem>
+				<ContextMenuSub>
+					<ContextMenuSubTrigger>
+						<Type className="w-4 h-4 mr-2" />
+						Font
+					</ContextMenuSubTrigger>
+					<ContextMenuSubContent>
+						<ContextMenuItem
+							onClick={() =>
+								setEditing(id, "font", {
+									status: "color",
+									color: data.fontColor,
+								})
+							}
+						>
+							<Pipette className="w-4 h-4 mr-2" />
+							Color
+						</ContextMenuItem>
+						<ContextMenuSub>
+							<ContextMenuSubTrigger>
+								<AlignHorizontalJustifyCenter className="w-4 h-4 mr-2" />
+								Align
+							</ContextMenuSubTrigger>
+							<ContextMenuSubContent>
+								<ContextMenuSub>
+									<ContextMenuSubTrigger>
+										<MoveVertical className="w-4 h-4 mr-2" />
+										Vertical
+									</ContextMenuSubTrigger>
+									<ContextMenuSubContent>
+										<ContextMenuCheckboxItem
+											checked={data.verticalAlign === "start"}
+											onCheckedChange={(e) => {
+												updateNode.mutate({
+													id,
+													verticalAlign: e ? "start" : "center",
+												});
+											}}
+										>
+											<AlignVerticalJustifyStart className="w-4 h-4 mr-2" />
+											Start
+										</ContextMenuCheckboxItem>
+										<ContextMenuCheckboxItem
+											checked={
+												data.verticalAlign === "center" || !data.verticalAlign
+											}
+											onCheckedChange={(e) => {
+												updateNode.mutate({
+													id,
+													verticalAlign: e ? "center" : "center",
+												});
+											}}
+										>
+											<AlignVerticalJustifyCenter className="w-4 h-4 mr-2" />
+											Center
+										</ContextMenuCheckboxItem>
+										<ContextMenuCheckboxItem
+											checked={data.verticalAlign === "end"}
+											onCheckedChange={(e) => {
+												updateNode.mutate({
+													id,
+													verticalAlign: e ? "end" : "center",
+												});
+											}}
+										>
+											<AlignVerticalJustifyEnd className="w-4 h-4 mr-2" />
+											End
+										</ContextMenuCheckboxItem>
+									</ContextMenuSubContent>
+								</ContextMenuSub>
+								<ContextMenuSub>
+									<ContextMenuSubTrigger>
+										<MoveHorizontal className="w-4 h-4 mr-2" />
+										Horizontal
+									</ContextMenuSubTrigger>
+									<ContextMenuSubContent>
+										<ContextMenuCheckboxItem
+											checked={data.horizontalAlign === "start"}
+											onCheckedChange={(e) => {
+												updateNode.mutate({
+													id,
+													horizontalAlign: e ? "start" : "center",
+												});
+											}}
+										>
+											<AlignHorizontalJustifyStart className="w-4 h-4 mr-2" />
+											Start
+										</ContextMenuCheckboxItem>
+										<ContextMenuCheckboxItem
+											checked={
+												data.horizontalAlign === "center" ||
+												!data.horizontalAlign
+											}
+											onCheckedChange={(e) => {
+												updateNode.mutate({
+													id,
+													horizontalAlign: e ? "center" : "center",
+												});
+											}}
+										>
+											<AlignHorizontalJustifyCenter className="w-4 h-4 mr-2" />
+											Center
+										</ContextMenuCheckboxItem>
+										<ContextMenuCheckboxItem
+											checked={data.horizontalAlign === "end"}
+											onCheckedChange={(e) => {
+												updateNode.mutate({
+													id,
+													horizontalAlign: e ? "end" : "center",
+												});
+											}}
+										>
+											<AlignHorizontalJustifyEnd className="w-4 h-4 mr-2" />
+											End
+										</ContextMenuCheckboxItem>
+									</ContextMenuSubContent>
+								</ContextMenuSub>
+							</ContextMenuSubContent>
+						</ContextMenuSub>
+						<ContextMenuItem
+							onClick={() =>
+								setEditing(id, "font", { status: "size", size: data.fontSize })
+							}
+						>
+							<Ruler className="w-4 h-4 mr-2" />
+							Size
+						</ContextMenuItem>
+						<ContextMenuItem
+							onClick={() =>
+								setEditing(id, "font", {
+									status: "weight",
+									weight: data.fontWeight,
+								})
+							}
+						>
+							<Bold className="w-4 h-4 mr-2" />
+							Weight
+						</ContextMenuItem>
+						<ContextMenuItem
+							onClick={() => {
+								setEditing(id, "font", {
+									status: "family",
+									family: data.fontFamily,
+								});
+							}}
+						>
+							<CaseSensitive className="w-4 h-4 mr-2" />
+							Family
+						</ContextMenuItem>
+					</ContextMenuSubContent>
+				</ContextMenuSub>
 				<ContextMenuSeparator />
 				<ContextMenuItem
 					onClick={() =>

@@ -170,6 +170,8 @@ export const nodesRouter = router({
 				fontSize: z.number().optional(),
 				fontWeight: z.string().optional(),
 				fontFamily: z.string().optional(),
+				horizontalAlign: z.string().optional(),
+				verticalAlign: z.string().optional(),
 				borderRadius: z.number().optional(),
 				handles: z
 					.array(
@@ -230,6 +232,8 @@ export const nodesRouter = router({
 					fontWeight: input.fontWeight,
 					fontFamily: input.fontFamily,
 					borderRadius: input.borderRadius,
+					horizontalAlign: input.horizontalAlign,
+					verticalAlign: input.verticalAlign,
 					handles: {
 						create:
 							input.handles?.map((handle) => ({
