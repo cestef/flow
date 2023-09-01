@@ -3,7 +3,6 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
@@ -12,10 +11,8 @@ import type {
 	InferGetServerSidePropsType,
 } from "next";
 
-import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import { Github } from "lucide-react";
 import { getServerSession } from "next-auth/next";
 
 export default function Profile({

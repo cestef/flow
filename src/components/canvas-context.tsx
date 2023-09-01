@@ -43,6 +43,8 @@ export default function CanvasContext({
 								x: contextMenuPosition.x,
 								y: contextMenuPosition.y,
 								type: NODES_TYPES.DEFAULT,
+								width: 100,
+								height: 50,
 							});
 						}}
 					>
@@ -58,6 +60,8 @@ export default function CanvasContext({
 								x: contextMenuPosition.x,
 								y: contextMenuPosition.y,
 								type: NODES_TYPES.GROUP,
+								height: 200,
+								width: 260,
 							});
 						}}
 					>

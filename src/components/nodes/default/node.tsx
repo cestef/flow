@@ -237,6 +237,7 @@ function DefaultNode({
 							.filter((k) => k !== "handle")
 							.map((k) => (editing as any)[id][k].status)
 							.some(Boolean) &&
+						selected &&
 						[Position.Left, Position.Right, Position.Bottom, Position.Top].map(
 							(position) => {
 								const handle = data.handles.find(
@@ -282,7 +283,7 @@ function DefaultNode({
 												)}
 												onClick={() => {
 													setEditing(id, "handle", {
-														status: true,
+														status: !editing[id]?.handle?.status,
 														position: position,
 													});
 												}}

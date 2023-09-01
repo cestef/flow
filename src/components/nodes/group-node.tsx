@@ -144,6 +144,8 @@ const GroupNode = ({
 							y: contextMenuPosition.y,
 							type: NODES_TYPES.DEFAULT,
 							parentId: id,
+							width: 100,
+							height: 50,
 						});
 					}}
 				>

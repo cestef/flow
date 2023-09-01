@@ -1,6 +1,7 @@
 import ComboBox from "@/components/combobox";
 import { Button } from "@/components/ui/button";
 import { GradientPicker } from "@/components/ui/picker";
+import { Popover, PopoverContent } from "@/components/ui/popover";
 import {
 	Select,
 	SelectContent,
@@ -10,6 +11,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { flowSelector } from "@/lib/constants";
 import { top250 } from "@/lib/fonts";
 import { useStore } from "@/lib/store";
 import { sanitizeColor, trpc } from "@/lib/utils";
@@ -36,8 +38,9 @@ export default function NodeEditor({
 	const editing = useStore((state) => state.editing);
 	const getEditing = useStore((state) => state.getEditing);
 	const setEditing = useStore((state) => state.setEditing);
+	const { findAndUpdateNode } = useStore(flowSelector);
 	const { theme } = useTheme();
-	const updateNode = trpc.nodes.update.useMutation();
+	const MupdateNode = trpc.nodes.update.useMutation();
 	const id = useNodeId();
 
 	if (!id) {
@@ -45,55 +48,95 @@ export default function NodeEditor({
 	}
 
 	return (
-		<div className="flex flex-col items-center w-full">
-			{editing[id]?.name?.status ? (
-				<form
-					onSubmit={(ev) => {
-						ev.preventDefault();
-						setEditing(id, "name", {
-							status: false,
-						});
-						updateNode.mutate({
-							id,
-							name: getEditing(id, "name")?.value,
-						});
-					}}
-				>
-					<textarea
-						value={editing[id]?.name?.value}
-						onChange={(ev) =>
-							setEditing(id, "name", {
-								value: ev.target.value,
-							})
-						}
-						onBlur={() => {
+		<div className="flex flex-col items-center w-full h-full">
+			<div
+				style={{
+					color: editing[id]?.font?.color ?? color,
+					fontSize: editing[id]?.font?.size ?? fontSize ?? 16,
+					fontWeight: editing[id]?.font?.weight ?? fontWeight,
+					fontFamily: editing[id]?.font?.family ?? fontFamily,
+				}}
+			>
+				{editing[id]?.name?.status ? (
+					<form
+						onSubmit={(ev) => {
+							ev.preventDefault();
 							setEditing(id, "name", {
 								status: false,
 							});
-							updateNode.mutate({
+							MupdateNode.mutate({
 								id,
 								name: getEditing(id, "name")?.value,
 							});
 						}}
-						className="w-full resize-none bg-transparent text-center outline-none min-h-6"
-					/>
-				</form>
-			) : (
-				<p
-					style={{
-						wordBreak: "break-word",
-						color: editing[id]?.font?.color ?? color,
-						fontSize: editing[id]?.font?.size ?? fontSize ?? 16,
-						fontWeight: editing[id]?.font?.weight ?? fontWeight,
-						fontFamily: editing[id]?.font?.family ?? fontFamily,
-					}}
-					className="text-center"
-				>
-					{label}
-				</p>
-			)}
+					>
+						<textarea
+							value={editing[id]?.name?.value}
+							onChange={(ev) =>
+								setEditing(id, "name", {
+									value: ev.target.value,
+								})
+							}
+							onBlur={() => {
+								setEditing(id, "name", {
+									status: false,
+								});
+								const sanizited = getEditing(id, "name")?.value?.trim();
+								findAndUpdateNode(
+									(n) => n.id === id,
+									(n) => ({
+										...n,
+										data: {
+											...n.data,
+											label: sanizited,
+										},
+									}),
+								);
+								MupdateNode.mutate({
+									id,
+									name: sanizited,
+								});
+							}}
+							onKeyDown={(ev) => {
+								// If user pressed cmd+enter or ctrl+enter
+								if ((ev.metaKey || ev.ctrlKey) && ev.key === "Enter") {
+									ev.preventDefault();
+									setEditing(id, "name", {
+										status: false,
+									});
+									const sanizited = getEditing(id, "name")?.value?.trim();
+									findAndUpdateNode(
+										(n) => n.id === id,
+										(n) => ({
+											...n,
+											data: {
+												...n.data,
+												label: sanizited,
+											},
+										}),
+									);
+									MupdateNode.mutate({
+										id,
+										name: sanizited,
+									});
+								}
+							}}
+							className="w-full resize-none bg-transparent text-center outline-none nodrag"
+						/>
+					</form>
+				) : (
+					<p
+						style={{
+							wordBreak: "break-word",
+						}}
+						className="text-center"
+					>
+						{label}
+					</p>
+				)}
+			</div>
 			{editing[id]?.picker?.status && (
-				<div className="absolute -bottom-12 left-0 w-full flex flex-row items-center">
+				<div className="absolute -bottom-56 flex flex-col items-center w-64 h-64 scale-[0.70]">
 					<GradientPicker
 						background={editing[id]?.picker?.value as string}
 						setBackground={(color) => {
@@ -101,7 +144,7 @@ export default function NodeEditor({
 							setEditing(id, "picker", {
 								value: sanitized,
 							});
-							updateNode.mutate({
+							MupdateNode.mutate({
 								id,
 								color: sanitized,
 							});
@@ -139,7 +182,7 @@ export default function NodeEditor({
 							setEditing(id, "font", {
 								status: undefined,
 							});
-							updateNode.mutate({
+							MupdateNode.mutate({
 								id,
 								fontSize: editing[id]?.font?.size,
 							});
@@ -150,7 +193,7 @@ export default function NodeEditor({
 				</div>
 			)}
 			{editing[id]?.font?.status === "color" && (
-				<div className="absolute -bottom-12 left-0 w-full flex flex-row items-center">
+				<div className="absolute -bottom-56 flex flex-col items-center w-64 h-64 scale-[0.70]">
 					<GradientPicker
 						background={editing[id]?.font?.color as string}
 						setBackground={(color) => {
@@ -158,7 +201,7 @@ export default function NodeEditor({
 							setEditing(id, "font", {
 								color: sanitized,
 							});
-							updateNode.mutate({
+							MupdateNode.mutate({
 								id,
 								fontColor: sanitized,
 							});
@@ -198,7 +241,7 @@ export default function NodeEditor({
 							setEditing(id, "font", {
 								status: undefined,
 							});
-							updateNode.mutate({
+							MupdateNode.mutate({
 								id,
 								fontWeight: editing[id]?.font?.weight,
 							});
@@ -247,7 +290,7 @@ export default function NodeEditor({
 							setEditing(id, "font", {
 								status: undefined,
 							});
-							updateNode.mutate({
+							MupdateNode.mutate({
 								id,
 								fontFamily: editing[id]?.font?.family,
 							});
