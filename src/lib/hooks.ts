@@ -68,13 +68,16 @@ export const registerHooks = () => {
 
 	useEffect(() => {
 		if ((!canvasId && session?.user.id) || canvasId === "welcome") {
+			// console.log("welcomeEdges", welcomeEdges);
 			setEdges(welcomeEdges);
 		} else if (remoteEdges.data) {
+			// console.log("remoteEdges.data", remoteEdges.data);
 			setEdges(formatRemoteEdges(remoteEdges.data));
 		} else if (
 			(remoteEdges.error && remoteEdges.error.data?.code === "UNAUTHORIZED") ||
 			!session?.user?.id
 		) {
+			// console.log("loginEdges", loginEdges);
 			setEdges(loginEdges);
 		}
 	}, [remoteEdges.data]);

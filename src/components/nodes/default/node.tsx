@@ -237,7 +237,6 @@ function DefaultNode({
 							.filter((k) => k !== "handle")
 							.map((k) => (editing as any)[id][k].status)
 							.some(Boolean) &&
-						selected &&
 						[Position.Left, Position.Right, Position.Bottom, Position.Top].map(
 							(position) => {
 								const handle = data.handles.find(
@@ -259,69 +258,70 @@ function DefaultNode({
 											id={handle.id}
 										/>
 									);
-								return (
-									<Popover
-										key={position}
-										open={
-											editing[id]?.handle?.status &&
-											editing[id]?.handle?.position === position
-										}
-									>
-										<PopoverTrigger asChild>
-											<Button
-												size="smallIcon"
-												variant="dotted"
-												key={position}
-												className={cn(
-													"border absolute nodrag opacity-0 hover:opacity-100 transition-opacity",
-													{
-														"-top-8": position === Position.Top,
-														"-left-8": position === Position.Left,
-														"-right-8": position === Position.Right,
-														"-bottom-8": position === Position.Bottom,
-													},
-												)}
-												onClick={() => {
-													setEditing(id, "handle", {
-														status: !editing[id]?.handle?.status,
-														position: position,
-													});
-												}}
-											>
-												<Plus className="w-4 h-4 text-primary" />
-											</Button>
-										</PopoverTrigger>
-										<PopoverContent
-											side={position}
-											className="bg-transparent shadow-none border-none w-40"
+								else if (selected)
+									return (
+										<Popover
+											key={position}
+											open={
+												editing[id]?.handle?.status &&
+												editing[id]?.handle?.position === position
+											}
 										>
-											<Select
-												onValueChange={(e) => {
-													updateNode.mutate({
-														id,
-														handles: [
-															{
-																position,
-																type: e,
-															},
-														],
-													});
-													setEditing(id, "handle", {
-														status: false,
-													});
-												}}
+											<PopoverTrigger asChild>
+												<Button
+													size="smallIcon"
+													variant="dotted"
+													key={position}
+													className={cn(
+														"border absolute nodrag opacity-0 hover:opacity-100 transition-opacity",
+														{
+															"-top-8": position === Position.Top,
+															"-left-8": position === Position.Left,
+															"-right-8": position === Position.Right,
+															"-bottom-8": position === Position.Bottom,
+														},
+													)}
+													onClick={() => {
+														setEditing(id, "handle", {
+															status: !editing[id]?.handle?.status,
+															position: position,
+														});
+													}}
+												>
+													<Plus className="w-4 h-4 text-primary" />
+												</Button>
+											</PopoverTrigger>
+											<PopoverContent
+												side={position}
+												className="bg-transparent shadow-none border-none w-40"
 											>
-												<SelectTrigger className="w-full">
-													<SelectValue placeholder="Type" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="source">Source</SelectItem>
-													<SelectItem value="target">Target</SelectItem>
-												</SelectContent>
-											</Select>
-										</PopoverContent>
-									</Popover>
-								);
+												<Select
+													onValueChange={(e) => {
+														updateNode.mutate({
+															id,
+															handles: [
+																{
+																	position,
+																	type: e,
+																},
+															],
+														});
+														setEditing(id, "handle", {
+															status: false,
+														});
+													}}
+												>
+													<SelectTrigger className="w-full">
+														<SelectValue placeholder="Type" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="source">Source</SelectItem>
+														<SelectItem value="target">Target</SelectItem>
+													</SelectContent>
+												</Select>
+											</PopoverContent>
+										</Popover>
+									);
 							},
 						)}
 				</div>
