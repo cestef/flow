@@ -11,6 +11,8 @@ export default function DragPanel() {
 		state.dragPanelHidden,
 		state.toggleDragPanel,
 	]);
+	const toggleCanvasPanel = useStore((state) => state.toggleCanvasPanel);
+	const toggleMembersPanel = useStore((state) => state.toggleMembersPanel);
 	const isMobile = useStore((state) => state.isMobile);
 	const canvasId = useStore((state) => state.currentCanvasId);
 	const nodes = useStore((state) => state.nodes);
@@ -34,7 +36,8 @@ export default function DragPanel() {
 					onClick={() => {
 						togglePanel();
 						if (isMobile) {
-							togglePanel(true);
+							toggleCanvasPanel(true);
+							toggleMembersPanel(true);
 						}
 					}}
 				>

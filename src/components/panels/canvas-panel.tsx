@@ -57,6 +57,7 @@ export default function CanvasPanel() {
 	}, [canvases.data, currentCanvasId]);
 	const togglePanel = useStore((state) => state.toggleCanvasPanel);
 	const toggleMembersPanel = useStore((state) => state.toggleMembersPanel);
+	const toggleDragPanel = useStore((state) => state.toggleDragPanel);
 	const isMobile = useStore((state) => state.isMobile);
 	const panelHidden = useStore((state) => state.canvasPanelHidden);
 	return (
@@ -82,6 +83,7 @@ export default function CanvasPanel() {
 						togglePanel();
 						if (isMobile) {
 							toggleMembersPanel(true);
+							toggleDragPanel(true);
 						}
 					}}
 				>

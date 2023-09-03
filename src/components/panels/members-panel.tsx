@@ -38,6 +38,7 @@ export default function MembersPanel() {
 	const panelHidden = useStore((state) => state.membersPanelHidden);
 	const isMobile = useStore((state) => state.isMobile);
 	const toggleCanvasPanel = useStore((state) => state.toggleCanvasPanel);
+	const toggleDragPanel = useStore((state) => state.toggleDragPanel);
 	const {
 		setMaxUses,
 		setExpires,
@@ -187,6 +188,7 @@ export default function MembersPanel() {
 						togglePanel();
 						if (isMobile) {
 							toggleCanvasPanel(true);
+							toggleDragPanel(true);
 						}
 					}}
 				>
