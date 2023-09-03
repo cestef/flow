@@ -63,6 +63,23 @@ export const nodesRouter = router({
 				parentId: z.string().optional(),
 				height: z.number().optional(),
 				width: z.number().optional(),
+				color: z.string().optional(),
+				fontSize: z.number().optional(),
+				fontWeight: z.string().optional(),
+				fontColor: z.string().optional(),
+				fontFamily: z.string().optional(),
+				horizontalAlign: z.string().optional(),
+				verticalAlign: z.string().optional(),
+				borderRadius: z.number().optional(),
+				preset: z.boolean().optional(),
+				handles: z
+					.array(
+						z.object({
+							position: z.string(),
+							type: z.string(),
+						}),
+					)
+					.optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -96,6 +113,21 @@ export const nodesRouter = router({
 					name: input.name,
 					height: input.height,
 					width: input.width,
+					color: input.color,
+					fontSize: input.fontSize,
+					fontWeight: input.fontWeight,
+					fontColor: input.fontColor,
+					fontFamily: input.fontFamily,
+					borderRadius: input.borderRadius,
+					horizontalAlign: input.horizontalAlign,
+					verticalAlign: input.verticalAlign,
+					handles: {
+						create:
+							input.handles?.map((handle) => ({
+								type: handle.type,
+								position: handle.position,
+							})) ?? [],
+					},
 					canvas: {
 						connect: {
 							id: input.canvasId,
@@ -106,6 +138,7 @@ export const nodesRouter = router({
 							? {}
 							: { connect: { id: input.parentId } }),
 					},
+					preset: input.preset ?? false,
 				},
 			});
 
@@ -648,6 +681,7 @@ export const nodesRouter = router({
 				id: z.string(),
 				offsetX: z.number().optional(),
 				offsetY: z.number().optional(),
+				preset: z.boolean().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -698,6 +732,7 @@ export const nodesRouter = router({
 							position: handle.position,
 						})),
 					},
+					preset: input.preset ?? false,
 				},
 			});
 

@@ -74,7 +74,7 @@ const Flow = ({
 		>
 			<CanvasContext>
 				<ReactFlowStyled
-					nodes={nodes}
+					nodes={nodes.filter((n) => !n.data.preset)}
 					edges={edges}
 					onNodesChange={onNodesChange}
 					onNodeDragStop={onNodeDragStop}

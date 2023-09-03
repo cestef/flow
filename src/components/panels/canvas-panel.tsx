@@ -69,7 +69,8 @@ export default function CanvasPanel() {
 				// 		: "transform translate-x-0"
 				// } transition-all duration-300 ease-in-out`}
 				className={cn("w-64 transition-all duration-300 ease-in-out", {
-					"transform -translate-x-[77%] translate-y-[70%]": panelHidden,
+					"transform -translate-x-[calc(100%-3.5rem)] translate-y-[calc(100%-3.5rem)]":
+						panelHidden,
 					"transform translate-x-0": !panelHidden,
 				})}
 			>

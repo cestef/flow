@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 import { useStore } from "@/lib/store";
 import useConfirm from "@/lib/useConfirm";
-import { trpc } from "@/lib/utils";
+import { cn, trpc } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import getConfig from "next/config";
 import { useDebounce } from "use-debounce";
@@ -171,11 +171,13 @@ export default function MembersPanel() {
 				</DialogContent>
 			</Dialog>
 			<Card
-				className={`w-64 text-right ${
-					panelHidden
-						? "transform translate-x-[78%] translate-y-[60%]"
-						: "transform translate-x-0"
-				} transition-all duration-300 ease-in-out`}
+				className={cn(
+					"w-64 text-right transition-all duration-300 ease-in-out",
+					{
+						"transform translate-x-[calc(100%-3.5rem)] translate-y-[calc(100%-3.5rem)]":
+							panelHidden,
+					},
+				)}
 			>
 				<Button
 					size="icon"

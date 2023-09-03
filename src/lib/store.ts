@@ -99,6 +99,8 @@ export const useStore = createWithEqualityFn(
 				},
 				canvasPanelHidden: false,
 				membersPanelHidden: false,
+				dragPanelHidden: true,
+				draggingPosition: {} as { [key: string]: { x: number; y: number } },
 				clipboard: {
 					nodes: [] as Node[],
 					edges: [] as Edge[],
@@ -125,6 +127,14 @@ export const useStore = createWithEqualityFn(
 				inContextMenu: false,
 			},
 			(set) => ({
+				setDraggingPosition: (id: string, x: number, y: number) => {
+					set((state) => ({
+						draggingPosition: {
+							...state.draggingPosition,
+							[id]: { x, y },
+						},
+					}));
+				},
 				setInContextMenu: (inContextMenu: boolean) => set({ inContextMenu }),
 				setIsMobile: (isMobile: boolean) => set({ isMobile }),
 				setInstance: (instance: ReactFlowInstance) => set({ instance }),
@@ -289,6 +299,11 @@ export const useStore = createWithEqualityFn(
 					set((state) => ({
 						canvasPanelHidden:
 							typeof hidden === "undefined" ? !state.canvasPanelHidden : hidden,
+					})),
+				toggleDragPanel: (hidden?: boolean) =>
+					set((state) => ({
+						dragPanelHidden:
+							typeof hidden === "undefined" ? !state.dragPanelHidden : hidden,
 					})),
 				toggleMembersPanel: (hidden?: boolean) =>
 					set((state) => ({

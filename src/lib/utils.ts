@@ -392,36 +392,39 @@ export const formatRemoteNodes = (
 	data: (PrismaNode & { handles?: NodeHandle[] })[],
 	order = false,
 ): Node[] => {
-	const formatted = data.map((node) => ({
-		id: node.id,
-		type: node.type,
-		data: {
-			label: node.name,
-			color: node.color,
-			debouncedPosition: {
-				x: node.x,
-				y: node.y,
+	const formatted = data
+		// .filter((e) => !e.preset)
+		.map((node) => ({
+			id: node.id,
+			type: node.type,
+			data: {
+				label: node.name,
+				color: node.color,
+				debouncedPosition: {
+					x: node.x,
+					y: node.y,
+				},
+				draggedBy: undefined,
+				fontColor: node.fontColor,
+				fontSize: node.fontSize,
+				fontWeight: node.fontWeight,
+				fontFamily: node.fontFamily,
+				borderRadius: node.borderRadius,
+				verticalAlign: node.verticalAlign,
+				horizontalAlign: node.horizontalAlign,
+				handles: node.handles || [],
+				preset: node.preset,
 			},
-			draggedBy: undefined,
-			fontColor: node.fontColor,
-			fontSize: node.fontSize,
-			fontWeight: node.fontWeight,
-			fontFamily: node.fontFamily,
-			borderRadius: node.borderRadius,
-			verticalAlign: node.verticalAlign,
-			horizontalAlign: node.horizontalAlign,
-			handles: node.handles || [],
-		},
-		position: { x: node.x, y: node.y },
-		...((node.width || node.height) && {
-			style: {
-				width: node.width!,
-				height: node.height!,
-			},
-		}),
-		parentNode: node.parentId || undefined,
-		extent: node.parentId ? "parent" : undefined,
-	})) as Node[];
+			position: { x: node.x, y: node.y },
+			...((node.width || node.height) && {
+				style: {
+					width: node.width!,
+					height: node.height!,
+				},
+			}),
+			parentNode: node.parentId || undefined,
+			extent: node.parentId ? "parent" : undefined,
+		})) as Node[];
 
 	// children nodes need to be added before parent nodes
 	if (order) {

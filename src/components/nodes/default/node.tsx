@@ -30,6 +30,7 @@ import {
 	Pipette,
 	Plus,
 	Ruler,
+	Star,
 	Text,
 	TextCursor,
 	Trash,
@@ -397,6 +398,17 @@ function DefaultNode({
 						Ungroup
 					</ContextMenuItem>
 				)}
+				<ContextMenuItem
+					onClick={() => {
+						duplicateNode.mutate({
+							id,
+							preset: true,
+						});
+					}}
+				>
+					<Star className="mr-2 w-4 h-4" />
+					Make preset
+				</ContextMenuItem>
 				<ContextMenuItem
 					onClick={() => {
 						createComment.mutate({

@@ -1,6 +1,7 @@
 import Flow from "@/components/canvas";
 import ActionsPanel from "@/components/panels/actions-panel";
 import CanvasPanel from "@/components/panels/canvas-panel";
+import DragPanel from "@/components/panels/drag-panel";
 import MembersPanel from "@/components/panels/members-panel";
 import UserPanel from "@/components/panels/user-panel";
 import { Loader2 } from "lucide-react";
@@ -30,6 +31,9 @@ export default () => {
 				</Panel>
 				<Panel position="bottom-right">
 					<MembersPanel />
+				</Panel>
+				<Panel position="bottom-center">
+					<DragPanel />
 				</Panel>
 			</Flow>
 		</div>

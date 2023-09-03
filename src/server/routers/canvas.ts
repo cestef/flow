@@ -1,10 +1,10 @@
 import { protectedProcedure, router } from "../trpc";
 
-import { Canvas } from "@prisma/client";
 import EventEmitter from "events";
+import { Canvas } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
-import { prisma } from "../../lib/prisma";
 import { z } from "zod";
+import { prisma } from "../../lib/prisma";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -244,4 +244,49 @@ export const canvasRouter = router({
 			};
 		});
 	}),
+	createPreset: protectedProcedure
+		.input(
+			z.object({
+				nodeId: z.string(),
+				name: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const node = await prisma.node.findFirst({
+				where: {
+					id: input.nodeId,
+					canvas: {
+						OR: [
+							{
+								owner: {
+									id: ctx.user.id,
+								},
+							},
+							{
+								members: {
+									some: {
+										id: ctx.user.id,
+									},
+								},
+							},
+						],
+					},
+				},
+			});
+
+			if (!node) {
+				throw new Error("Node not found");
+			}
+
+			// Duplicate the node and set the preset name
+			node.preset = true;
+			node.name = input.name;
+			node.id = undefined as any;
+
+			const res = await prisma.node.create({
+				data: node,
+			});
+
+			return res;
+		}),
 });

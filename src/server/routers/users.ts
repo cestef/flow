@@ -1,8 +1,8 @@
 import { protectedProcedure, router } from "../trpc";
 
 import EventEmitter from "events";
-import { prisma } from "../../lib/prisma";
 import { z } from "zod";
+import { prisma } from "../../lib/prisma";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -71,4 +71,25 @@ export const usersRouter = router({
 
 			return user;
 		}),
+
+	me: protectedProcedure.query(async ({ ctx }) => {
+		const user = await prisma.user.findUnique({
+			where: {
+				id: ctx.user?.id,
+			},
+			include: {
+				canvases: true,
+				comments: true,
+				invitedTo: true,
+				invites: true,
+				settings: true,
+			},
+		});
+
+		if (!user) {
+			throw new Error("User not found");
+		}
+
+		return user;
+	}),
 });

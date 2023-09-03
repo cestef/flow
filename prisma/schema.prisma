@@ -54,7 +54,8 @@ model User {
     invitedTo     Canvas[]       @relation("InvitedTo")
     invites       Invite[]
     settings      UserSettings[]
-    comments      Comment[]
+
+    comments Comment[]
 
     @@map("users")
 }
@@ -76,7 +77,7 @@ model Canvas {
     members   User[]    @relation("InvitedTo")
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
-    nodes     Node[]
+    nodes     Node[]    @relation("CanvasNodes")
     edges     Edge[]
     invites   Invite[]
     comments  Comment[]
@@ -85,7 +86,7 @@ model Canvas {
 model Node {
     id              String       @id @default(cuid())
     canvasId        String
-    canvas          Canvas       @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+    canvas          Canvas       @relation("CanvasNodes", fields: [canvasId], references: [id], onDelete: Cascade)
     name            String
     type            String
     handles         NodeHandle[]
@@ -109,6 +110,7 @@ model Node {
     fromEdges       Edge[]       @relation("FromEdges")
     toEdges         Edge[]       @relation("ToEdges")
     comments        Comment[]
+    preset          Boolean      @default(false)
 }
 
 model NodeHandle {
