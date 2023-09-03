@@ -3,6 +3,7 @@ import "reactflow/dist/style.css";
 
 import { SessionProvider, getSession } from "next-auth/react";
 
+import { CmdK } from "@/components/commands";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { trpc } from "@/lib/utils";
@@ -48,6 +49,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
 								</Script>
 							</>
 						)}
+						<CmdK />
 						<Component {...pageProps} />
 					</TooltipProvider>
 				</ReactFlowProvider>

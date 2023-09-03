@@ -76,6 +76,8 @@ export const useStore = createWithEqualityFn(
 	temporal(
 		combine(
 			{
+				cmdk: false,
+				cmdkSearch: "",
 				isMobile: false,
 				instance: undefined as ReactFlowInstance | undefined,
 				nodes: [] as Node[],
@@ -127,6 +129,8 @@ export const useStore = createWithEqualityFn(
 				inContextMenu: false,
 			},
 			(set) => ({
+				setCmdk: (cmdk: boolean) => set({ cmdk }),
+				setCmdkSearch: (cmdkSearch: string) => set({ cmdkSearch }),
 				setDraggingPosition: (id: string, x: number, y: number) => {
 					set((state) => ({
 						draggingPosition: {
