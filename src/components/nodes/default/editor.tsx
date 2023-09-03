@@ -14,7 +14,7 @@ import { Slider } from "@/components/ui/slider";
 import { flowSelector } from "@/lib/constants";
 import { top250 } from "@/lib/fonts";
 import { useStore } from "@/lib/store";
-import { sanitizeColor, trpc } from "@/lib/utils";
+import { cn, sanitizeColor, trpc } from "@/lib/utils";
 // import { getAvailableFonts } from "@remotion/google-fonts";
 import { Check } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -61,7 +61,9 @@ export default function NodeEditor({
 					justifyContent: verticalAlign ?? "center",
 					alignItems: horizontalAlign ?? "center",
 				}}
-				className="w-full h-full flex flex-col"
+				className={cn("w-full flex flex-col", {
+					"h-full": !editing[id]?.name?.status,
+				})}
 			>
 				{editing[id]?.name?.status ? (
 					<form
