@@ -51,8 +51,8 @@ export default function Profile({
 
 	if (invite.user?.id === session?.user?.id) {
 		return (
-			<div className="flex flex-col items-center justify-center w-screen h-[100svh] shadow-sm">
-				<Card className="w-[450px] p-3 relative">
+			<div className="flex flex-col items-center justify-center w-screen h-screen shadow-sm px-4">
+				<Card className="w-full p-2 md:w-[450px] lg:w-[600px]">
 					<CardHeader>
 						<CardTitle>Wait a second...</CardTitle>
 						<CardDescription className="text-gray-500 text-lg pt-2">
@@ -76,8 +76,8 @@ export default function Profile({
 	}
 
 	return (
-		<div className="flex flex-col items-center justify-center w-screen h-screen shadow-sm">
-			<Card className="w-[450px] p-3 relative">
+		<div className="flex flex-col items-center justify-center w-screen h-screen shadow-sm px-4">
+			<Card className="w-full p-2 md:w-[450px] lg:w-[600px]">
 				<CardHeader>
 					<CardTitle>
 						<p className="text-xl">
