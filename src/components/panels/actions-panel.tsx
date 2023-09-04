@@ -1,6 +1,6 @@
 import { NODES_TYPES, flowSelector } from "@/lib/constants";
 import { useStore, useTemporalStore } from "@/lib/store";
-import { nodesEqual, orderNodes, trpc } from "@/lib/utils";
+import { cn, nodesEqual, orderNodes, trpc } from "@/lib/utils";
 import ELK, { ElkNode, LayoutOptions } from "elkjs/lib/elk.bundled.js";
 import {
 	ClipboardCopy,
@@ -370,9 +370,14 @@ export default function ActionsPanel() {
 				</DropdownMenuTrigger>
 				<DropdownMenuContent
 					side={isMobile ? "bottom" : "right"}
-					className="ml-2"
+					className={cn({ "ml-2": !isMobile, "mt-2 min-w-0": isMobile })}
 				>
-					<div className="flex flex-row space-x-2 p-2 items-center justify-center w-full">
+					<div
+						className={cn("flex p-2 items-center justify-center", {
+							"flex-row space-x-2 w-full": !isMobile,
+							"flex-col space-y-2 h-full": isMobile,
+						})}
+					>
 						<ModeToggle />
 						<Tooltip>
 							<TooltipTrigger>
