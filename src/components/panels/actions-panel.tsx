@@ -349,6 +349,8 @@ export default function ActionsPanel() {
 	});
 
 	const { fitView, getNodes } = useReactFlow();
+	const isMobile = useStore((state) => state.isMobile);
+
 	return (
 		<div className="flex flex-col space-y-2">
 			<DropdownMenu open={settingsOpen} onOpenChange={setSettingsOpen}>
@@ -366,7 +368,10 @@ export default function ActionsPanel() {
 						</TooltipContent>
 					</Tooltip>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent side="right" className="ml-2">
+				<DropdownMenuContent
+					side={isMobile ? "bottom" : "right"}
+					className="ml-2"
+				>
 					<div className="flex flex-row space-x-2 p-2 items-center justify-center w-full">
 						<ModeToggle />
 						<Tooltip>
