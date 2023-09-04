@@ -34,7 +34,6 @@ const Flow = ({
 	]);
 	const helperLineHorizontal = useStore((state) => state.helperLineHorizontal);
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
-	const selectedBrush = useStore((state) => state.selectedBrush);
 	const setInstance = useStore((state) => state.setInstance);
 
 	registerHooks();
@@ -48,7 +47,6 @@ const Flow = ({
 		onNodeDragStop,
 		onNodesChange,
 	} = registerCallbacks();
-	const inContextMenu = useStore((state) => state.inContextMenu);
 	if (session?.user?.id) subscribe();
 
 	return (
@@ -92,7 +90,6 @@ const Flow = ({
 						hideAttribution: true,
 					}}
 					className="h-full"
-					panOnDrag={["pointer", "delete", undefined].includes(selectedBrush)}
 					selectionKeyCode={"Meta"}
 					onInit={setInstance}
 				>
@@ -104,42 +101,6 @@ const Flow = ({
 					{children}
 				</ReactFlowStyled>
 			</CanvasContext>
-			{selectedBrush === "select" && (
-				<Selecto
-					selectableTargets={[".react-flow__node"]}
-					hitRate={50}
-					onSelect={(e) => {
-						const addedIds = e.added
-							.map((el) => el.getAttribute("data-id"))
-							.filter(Boolean) as string[];
-						const removedIds = e.removed
-							.map((el) => el.getAttribute("data-id"))
-							.filter(Boolean) as string[];
-
-						// console.log(
-						// 	addedIds,
-						// 	removedIds,
-						// 	e.selected.map((el) => el.getAttribute("data-id")),
-						// );
-
-						findAndUpdateNode(
-							(n) => addedIds.includes(n.id),
-							(node) => ({
-								...node,
-								selected: true,
-							}),
-						);
-
-						findAndUpdateNode(
-							(n) => removedIds.includes(n.id),
-							(node) => ({
-								...node,
-								selected: false,
-							}),
-						);
-					}}
-				/>
-			)}
 		</div>
 	);
 };

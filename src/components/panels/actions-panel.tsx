@@ -3,8 +3,6 @@ import { useStore, useTemporalStore } from "@/lib/store";
 import { nodesEqual, orderNodes, trpc } from "@/lib/utils";
 import ELK, { ElkNode, LayoutOptions } from "elkjs/lib/elk.bundled.js";
 import {
-	BoxSelect,
-	Brush,
 	ClipboardCopy,
 	ClipboardPaste,
 	Download,
@@ -12,9 +10,7 @@ import {
 	Maximize,
 	MoveHorizontal,
 	MoveVertical,
-	Pointer,
 	Settings2,
-	Trash2,
 } from "lucide-react";
 import {
 	Node,
@@ -296,10 +292,6 @@ export default function ActionsPanel() {
 		e.preventDefault();
 		setSettingsOpen(!settingsOpen);
 	});
-	useHotkeys(["ctrl+b", "meta+b"], (e) => {
-		e.preventDefault();
-		setBrushesOpen(!brushesOpen);
-	});
 	useHotkeys(["ctrl+e", "meta+e"], (e) => {
 		e.preventDefault();
 		download();
@@ -307,24 +299,6 @@ export default function ActionsPanel() {
 	useHotkeys(["ctrl+f", "meta+f"], (e) => {
 		e.preventDefault();
 		fitView();
-	});
-	useHotkeys(["p"], (e) => {
-		e.preventDefault();
-		setSelectedBrush("pointer");
-	});
-	useHotkeys(["s"], (e) => {
-		e.preventDefault();
-		setSelectedBrush("select");
-	});
-	useHotkeys(["d"], (e) => {
-		e.preventDefault();
-		toast({
-			title: (
-				<h1 className="text-red-500 font-bold text-2xl">Delete tool</h1>
-			) as any,
-			duration: 2000,
-		});
-		setSelectedBrush("delete");
 	});
 	const { undo, redo } = useTemporalStore((s) => s);
 	useHotkeys(["ctrl+z", "meta+z"], (e) => {
@@ -367,15 +341,14 @@ export default function ActionsPanel() {
 			})),
 		});
 	});
+
+	const togglePresetsHidden = useStore((state) => state.toggleDragPanel);
+	useHotkeys(["ctrl+p", "meta+p"], (e) => {
+		e.preventDefault();
+		togglePresetsHidden();
+	});
+
 	const { fitView, getNodes } = useReactFlow();
-	const [brushesOpen, setBrushesOpen] = useStore((state) => [
-		state.brushesOpen,
-		state.setBrushesOpen,
-	]);
-	const [selectedBrush, setSelectedBrush] = useStore((state) => [
-		state.selectedBrush,
-		state.setSelectedBrush,
-	]);
 	return (
 		<div className="flex flex-col space-y-2">
 			<DropdownMenu open={settingsOpen} onOpenChange={setSettingsOpen}>
@@ -505,92 +478,6 @@ export default function ActionsPanel() {
 								</Button>
 							</TooltipTrigger>
 							<TooltipContent>Export to JSON</TooltipContent>
-						</Tooltip>
-					</div>
-				</DropdownMenuContent>
-			</DropdownMenu>
-			<DropdownMenu open={brushesOpen} onOpenChange={setBrushesOpen}>
-				<DropdownMenuTrigger>
-					<Tooltip>
-						<TooltipTrigger>
-							<Button
-								size="icon"
-								variant="outline"
-								onClick={() => setBrushesOpen(true)}
-							>
-								{selectedBrush === "select" ? (
-									<BoxSelect className="w-4 h-4" />
-								) : selectedBrush === "pointer" ? (
-									<Pointer className="w-4 h-4" />
-								) : selectedBrush === "delete" ? (
-									<Trash2 className="w-4 h-4 text-red-500 dark:text-red-700" />
-								) : (
-									<Brush className="w-4 h-4" />
-								)}
-							</Button>
-						</TooltipTrigger>
-						<TooltipContent side="right" className="ml-2">
-							<>
-								Brushes <Keyboard keys={["B"]} modifiers={["⌘"]} />
-							</>
-						</TooltipContent>
-					</Tooltip>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent side="bottom" className="mt-2 min-w-0">
-					<div className="flex flex-col space-y-2 p-2 items-center justify-center h-full">
-						<Tooltip>
-							<TooltipTrigger>
-								<Button
-									variant={selectedBrush === "select" ? "default" : "outline"}
-									size="icon"
-									onClick={() => {
-										setSelectedBrush("select");
-									}}
-								>
-									<BoxSelect className="w-6 h-6" />
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent side="right" className="mb-4 ml-2">
-								<p className="flex flex-row items-center gap-2">
-									Selection <Keyboard keys={["S"]} modifiers={[]} />
-								</p>
-							</TooltipContent>
-						</Tooltip>
-						<Tooltip>
-							<TooltipTrigger>
-								<Button
-									size="icon"
-									variant={selectedBrush === "pointer" ? "default" : "outline"}
-									onClick={() => {
-										setSelectedBrush("pointer");
-									}}
-								>
-									<Pointer className="w-5 h-5" />
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent side="right" className="mb-4 ml-2">
-								<p className="flex flex-row items-center gap-2">
-									Pointer <Keyboard keys={["P"]} modifiers={[]} />
-								</p>
-							</TooltipContent>
-						</Tooltip>
-						<Tooltip>
-							<TooltipTrigger>
-								<Button
-									size="icon"
-									variant={selectedBrush === "delete" ? "default" : "outline"}
-									onClick={() => {
-										setSelectedBrush("delete");
-									}}
-								>
-									<Trash2 className="w-5 h-5" />
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent side="right" className="mb-4 ml-2">
-								<p className="flex flex-row items-center gap-2">
-									Delete tool <Keyboard keys={["D"]} modifiers={[]} />
-								</p>
-							</TooltipContent>
 						</Tooltip>
 					</div>
 				</DropdownMenuContent>

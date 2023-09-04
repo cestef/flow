@@ -76,6 +76,12 @@ const DEFAULT_EDITING: Editing[string] = {
 		position: "",
 		value: "",
 	},
+	border: {
+		status: undefined,
+		color: "#000000",
+		width: 1,
+		style: "solid",
+	},
 };
 
 export const useStore = createWithEqualityFn(
@@ -128,8 +134,6 @@ export const useStore = createWithEqualityFn(
 					copied: false,
 				},
 				shouldEmit: false,
-				brushesOpen: false,
-				selectedBrush: "pointer" as string | undefined,
 				editing: {} as Editing,
 				selecting: false,
 				inContextMenu: false,
@@ -357,9 +361,7 @@ export const useStore = createWithEqualityFn(
 						createInvitePanel: { ...state.createInvitePanel, copied },
 					})),
 				setShouldEmit: (shouldEmit: boolean) => set({ shouldEmit }),
-				setBrushesOpen: (brushesOpen: boolean) => set({ brushesOpen }),
-				setSelectedBrush: (selectedBrush: string | undefined) =>
-					set({ selectedBrush }),
+
 				setEditing: (id: string, key: keyof Editing[string], value: any) => {
 					set((state) => ({
 						editing: {
