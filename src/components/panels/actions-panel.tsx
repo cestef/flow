@@ -237,7 +237,10 @@ export default function ActionsPanel() {
 			},
 		}).then(downloadImage);
 	}, []);
-
+	const canvasId = useStore((state) => state.currentCanvasId);
+	const canvas = trpc.canvas.get.useQuery({
+		id: canvasId,
+	});
 	const exportJson = useCallback(() => {
 		const instance = useStore.getState().instance;
 		if (!instance)
@@ -246,7 +249,16 @@ export default function ActionsPanel() {
 				duration: 2000,
 				variant: "destructive",
 			});
-		const json = JSON.stringify(instance.toObject());
+		if (!canvas.data)
+			return toast({
+				title: "No canvas found",
+				duration: 2000,
+				variant: "destructive",
+			});
+		const json = JSON.stringify({
+			...instance.toObject(),
+			canvas: canvas.data.name,
+		});
 		const blob = new Blob([json], { type: "application/json" });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement("a");
@@ -257,11 +269,12 @@ export default function ActionsPanel() {
 		);
 		a.setAttribute("href", url);
 		a.click();
-	}, []);
+	}, [canvas]);
 
 	useHotkeys(["ctrl+c", "meta+c"], copy);
 	useHotkeys(["ctrl+v", "meta+v"], paste);
 	const setSelected = useStore((state) => state.setSelected);
+
 	const deleteManyNodes = trpc.nodes.deleteMany.useMutation({
 		onSuccess: () => {
 			setSelected([], selected.edges);

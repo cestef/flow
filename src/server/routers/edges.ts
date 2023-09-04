@@ -53,12 +53,12 @@ export const edgesRouter = router({
 		.input(
 			z.object({
 				canvasId: z.string(),
-				id: z.string().optional(),
+				id: z.string().nullish(),
 				from: z.string(),
 				to: z.string(),
 				type: z.string(),
-				fromHandle: z.string().optional(),
-				toHandle: z.string().optional(),
+				fromHandle: z.string().nullish(),
+				toHandle: z.string().nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -137,6 +137,94 @@ export const edgesRouter = router({
 
 			return res;
 		}),
+	addMany: protectedProcedure
+		.input(
+			z.object({
+				canvasId: z.string(),
+				edges: z.array(
+					z.object({
+						from: z.string(),
+						to: z.string(),
+						type: z.string().default("default"),
+						animated: z.boolean().default(false),
+						fromHandle: z.string().nullish(),
+						toHandle: z.string().nullish(),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			// Check if user is allowed to add edge
+			const canvas = await prisma.canvas.findUnique({
+				where: {
+					id: input.canvasId,
+				},
+				include: {
+					owner: true,
+					members: true,
+				},
+			});
+
+			if (!canvas) {
+				throw new Error("Canvas not found");
+			}
+
+			if (
+				canvas.owner.id !== ctx.user.id &&
+				!canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to add edge");
+			}
+
+			const edges = input.edges.map((edge) =>
+				prisma.edge.create({
+					data: {
+						from: {
+							connect: {
+								id: edge.from,
+							},
+						},
+						to: {
+							connect: {
+								id: edge.to,
+							},
+						},
+						canvas: {
+							connect: {
+								id: input.canvasId,
+							},
+						},
+						type: edge.type,
+						animated: edge.animated,
+						...(edge.fromHandle && {
+							fromHandle: {
+								connect: {
+									id: edge.fromHandle,
+								},
+							},
+						}),
+						...(edge.toHandle && {
+							toHandle: {
+								connect: {
+									id: edge.toHandle,
+								},
+							},
+						}),
+					},
+				}),
+			);
+
+			const res = await prisma.$transaction(edges);
+
+			res.forEach((edge) => {
+				emitter(edge.canvasId).emit("add", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			return res;
+		}),
 
 	onAdd: protectedProcedure
 		.input(
@@ -189,9 +277,9 @@ export const edgesRouter = router({
 		.input(
 			z.object({
 				id: z.string(),
-				from: z.string().optional(),
-				to: z.string().optional(),
-				animated: z.boolean().optional(),
+				from: z.string().nullish(),
+				to: z.string().nullish(),
+				animated: z.boolean().nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {

@@ -449,6 +449,43 @@ export const formatRemoteEdges = (data: PrismaEdge[]): Edge[] => {
 	}));
 };
 
+export const formatLocalNodes = (data: Node[]) => {
+	return data.map((node) => ({
+		id: node.id,
+		type: node.type!,
+		name: node.data?.label || "",
+		color: node.data?.color || "",
+		x: node.position.x,
+		y: node.position.y,
+		width: +(node.style?.width || 0),
+		height: +(node.style?.height || 0),
+		parentId: node.parentNode,
+		fontColor: node.data?.fontColor,
+		fontSize: node.data?.fontSize,
+		fontWeight: node.data?.fontWeight,
+		fontFamily: node.data?.fontFamily,
+		borderRadius: node.data?.borderRadius,
+		borderColor: node.data?.borderColor,
+		borderWidth: node.data?.borderWidth,
+		borderStyle: node.data?.borderStyle,
+		verticalAlign: node.data?.verticalAlign,
+		horizontalAlign: node.data?.horizontalAlign,
+		preset: node.data?.preset,
+	}));
+};
+
+export const formatLocalEdges = (data: Edge[]) => {
+	return data.map((edge) => ({
+		id: edge.id,
+		type: edge.type!,
+		animated: edge.animated || false,
+		from: edge.source,
+		to: edge.target,
+		fromHandle: edge.sourceHandle ?? undefined,
+		toHandle: edge.targetHandle ?? undefined,
+	}));
+};
+
 export const orderNodes = (nodes: Node[]) => {
 	interface TreeNode {
 		node: Node;

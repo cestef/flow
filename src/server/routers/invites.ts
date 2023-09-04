@@ -8,8 +8,8 @@ export const invitesRouter = router({
 		.input(
 			z.object({
 				canvasId: z.string(),
-				maxUses: z.number().optional(),
-				expires: z.date().optional(),
+				maxUses: z.number().nullish(),
+				expires: z.date().nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {

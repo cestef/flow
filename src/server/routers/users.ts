@@ -39,8 +39,8 @@ export const usersRouter = router({
 	find: protectedProcedure
 		.input(
 			z.object({
-				emailOrName: z.string().optional(),
-				id: z.string().optional(),
+				emailOrName: z.string().nullish(),
+				id: z.string().nullish(),
 			}),
 		)
 		.query(async ({ ctx, input }) => {

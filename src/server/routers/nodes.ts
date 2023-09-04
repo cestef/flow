@@ -60,21 +60,21 @@ export const nodesRouter = router({
 				y: z.number(),
 				type: z.string(),
 				name: z.string(),
-				parentId: z.string().optional(),
-				height: z.number().optional(),
-				width: z.number().optional(),
-				color: z.string().optional(),
-				fontSize: z.number().optional(),
-				fontWeight: z.string().optional(),
-				fontColor: z.string().optional(),
-				fontFamily: z.string().optional(),
-				horizontalAlign: z.string().optional(),
-				verticalAlign: z.string().optional(),
-				borderRadius: z.number().optional(),
-				borderColor: z.string().optional(),
-				borderWidth: z.number().optional(),
-				borderStyle: z.string().optional(),
-				preset: z.boolean().optional(),
+				parentId: z.string().nullish(),
+				height: z.number().nullish(),
+				width: z.number().nullish(),
+				color: z.string().nullish(),
+				fontSize: z.number().nullish(),
+				fontWeight: z.string().nullish(),
+				fontColor: z.string().nullish(),
+				fontFamily: z.string().nullish(),
+				horizontalAlign: z.string().nullish(),
+				verticalAlign: z.string().nullish(),
+				borderRadius: z.number().nullish(),
+				borderColor: z.string().nullish(),
+				borderWidth: z.number().nullish(),
+				borderStyle: z.string().nullish(),
+				preset: z.boolean().nullish(),
 				handles: z
 					.array(
 						z.object({
@@ -82,7 +82,7 @@ export const nodesRouter = router({
 							type: z.string(),
 						}),
 					)
-					.optional(),
+					.nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -152,7 +152,112 @@ export const nodesRouter = router({
 
 			return node;
 		}),
+	addMany: protectedProcedure
+		.input(
+			z.object({
+				canvasId: z.string(),
+				nodes: z.array(
+					z.object({
+						x: z.number(),
+						y: z.number(),
+						type: z.string(),
+						name: z.string(),
+						parentId: z.string().nullish(),
+						height: z.number().nullish(),
+						width: z.number().nullish(),
+						color: z.string().nullish(),
+						fontSize: z.number().nullish(),
+						fontWeight: z.string().nullish(),
+						fontColor: z.string().nullish(),
+						fontFamily: z.string().nullish(),
+						horizontalAlign: z.string().nullish(),
+						verticalAlign: z.string().nullish(),
+						borderRadius: z.number().nullish(),
+						borderColor: z.string().nullish(),
+						borderWidth: z.number().nullish(),
+						borderStyle: z.string().nullish(),
+						handles: z
+							.array(
+								z.object({
+									position: z.string(),
+									type: z.string(),
+								}),
+							)
+							.nullish(),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			// Check if user is allowed to add node
+			const canvas = await prisma.canvas.findUnique({
+				where: {
+					id: input.canvasId,
+				},
+				include: {
+					owner: true,
+					members: true,
+				},
+			});
 
+			if (!canvas) {
+				throw new Error("Canvas not found");
+			}
+
+			if (
+				canvas.owner.id !== ctx.user.id &&
+				!canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to add node");
+			}
+			const inserts = input.nodes.map((node) =>
+				prisma.node.create({
+					data: {
+						x: node.x,
+						y: node.y,
+						type: node.type,
+						name: node.name,
+						height: node.height,
+						width: node.width,
+						color: node.color,
+						fontSize: node.fontSize,
+						fontWeight: node.fontWeight,
+						fontColor: node.fontColor,
+						fontFamily: node.fontFamily,
+						borderRadius: node.borderRadius,
+						borderColor: node.borderColor,
+						borderWidth: node.borderWidth,
+						borderStyle: node.borderStyle,
+						horizontalAlign: node.horizontalAlign,
+						verticalAlign: node.verticalAlign,
+						handles: {
+							create:
+								node.handles?.map((handle) => ({
+									type: handle.type,
+									position: handle.position,
+								})) ?? [],
+						},
+						canvas: {
+							connect: {
+								id: input.canvasId,
+							},
+						},
+						parent: {
+							...(node.parentId === undefined
+								? {}
+								: { connect: { id: node.parentId } }),
+						},
+					},
+				}),
+			);
+			const res = await prisma.$transaction(inserts);
+
+			res.forEach((node) => {
+				emitter(input.canvasId).emit("add", node);
+			});
+
+			return res;
+		}),
 	onAdd: protectedProcedure
 		.input(
 			z.object({
@@ -198,23 +303,23 @@ export const nodesRouter = router({
 		.input(
 			z.object({
 				id: z.string(),
-				x: z.number().optional(),
-				y: z.number().optional(),
-				width: z.number().optional(),
-				height: z.number().optional(),
-				name: z.string().optional(),
-				parentId: z.string().optional().nullable(),
-				color: z.string().optional(),
-				fontColor: z.string().optional(),
-				fontSize: z.number().optional(),
-				fontWeight: z.string().optional(),
-				fontFamily: z.string().optional(),
-				horizontalAlign: z.string().optional(),
-				verticalAlign: z.string().optional(),
-				borderRadius: z.number().optional(),
-				borderColor: z.string().optional(),
-				borderWidth: z.number().optional(),
-				borderStyle: z.string().optional(),
+				x: z.number().nullish(),
+				y: z.number().nullish(),
+				width: z.number().nullish(),
+				height: z.number().nullish(),
+				name: z.string().nullish(),
+				parentId: z.string().nullish().nullable(),
+				color: z.string().nullish(),
+				fontColor: z.string().nullish(),
+				fontSize: z.number().nullish(),
+				fontWeight: z.string().nullish(),
+				fontFamily: z.string().nullish(),
+				horizontalAlign: z.string().nullish(),
+				verticalAlign: z.string().nullish(),
+				borderRadius: z.number().nullish(),
+				borderColor: z.string().nullish(),
+				borderWidth: z.number().nullish(),
+				borderStyle: z.string().nullish(),
 				handles: z
 					.array(
 						z.object({
@@ -222,7 +327,7 @@ export const nodesRouter = router({
 							type: z.string(),
 						}),
 					)
-					.optional(),
+					.nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -691,9 +796,9 @@ export const nodesRouter = router({
 		.input(
 			z.object({
 				id: z.string(),
-				offsetX: z.number().optional(),
-				offsetY: z.number().optional(),
-				preset: z.boolean().optional(),
+				offsetX: z.number().nullish(),
+				offsetY: z.number().nullish(),
+				preset: z.boolean().nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -762,8 +867,8 @@ export const nodesRouter = router({
 		.input(
 			z.object({
 				ids: z.array(z.string()),
-				offsetX: z.number().optional(),
-				offsetY: z.number().optional(),
+				offsetX: z.number().nullish(),
+				offsetY: z.number().nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -846,13 +951,13 @@ export const nodesRouter = router({
 				nodes: z.array(
 					z.object({
 						id: z.string(),
-						x: z.number().optional(),
-						y: z.number().optional(),
-						height: z.number().optional(),
-						width: z.number().optional(),
-						color: z.string().optional(),
-						name: z.string().optional(),
-						parentId: z.string().optional().nullable(),
+						x: z.number().nullish(),
+						y: z.number().nullish(),
+						height: z.number().nullish(),
+						width: z.number().nullish(),
+						color: z.string().nullish(),
+						name: z.string().nullish(),
+						parentId: z.string().nullish().nullable(),
 					}),
 				),
 			}),

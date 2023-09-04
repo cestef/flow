@@ -10,12 +10,21 @@ import { DialogFooter, DialogHeader } from "../ui/dialog";
 
 import { useStore } from "@/lib/store";
 import useConfirm from "@/lib/useConfirm";
-import { cn, trpc } from "@/lib/utils";
+import {
+	cn,
+	formatLocalEdges,
+	formatLocalNodes,
+	trcpProxyClient,
+	trpc,
+} from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { z } from "zod";
 import ComboBox from "../combobox";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { useToast } from "../ui/use-toast";
 
 export default function CanvasPanel() {
 	const { data: session } = useSession();
@@ -48,6 +57,13 @@ export default function CanvasPanel() {
 			setCurrentCanvasId("welcome");
 		},
 	});
+	const createManyNodes = trpc.nodes.addMany.useMutation({
+		onSuccess() {
+			toggleCreateNewCanvas(false);
+		},
+	});
+	const createManyEdges = trpc.edges.addMany.useMutation();
+
 	const { confirm, modal } = useConfirm();
 
 	useEffect(() => {
@@ -60,15 +76,12 @@ export default function CanvasPanel() {
 	const toggleDragPanel = useStore((state) => state.toggleDragPanel);
 	const isMobile = useStore((state) => state.isMobile);
 	const panelHidden = useStore((state) => state.canvasPanelHidden);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const { toast } = useToast();
 	return (
 		<div className="relative">
 			{modal}
 			<Card
-				// className={`w-64 ${
-				// 	panelHidden
-				// 		? "transform -translate-x-[77%] translate-y-[70%]"
-				// 		: "transform translate-x-0"
-				// } transition-all duration-300 ease-in-out`}
 				className={cn("w-64 transition-all duration-300 ease-in-out", {
 					"transform -translate-x-[calc(100%-3.5rem)] translate-y-[calc(100%-3.5rem)]":
 						panelHidden,
@@ -163,42 +176,122 @@ export default function CanvasPanel() {
 							<DialogHeader>
 								<DialogTitle>Create new canvas</DialogTitle>
 							</DialogHeader>
-							<div className="flex flex-col">
-								<form
-									onSubmit={(e) => {
-										e.preventDefault();
-										createCanvas.mutate({ name: createNewCanvasState.name });
-									}}
-								>
-									<Input
-										type="text"
-										placeholder="Canvas name"
-										className="w-full"
-										value={createNewCanvasState.name}
-										onChange={(e) => setCreateNewCanvasName(e.target.value)}
-									/>
-								</form>
-							</div>
-							<DialogFooter>
-								<Button
-									variant="secondary"
-									onClick={() => toggleCreateNewCanvas(false)}
-								>
-									Cancel
-								</Button>
-								<Button
-									variant="default"
-									onClick={() =>
-										createCanvas.mutate({ name: createNewCanvasState.name })
-									}
-									disabled={createCanvas.isLoading}
-								>
-									{createCanvas.isLoading && (
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									)}
-									Create
-								</Button>
-							</DialogFooter>
+							<Tabs defaultValue="create">
+								<TabsList>
+									<TabsTrigger value="create">Create</TabsTrigger>
+									<TabsTrigger value="import">Import</TabsTrigger>
+								</TabsList>
+								<TabsContent value="create">
+									<div className="flex flex-col">
+										<form
+											onSubmit={(e) => {
+												e.preventDefault();
+												createCanvas.mutate({
+													name: createNewCanvasState.name,
+												});
+											}}
+										>
+											<Input
+												type="text"
+												placeholder="Canvas name"
+												className="w-full"
+												value={createNewCanvasState.name}
+												onChange={(e) => setCreateNewCanvasName(e.target.value)}
+											/>
+										</form>
+									</div>
+									<DialogFooter className="mt-4">
+										<Button
+											variant="secondary"
+											onClick={() => toggleCreateNewCanvas(false)}
+										>
+											Cancel
+										</Button>
+										<Button
+											variant="default"
+											onClick={() =>
+												createCanvas.mutate({ name: createNewCanvasState.name })
+											}
+											disabled={createCanvas.isLoading}
+										>
+											{createCanvas.isLoading && (
+												<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											)}
+											Create
+										</Button>
+									</DialogFooter>
+								</TabsContent>
+								<TabsContent value="import">
+									<div className="flex flex-col">
+										<Input
+											type="file"
+											className="w-full"
+											accept="application/json"
+											ref={fileInputRef}
+										/>
+										<DialogFooter className="mt-4">
+											<Button
+												variant="secondary"
+												onClick={() => toggleCreateNewCanvas(false)}
+											>
+												Cancel
+											</Button>
+											<Button
+												variant="default"
+												onClick={() => {
+													const file = fileInputRef.current?.files?.[0];
+													if (file) {
+														const reader = new FileReader();
+														reader.onload = async (e) => {
+															try {
+																const data = JSON.parse(
+																	e.target?.result as string,
+																);
+																const ZFile = z.object({
+																	nodes: z.array(z.any()),
+																	edges: z.array(z.any()),
+																	canvas: z.string(),
+																});
+																console.log(data);
+																const parsed = ZFile.parse(data);
+																const res =
+																	await trcpProxyClient.canvas.add.mutate({
+																		name: parsed.canvas,
+																	});
+																createManyNodes.mutate({
+																	canvasId: res.id,
+																	nodes: formatLocalNodes(parsed.nodes),
+																});
+																createManyEdges.mutate({
+																	canvasId: res.id,
+																	edges: formatLocalEdges(parsed.edges),
+																});
+															} catch (err) {
+																console.error(err);
+																toast({
+																	title: "Error",
+																	description: "Invalid file",
+																	variant: "destructive",
+																});
+															}
+														};
+														reader.readAsText(file);
+													}
+												}}
+												disabled={
+													createManyNodes.isLoading || createManyEdges.isLoading
+												}
+											>
+												{(createManyNodes.isLoading ||
+													createManyEdges.isLoading) && (
+													<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+												)}
+												Import
+											</Button>
+										</DialogFooter>
+									</div>
+								</TabsContent>
+							</Tabs>
 						</DialogContent>
 					</Dialog>
 				</CardContent>

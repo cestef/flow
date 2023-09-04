@@ -60,6 +60,8 @@ export const canvasRouter = router({
 			});
 
 			emitter(ctx.user.id).emit("add", canvas);
+
+			return canvas;
 		}),
 
 	get: protectedProcedure

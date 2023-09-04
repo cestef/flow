@@ -66,7 +66,12 @@ export default function DragPanel() {
 							You have no presets yet.
 						</p>
 					)}
-					<div className="flex flex-wrap justify-center gap-x-2 gap-y-4">
+					<div
+						className={cn(
+							"flex flex-wrap justify-center gap-x-2 gap-y-4 transition-opacity duration-300 ease-in-out",
+							panelHidden ? "opacity-0" : "opacity-100",
+						)}
+					>
 						{nodes
 							.filter((e) => e.data.preset)
 							.map((node) => (
