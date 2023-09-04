@@ -2,7 +2,7 @@ import { NODES_TYPES, flowSelector } from "@/lib/constants";
 import { cn, trpc } from "@/lib/utils";
 import { Copy, TextCursor, Trash, Unlink, Workflow } from "lucide-react";
 import { memo, useState } from "react";
-import { NodeResizer, useKeyPress } from "reactflow";
+import { NodeResizer, useKeyPress, useReactFlow } from "reactflow";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	ContextMenu,
@@ -49,6 +49,7 @@ const GroupNode = ({
 	}>({});
 	const altPressed = useKeyPress("Alt");
 	const setInContextMenu = useStore((state) => state.setInContextMenu);
+	const { project } = useReactFlow();
 
 	return (
 		<ContextMenu onOpenChange={(o) => setInContextMenu(o)}>
@@ -93,10 +94,20 @@ const GroupNode = ({
 								e.target as any
 							).getBoundingClientRect();
 							// console.log(top, left, bottom, right);
-							// get the relative position of the context menu to the node
-							const relativeX = e.clientX - left;
-							const relativeY = e.clientY - top;
 							// set the context menu position
+							const client = project({
+								x: e.clientX,
+								y: e.clientY,
+							});
+
+							const topLeft = project({
+								x: left,
+								y: top,
+							});
+
+							const relativeX = client.x - topLeft.x;
+							const relativeY = client.y - topLeft.y;
+
 							setContextMenuPosition(relativeX, relativeY);
 						}}
 					>
