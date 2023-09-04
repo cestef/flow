@@ -48,99 +48,6 @@ function downloadImage(dataUrl: string) {
 const imageWidth = 1024;
 const imageHeight = 768;
 
-const elk = new ELK();
-
-const useLayoutedElements = ({
-	onLayouted,
-}: {
-	onLayouted?: (nodes: Node[]) => void;
-}) => {
-	const { getNodes, getEdges, fitView } = useReactFlow();
-	const defaultOptions: LayoutOptions = {
-		"elk.algorithm": "layered",
-		"elk.layered.spacing.nodeNodeBetweenLayers": "100",
-	};
-
-	const getLayoutedElements = useCallback((options: LayoutOptions) => {
-		const layoutOptions: LayoutOptions = { ...defaultOptions, ...options };
-		const nodes = getNodes();
-		const groups = nodes.filter((node) => node.type === "customGroup");
-		const groupNodes = nodes.filter((node) => node.type !== "customGroup");
-
-		const rootNodes = groupNodes.filter((node) => !node.parentNode);
-		// console.log("rootNodes", rootNodes);
-		const rect = getRectOfNodes(rootNodes);
-		// console.log("rect", rect);
-		groups.push({
-			id: "rootGroup",
-			width: rect.width,
-			height: rect.height,
-			position: { x: rect.x, y: rect.y },
-			data: {},
-		});
-
-		// console.log("groups", groups);
-		// console.log("groupNodes", groupNodes);
-		const graph: ElkNode = {
-			id: "root",
-			layoutOptions: layoutOptions,
-			children: groups.map((group) => ({
-				id: group.id,
-				width: group.width || +(group.style?.width || 0),
-				height: group.height || +(group.style?.height || 0),
-				layoutOptions: layoutOptions,
-				children: groupNodes
-					.filter((node) => (node.parentNode || "rootGroup") === group.id)
-					.map((node) => ({
-						id: node.id,
-						width: node.width || +(node.style?.width || 0),
-						height: node.height || +(node.style?.height || 0),
-						layoutOptions: layoutOptions,
-					})),
-			})),
-			edges: getEdges().map((edge) => ({
-				id: edge.id,
-				sources: [edge.source],
-				targets: [edge.target],
-			})),
-		};
-
-		elk.layout(graph).then(({ children }) => {
-			const nodes = children?.reduce((result, current) => {
-				if (current.id !== "rootGroup") {
-					result.push({
-						id: current.id,
-						position: { x: current.x, y: current.y },
-						data: { label: current.id },
-						style: { width: current.width, height: current.height },
-					});
-				}
-
-				current.children?.forEach((child) =>
-					result.push({
-						id: child.id,
-						position: { x: child.x, y: child.y },
-						data: { label: child.id },
-						style: { width: child.width, height: child.height },
-						parentNode: current.id === "rootGroup" ? undefined : current.id,
-					}),
-				);
-
-				return result;
-			}, [] as any[]);
-			// console.log("nodes", nodes);
-			onLayouted?.(nodes as any[]);
-			window.requestAnimationFrame(() => {
-				setTimeout(() => {
-					fitView();
-				}, 100);
-			});
-		});
-	}, []);
-
-	return { getLayoutedElements };
-};
-
 export default function ActionsPanel() {
 	const clipboard = useStore((state) => state.clipboard);
 	const setClipboard = useStore((state) => state.setClipboard);
@@ -156,17 +63,6 @@ export default function ActionsPanel() {
 	// const updateManyEdges = trpc.edges.updateMany.useMutation();
 	const { theme } = useTheme();
 	const { toast } = useToast();
-	const { getLayoutedElements } = useLayoutedElements({
-		onLayouted: (nodes) => {
-			updateManyNodes.mutate({
-				nodes: nodes.map((node) => ({
-					id: node.id,
-					x: node.position.x,
-					y: node.position.y,
-				})),
-			});
-		},
-	});
 
 	const copy = useCallback(() => {
 		// console.log("copy", selected.nodes, selected.edges);
@@ -427,42 +323,6 @@ export default function ActionsPanel() {
 								<p>
 									Paste selected <Keyboard keys={["V"]} modifiers={["⌘"]} />
 								</p>
-							</TooltipContent>
-						</Tooltip>
-						<Tooltip>
-							<TooltipTrigger>
-								<Button
-									size="icon"
-									onClick={() => {
-										setSettingsOpen(false);
-										getLayoutedElements({
-											"elk.direction": "DOWN",
-										});
-									}}
-								>
-									<MoveVertical />
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent>
-								<p>Auto layout vertical</p>
-							</TooltipContent>
-						</Tooltip>
-						<Tooltip>
-							<TooltipTrigger>
-								<Button
-									size="icon"
-									onClick={() => {
-										setSettingsOpen(false);
-										getLayoutedElements({
-											"elk.direction": "RIGHT",
-										});
-									}}
-								>
-									<MoveHorizontal />
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent>
-								<p>Auto layout vertical</p>
 							</TooltipContent>
 						</Tooltip>
 						<Tooltip>
