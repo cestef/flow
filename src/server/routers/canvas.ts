@@ -315,6 +315,7 @@ export const canvasRouter = router({
 						borderColor: z.string().nullish(),
 						borderWidth: z.number().nullish(),
 						borderStyle: z.string().nullish(),
+						preset: z.boolean().nullish(),
 						handles: z
 							.array(
 								z.object({
@@ -385,6 +386,7 @@ export const canvasRouter = router({
 							},
 						},
 						tempId: node.id,
+						preset: node.preset ?? false,
 					},
 					include: {
 						handles: true,

@@ -138,14 +138,9 @@ export default function ActionsPanel() {
 	const canvas = trpc.canvas.get.useQuery({
 		id: canvasId,
 	});
+
+	const [nodes, edges] = useStore((state) => [state.nodes, state.edges]);
 	const exportJson = useCallback(() => {
-		const instance = useStore.getState().instance;
-		if (!instance)
-			return toast({
-				title: "No instance found",
-				duration: 2000,
-				variant: "destructive",
-			});
 		if (!canvas.data)
 			return toast({
 				title: "No canvas found",
@@ -153,8 +148,9 @@ export default function ActionsPanel() {
 				variant: "destructive",
 			});
 		const json = JSON.stringify({
-			...instance.toObject(),
 			canvas: canvas.data.name,
+			nodes: nodes,
+			edges: edges,
 		});
 		const blob = new Blob([json], { type: "application/json" });
 		const url = URL.createObjectURL(blob);
@@ -166,7 +162,7 @@ export default function ActionsPanel() {
 		);
 		a.setAttribute("href", url);
 		a.click();
-	}, [canvas]);
+	}, [canvas, nodes, edges]);
 
 	useHotkeys(["ctrl+c", "meta+c"], copy);
 	useHotkeys(["ctrl+v", "meta+v"], paste);

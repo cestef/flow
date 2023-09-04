@@ -23,6 +23,7 @@ import { z } from "zod";
 import ComboBox from "../combobox";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { useToast } from "../ui/use-toast";
 
@@ -60,7 +61,7 @@ export default function CanvasPanel() {
 	const importCanvas = trpc.canvas.import.useMutation({
 		onSuccess() {
 			canvases.refetch();
-			toggleChooseCanvas(false);
+			toggleCreateNewCanvas(false);
 		},
 	});
 
@@ -222,11 +223,53 @@ export default function CanvasPanel() {
 									</DialogFooter>
 								</TabsContent>
 								<TabsContent value="import">
-									<div className="flex flex-col">
+									<div className="flex flex-col gap-2">
+										<Label htmlFor="canvasName">Canvas name</Label>
+										<Input
+											type="text"
+											id="canvasName"
+											placeholder="Canvas name"
+											className="w-full mb-2"
+											value={createNewCanvasState.name}
+											onChange={(e) => setCreateNewCanvasName(e.target.value)}
+										/>
+										<Label htmlFor="canvasFile">JSON file</Label>
 										<Input
 											type="file"
+											id="canvasFile"
 											className="w-full"
 											accept="application/json"
+											onChange={(e) => {
+												const file = e.target.files?.[0];
+												if (file) {
+													const reader = new FileReader();
+													reader.onload = async (e) => {
+														try {
+															const data = JSON.parse(
+																e.target?.result as string,
+															);
+															const ZFile = z.object({
+																nodes: z.array(z.any()),
+																edges: z.array(z.any()),
+																canvas: z.string().optional(),
+															});
+															console.log(data);
+															const parsed = ZFile.parse(data);
+															setCreateNewCanvasName(
+																parsed.canvas ?? "Untitled",
+															);
+														} catch (err) {
+															console.error(err);
+															toast({
+																title: "Error",
+																description: "Invalid file",
+																variant: "destructive",
+															});
+														}
+													};
+													reader.readAsText(file);
+												}
+											}}
 											ref={fileInputRef}
 										/>
 										<DialogFooter className="mt-4">
@@ -255,10 +298,7 @@ export default function CanvasPanel() {
 																console.log(data);
 																const parsed = ZFile.parse(data);
 																importCanvas.mutate({
-																	name: `${
-																		parsed.canvas ?? "Untitled"
-																	} (Imported)`,
-
+																	name: createNewCanvasState.name ?? "Untitled",
 																	nodes: formatLocalNodes(parsed.nodes),
 																	edges: formatLocalEdges(parsed.edges),
 																});
