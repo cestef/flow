@@ -132,9 +132,17 @@ function DefaultNode({
 		<ContextMenu onOpenChange={(o) => setInContextMenu(o)}>
 			<ContextMenuTrigger>
 				<NodeResizer
-					handleClassName="h-3 w-3 rounded-md bg-primary"
-					color="#fff"
-					isVisible={selected}
+					handleClassName="h-3 w-3 rounded-md bg-primary z-10"
+					color="var(--color-primary)"
+					isVisible={
+						selected &&
+						!editing[id]?.picker?.status &&
+						!editing[id]?.font?.status &&
+						!editing[id]?.handle?.status &&
+						!editing[id]?.name?.status &&
+						!editing[id]?.comment?.status &&
+						!editing[id]?.border?.status
+					}
 					minWidth={100}
 					minHeight={50}
 					onResizeEnd={(event, params) => {
@@ -148,6 +156,7 @@ function DefaultNode({
 							y,
 						});
 					}}
+					lineClassName="z-10"
 					keepAspectRatio={altPressed}
 				/>
 				<BorderResizer visible={selected} />
@@ -155,10 +164,8 @@ function DefaultNode({
 					className={cn(
 						"px-4 py-2 min-w-[100px] min-h-[50px]",
 						"flex flex-col justify-center relative items-center h-full w-full transition-none",
-						selected && editing[id]?.border?.status === undefined
-							? "border-primary"
-							: !data.borderColor && "border-stone-400",
-						!data.borderWidth && "border-2",
+						!data.borderColor && "outline-stone-400",
+						!data.borderWidth && "outline-2",
 						!data.color && !editing[id]?.picker?.value && "bg-accent",
 						!data.fontColor &&
 							editing[id]?.font?.status !== "color" &&
@@ -169,9 +176,10 @@ function DefaultNode({
 					style={{
 						background: editing[id]?.picker?.value ?? data.color,
 						borderRadius: data.borderRadius ?? 15,
-						borderWidth: editing[id]?.border?.width ?? data.borderWidth,
-						borderColor: editing[id]?.border?.color ?? data.borderColor,
-						borderStyle: editing[id]?.border?.style ?? data.borderStyle,
+						outlineWidth: editing[id]?.border?.width ?? data.borderWidth,
+						outlineColor: editing[id]?.border?.color ?? data.borderColor,
+						outlineStyle:
+							editing[id]?.border?.style ?? data.borderStyle ?? "solid",
 					}}
 					onDoubleClick={() => {
 						if (
