@@ -471,6 +471,7 @@ export const formatLocalNodes = (data: Node[]) => {
 		verticalAlign: node.data?.verticalAlign,
 		horizontalAlign: node.data?.horizontalAlign,
 		preset: node.data?.preset,
+		handles: node.data?.handles,
 	}));
 };
 

@@ -57,12 +57,12 @@ export default function CanvasPanel() {
 			setCurrentCanvasId("welcome");
 		},
 	});
-	const createManyNodes = trpc.nodes.addMany.useMutation({
+	const importCanvas = trpc.canvas.import.useMutation({
 		onSuccess() {
-			toggleCreateNewCanvas(false);
+			canvases.refetch();
+			toggleChooseCanvas(false);
 		},
 	});
-	const createManyEdges = trpc.edges.addMany.useMutation();
 
 	const { confirm, modal } = useConfirm();
 
@@ -250,20 +250,16 @@ export default function CanvasPanel() {
 																const ZFile = z.object({
 																	nodes: z.array(z.any()),
 																	edges: z.array(z.any()),
-																	canvas: z.string(),
+																	canvas: z.string().optional(),
 																});
 																console.log(data);
 																const parsed = ZFile.parse(data);
-																const res =
-																	await trcpProxyClient.canvas.add.mutate({
-																		name: parsed.canvas,
-																	});
-																createManyNodes.mutate({
-																	canvasId: res.id,
+																importCanvas.mutate({
+																	name: `${
+																		parsed.canvas ?? "Untitled"
+																	} (Imported)`,
+
 																	nodes: formatLocalNodes(parsed.nodes),
-																});
-																createManyEdges.mutate({
-																	canvasId: res.id,
 																	edges: formatLocalEdges(parsed.edges),
 																});
 															} catch (err) {
@@ -278,12 +274,9 @@ export default function CanvasPanel() {
 														reader.readAsText(file);
 													}
 												}}
-												disabled={
-													createManyNodes.isLoading || createManyEdges.isLoading
-												}
+												disabled={importCanvas.isLoading}
 											>
-												{(createManyNodes.isLoading ||
-													createManyEdges.isLoading) && (
+												{importCanvas.isLoading && (
 													<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 												)}
 												Import

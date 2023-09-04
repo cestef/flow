@@ -291,4 +291,204 @@ export const canvasRouter = router({
 
 			return res;
 		}),
+	import: protectedProcedure
+		.input(
+			z.object({
+				name: z.string(),
+				nodes: z.array(
+					z.object({
+						x: z.number(),
+						y: z.number(),
+						type: z.string(),
+						name: z.string(),
+						parentId: z.string().nullish(),
+						height: z.number().nullish(),
+						width: z.number().nullish(),
+						color: z.string().nullish(),
+						fontSize: z.number().nullish(),
+						fontWeight: z.string().nullish(),
+						fontColor: z.string().nullish(),
+						fontFamily: z.string().nullish(),
+						horizontalAlign: z.string().nullish(),
+						verticalAlign: z.string().nullish(),
+						borderRadius: z.number().nullish(),
+						borderColor: z.string().nullish(),
+						borderWidth: z.number().nullish(),
+						borderStyle: z.string().nullish(),
+						handles: z
+							.array(
+								z.object({
+									position: z.string(),
+									type: z.string(),
+									id: z.string().nullish(),
+								}),
+							)
+							.nullish(),
+						id: z.string().nullish(),
+					}),
+				),
+				edges: z.array(
+					z.object({
+						from: z.string(),
+						to: z.string(),
+						type: z.string().default("default"),
+						animated: z.boolean().default(false),
+						fromHandle: z.string().nullish(),
+						toHandle: z.string().nullish(),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const canvas = await prisma.canvas.create({
+				data: {
+					name: input.name,
+					owner: {
+						connect: {
+							id: ctx.user.id,
+						},
+					},
+				},
+			});
+
+			const inserts = input.nodes.map((node) =>
+				prisma.node.create({
+					data: {
+						x: node.x,
+						y: node.y,
+						type: node.type,
+						name: node.name,
+						height: node.height,
+						width: node.width,
+						color: node.color,
+						fontSize: node.fontSize,
+						fontWeight: node.fontWeight,
+						fontColor: node.fontColor,
+						fontFamily: node.fontFamily,
+						borderRadius: node.borderRadius,
+						borderColor: node.borderColor,
+						borderWidth: node.borderWidth,
+						borderStyle: node.borderStyle,
+						horizontalAlign: node.horizontalAlign,
+						verticalAlign: node.verticalAlign,
+						handles: {
+							create:
+								node.handles?.map((handle) => ({
+									type: handle.type,
+									position: handle.position,
+									tempId: handle.id,
+								})) ?? [],
+						},
+						canvas: {
+							connect: {
+								id: canvas.id,
+							},
+						},
+						tempId: node.id,
+					},
+					include: {
+						handles: true,
+					},
+				}),
+			);
+			const res = await prisma.$transaction(inserts);
+
+			console.log(res);
+
+			// Connect children to parents
+			const updateNodes = res
+				.filter((node) => node.tempId)
+				.map((node) => {
+					const inputNode = input.nodes.find((n) => n.id === node.tempId);
+					return prisma.node.update({
+						where: {
+							id: node.id,
+						},
+						data: {
+							parent: {
+								...(!inputNode?.parentId
+									? {}
+									: {
+											connect: {
+												id: res.find((n) => n.tempId === inputNode.parentId)
+													?.id,
+											},
+									  }),
+							},
+						},
+					});
+				});
+			const updateRes = await prisma.$transaction(updateNodes);
+
+			console.log(updateRes);
+
+			const insertEdges = input.edges.map((edge) =>
+				prisma.edge.create({
+					data: {
+						from: {
+							...(!edge.from
+								? {}
+								: {
+										connect: {
+											id: res.find((node) => node.tempId === edge.from)?.id,
+										},
+								  }),
+						},
+						to: {
+							...(!edge.to
+								? {}
+								: {
+										connect: {
+											id: res.find((node) => node.tempId === edge.to)?.id,
+										},
+								  }),
+						},
+						type: edge.type,
+						animated: edge.animated,
+						fromHandle: {
+							...(!edge.fromHandle
+								? {}
+								: {
+										connect: {
+											id: res
+												.find((node) =>
+													node.handles.find(
+														(handle) => handle.tempId === edge.fromHandle,
+													),
+												)
+												?.handles.find(
+													(handle) => handle.tempId === edge.fromHandle,
+												)?.id,
+										},
+								  }),
+						},
+						toHandle: {
+							...(!edge.toHandle
+								? {}
+								: {
+										connect: {
+											id: res
+												.find((node) =>
+													node.handles.find(
+														(handle) => handle.tempId === edge.toHandle,
+													),
+												)
+												?.handles.find(
+													(handle) => handle.tempId === edge.toHandle,
+												)?.id,
+										},
+								  }),
+						},
+						canvas: {
+							connect: {
+								id: canvas.id,
+							},
+						},
+					},
+				}),
+			);
+			await prisma.$transaction(insertEdges);
+
+			return canvas;
+		}),
 });

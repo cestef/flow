@@ -116,16 +116,18 @@ model Node {
     toEdges         Edge[]       @relation("ToEdges")
     comments        Comment[]
     preset          Boolean      @default(false)
+    tempId          String?
 }
 
 model NodeHandle {
-    id       String @id @default(cuid())
+    id       String  @id @default(cuid())
     nodeId   String
-    node     Node   @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+    node     Node    @relation(fields: [nodeId], references: [id], onDelete: Cascade)
     position String
     type     String
-    outEdges Edge[] @relation("OutEdges")
-    inEdges  Edge[] @relation("InEdges")
+    outEdges Edge[]  @relation("OutEdges")
+    inEdges  Edge[]  @relation("InEdges")
+    tempId   String?
 }
 
 model Edge {

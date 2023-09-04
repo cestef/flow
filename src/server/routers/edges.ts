@@ -101,7 +101,7 @@ export const edgesRouter = router({
 							id: input.canvasId,
 						},
 					},
-					id: input.id,
+					id: input.id ?? undefined,
 					type: input.type,
 					// fromHandle: {
 					// 	connect: {
@@ -327,7 +327,7 @@ export const edgesRouter = router({
 							},
 						},
 					}),
-					animated: input.animated,
+					animated: input.animated ?? undefined,
 				},
 			});
 

@@ -5,7 +5,6 @@ import { Node } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
-
 const emitters = new Map<string, EventEmitter>();
 
 export const emitter = (id: string): EventEmitter => {
@@ -140,9 +139,7 @@ export const nodesRouter = router({
 						},
 					},
 					parent: {
-						...(input.parentId === undefined
-							? {}
-							: { connect: { id: input.parentId } }),
+						...(!input.parentId ? {} : { connect: { id: input.parentId } }),
 					},
 					preset: input.preset ?? false,
 				},
@@ -184,6 +181,7 @@ export const nodesRouter = router({
 								}),
 							)
 							.nullish(),
+						id: z.string().nullish(),
 					}),
 				),
 			}),
@@ -210,6 +208,7 @@ export const nodesRouter = router({
 			) {
 				throw new Error("User is not allowed to add node");
 			}
+
 			const inserts = input.nodes.map((node) =>
 				prisma.node.create({
 					data: {
@@ -243,14 +242,35 @@ export const nodesRouter = router({
 							},
 						},
 						parent: {
-							...(node.parentId === undefined
-								? {}
-								: { connect: { id: node.parentId } }),
+							...(!node.parentId ? {} : { connect: { id: node.parentId } }),
 						},
+						tempId: node.id,
 					},
 				}),
 			);
 			const res = await prisma.$transaction(inserts);
+
+			// Connect children to parents
+			const updateNodes = res
+				.filter((node) => node.parentId && node.tempId)
+				.map((node) => {
+					const parent = res.find((n) => n.tempId === node.parentId);
+					return prisma.node.update({
+						where: {
+							id: node.id,
+						},
+						data: {
+							parent: {
+								connect: {
+									id: parent?.id,
+								},
+							},
+						},
+					});
+				});
+			// Update edges
+
+			await prisma.$transaction(updateNodes);
 
 			res.forEach((node) => {
 				emitter(input.canvasId).emit("add", node);
@@ -361,11 +381,11 @@ export const nodesRouter = router({
 					id: input.id,
 				},
 				data: {
-					x: input.x,
-					y: input.y,
+					x: input.x ?? undefined,
+					y: input.y ?? undefined,
 					width: input.width,
 					height: input.height,
-					name: input.name,
+					name: input.name ?? undefined,
 					parent: {
 						...(input.parentId === null
 							? { disconnect: true }
@@ -1000,12 +1020,12 @@ export const nodesRouter = router({
 						id: node.id,
 					},
 					data: {
-						x: node.x,
-						y: node.y,
+						x: node.x ?? undefined,
+						y: node.y ?? undefined,
 						height: node.height,
 						width: node.width,
 						color: node.color,
-						name: node.name,
+						name: node.name ?? undefined,
 						parent: {
 							...(node.parentId === null
 								? { disconnect: true }
