@@ -58,6 +58,9 @@ export default function PresetNode({
 							name: node.data.label,
 							type: node.type!,
 							borderRadius: node.data.borderRadius ?? undefined,
+							borderWidth: node.data.borderWidth ?? undefined,
+							borderStyle: node.data.borderStyle ?? undefined,
+							borderColor: node.data.borderColor ?? undefined,
 							color: node.data.color ?? undefined,
 							fontColor: node.data.fontColor ?? undefined,
 							fontFamily: node.data.fontFamily ?? undefined,
@@ -73,13 +76,19 @@ export default function PresetNode({
 				>
 					<div
 						className={cn(
-							"w-[100px] h-[50px] px-4 py-2 border-2 border-primary shadow-md cursor-move flex justify-center items-center z-10 text-center",
+							"px-4 py-2 w-[100px] h-[50px]",
+							"flex flex-col justify-center relative items-center h-full w-full transition-none",
+							!node.data.borderColor && "outline-stone-400",
+							!node.data.borderWidth && "outline-2",
 							!node.data.color && "bg-accent",
 							!node.data.fontColor && "text-primary",
 						)}
 						style={{
 							background: node.data.color ?? undefined,
-							borderRadius: node.data.borderRadius ?? undefined,
+							borderRadius: node.data.borderRadius ?? 10,
+							outlineWidth: node.data.borderWidth,
+							outlineColor: node.data.borderColor,
+							outlineStyle: node.data.borderStyle ?? "solid",
 							color: node.data.fontColor ?? undefined,
 							fontSize,
 							fontWeight: node.data.fontWeight as any,
