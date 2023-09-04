@@ -7,6 +7,7 @@ import {
 	ClipboardPaste,
 	Download,
 	FileJson2,
+	Image,
 	Maximize,
 	MoveHorizontal,
 	MoveVertical,
@@ -485,7 +486,7 @@ export default function ActionsPanel() {
 						<Tooltip>
 							<TooltipTrigger>
 								<Button size="icon" onClick={download}>
-									<Download />
+									<Image />
 								</Button>
 							</TooltipTrigger>
 							<TooltipContent>
