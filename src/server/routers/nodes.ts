@@ -71,6 +71,9 @@ export const nodesRouter = router({
 				horizontalAlign: z.string().optional(),
 				verticalAlign: z.string().optional(),
 				borderRadius: z.number().optional(),
+				borderColor: z.string().optional(),
+				borderWidth: z.number().optional(),
+				borderStyle: z.string().optional(),
 				preset: z.boolean().optional(),
 				handles: z
 					.array(
@@ -119,6 +122,9 @@ export const nodesRouter = router({
 					fontColor: input.fontColor,
 					fontFamily: input.fontFamily,
 					borderRadius: input.borderRadius,
+					borderColor: input.borderColor,
+					borderWidth: input.borderWidth,
+					borderStyle: input.borderStyle,
 					horizontalAlign: input.horizontalAlign,
 					verticalAlign: input.verticalAlign,
 					handles: {
@@ -206,6 +212,9 @@ export const nodesRouter = router({
 				horizontalAlign: z.string().optional(),
 				verticalAlign: z.string().optional(),
 				borderRadius: z.number().optional(),
+				borderColor: z.string().optional(),
+				borderWidth: z.number().optional(),
+				borderStyle: z.string().optional(),
 				handles: z
 					.array(
 						z.object({
@@ -265,6 +274,9 @@ export const nodesRouter = router({
 					fontWeight: input.fontWeight,
 					fontFamily: input.fontFamily,
 					borderRadius: input.borderRadius,
+					borderColor: input.borderColor,
+					borderWidth: input.borderWidth,
+					borderStyle: input.borderStyle,
 					horizontalAlign: input.horizontalAlign,
 					verticalAlign: input.verticalAlign,
 					handles: {
@@ -720,12 +732,18 @@ export const nodesRouter = router({
 					fontSize: node.fontSize,
 					fontWeight: node.fontWeight,
 					fontColor: node.fontColor,
+					fontFamily: node.fontFamily,
 					borderRadius: node.borderRadius,
+					borderColor: node.borderColor,
+					borderWidth: node.borderWidth,
+					borderStyle: node.borderStyle,
 					width: node.width,
 					height: node.height,
 					color: node.color,
 					canvasId: node.canvas.id,
 					parentId: node.parentId ?? undefined,
+					verticalAlign: node.verticalAlign,
+					horizontalAlign: node.horizontalAlign,
 					handles: {
 						create: node.handles.map((handle) => ({
 							type: handle.type,
@@ -790,10 +808,16 @@ export const nodesRouter = router({
 						fontSize: node.fontSize,
 						fontWeight: node.fontWeight,
 						fontColor: node.fontColor,
+						fontFamily: node.fontFamily,
 						width: node.width,
 						height: node.height,
 						color: node.color,
 						borderRadius: node.borderRadius,
+						borderColor: node.borderColor,
+						borderWidth: node.borderWidth,
+						borderStyle: node.borderStyle,
+						verticalAlign: node.verticalAlign,
+						horizontalAlign: node.horizontalAlign,
 						handles: {
 							create:
 								node.handles?.map((handle) => ({

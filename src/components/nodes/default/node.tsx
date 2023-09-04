@@ -11,7 +11,11 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { Popover, PopoverContent } from "@/components/ui/popover";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn, trpc } from "@/lib/utils";
 import {
 	AlignHorizontalJustifyCenter,
@@ -21,6 +25,7 @@ import {
 	AlignVerticalJustifyEnd,
 	AlignVerticalJustifyStart,
 	Bold,
+	Brush,
 	CaseSensitive,
 	Copy,
 	MessageSquare,
@@ -30,6 +35,7 @@ import {
 	Pipette,
 	Plus,
 	Ruler,
+	Square,
 	Star,
 	Text,
 	TextCursor,
@@ -58,7 +64,6 @@ import {
 import { flowSelector } from "@/lib/constants";
 import { useStore } from "@/lib/store";
 import { NodeHandle } from "@prisma/client";
-import { PopoverTrigger } from "@radix-ui/react-popover";
 import { memo, useEffect } from "react";
 import NodeEditor, { fonts } from "./editor";
 
@@ -77,6 +82,9 @@ function DefaultNode({
 		fontWeight: string;
 		fontFamily: string;
 		borderRadius: number;
+		borderColor: string;
+		borderWidth: number;
+		borderStyle: string;
 		handles: NodeHandle[];
 		verticalAlign: string;
 		horizontalAlign: string;
@@ -145,9 +153,12 @@ function DefaultNode({
 				<BorderResizer visible={selected} />
 				<div
 					className={cn(
-						"px-4 py-2 shadow-md border-2 min-w-[100px] min-h-[50px]",
+						"px-4 py-2 min-w-[100px] min-h-[50px]",
 						"flex flex-col justify-center relative items-center h-full w-full transition-none",
-						selected ? "border-primary" : "border-stone-400",
+						selected && editing[id]?.border?.status === undefined
+							? "border-primary"
+							: !data.borderColor && "border-stone-400",
+						!data.borderWidth && "border-2",
 						!data.color && !editing[id]?.picker?.value && "bg-accent",
 						!data.fontColor &&
 							editing[id]?.font?.status !== "color" &&
@@ -158,6 +169,9 @@ function DefaultNode({
 					style={{
 						background: editing[id]?.picker?.value ?? data.color,
 						borderRadius: data.borderRadius ?? 15,
+						borderWidth: editing[id]?.border?.width ?? data.borderWidth,
+						borderColor: editing[id]?.border?.color ?? data.borderColor,
+						borderStyle: editing[id]?.border?.style ?? data.borderStyle,
 					}}
 					onDoubleClick={() => {
 						if (
@@ -580,6 +594,47 @@ function DefaultNode({
 						>
 							<CaseSensitive className="w-4 h-4 mr-2" />
 							Family
+						</ContextMenuItem>
+					</ContextMenuSubContent>
+				</ContextMenuSub>
+				<ContextMenuSub>
+					<ContextMenuSubTrigger>
+						<Square className="w-4 h-4 mr-2" />
+						Border
+					</ContextMenuSubTrigger>
+					<ContextMenuSubContent>
+						<ContextMenuItem
+							onClick={() =>
+								setEditing(id, "border", {
+									status: "color",
+									radius: data.borderColor,
+								})
+							}
+						>
+							<Pipette className="w-4 h-4 mr-2" />
+							Color
+						</ContextMenuItem>
+						<ContextMenuItem
+							onClick={() =>
+								setEditing(id, "border", {
+									status: "width",
+									width: data.borderWidth,
+								})
+							}
+						>
+							<Ruler className="w-4 h-4 mr-2" />
+							Width
+						</ContextMenuItem>
+						<ContextMenuItem
+							onClick={() =>
+								setEditing(id, "border", {
+									status: "style",
+									style: data.borderStyle,
+								})
+							}
+						>
+							<Brush className="w-4 h-4 mr-2" />
+							Style
 						</ContextMenuItem>
 					</ContextMenuSubContent>
 				</ContextMenuSub>

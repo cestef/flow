@@ -20,6 +20,12 @@ import { createWithEqualityFn } from "zustand/traditional";
 
 interface Editing {
 	[id: string]: {
+		border?: {
+			status: "color" | "width" | "style" | undefined;
+			color: string;
+			width: number;
+			style: string;
+		};
 		name?: {
 			status: boolean;
 			value: string;

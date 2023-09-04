@@ -102,6 +102,9 @@ model Node {
     fontWeight      String?
     fontFamily      String?
     borderRadius    Float?
+    borderWidth     Float?
+    borderColor     String?
+    borderStyle     String?
     parentId        String?
     verticalAlign   String?
     horizontalAlign String?

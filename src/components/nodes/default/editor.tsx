@@ -308,6 +308,98 @@ export default function NodeEditor({
 					</Button>
 				</div>
 			)}
+			{editing[id]?.border?.status === "color" && (
+				<div className="absolute -bottom-56 flex flex-col items-center w-64 h-64 scale-[0.70]">
+					<GradientPicker
+						background={editing[id].border?.color as string}
+						setBackground={(color) => {
+							const sanitized = sanitizeColor(color);
+							setEditing(id, "border", {
+								color: sanitized,
+							});
+							MupdateNode.mutate({
+								id,
+								borderColor: sanitized,
+							});
+						}}
+						onSubmit={() => {
+							setEditing(id, "border", {
+								status: undefined,
+							});
+						}}
+						gradient={false}
+						className="w-full h-full"
+					/>
+				</div>
+			)}
+			{editing[id]?.border?.status === "width" && (
+				<div className="absolute -bottom-12 left-0 w-full flex flex-row items-center">
+					<Slider
+						id="border-width"
+						className="nodrag"
+						value={[editing[id].border?.width || 0]}
+						onValueChange={([value]) =>
+							setEditing(id, "border", {
+								width: value,
+							})
+						}
+						min={0}
+						max={100}
+						step={1}
+					/>
+					<Button
+						size="icon"
+						className="ml-2 min-w-[2rem] h-8"
+						onClick={() => {
+							setEditing(id, "border", {
+								status: undefined,
+							});
+							MupdateNode.mutate({
+								id,
+								borderWidth: editing[id].border?.width,
+							});
+						}}
+					>
+						<Check className="w-4 h-4" />
+					</Button>
+				</div>
+			)}
+			{editing[id]?.border?.status === "style" && (
+				<div className="absolute -bottom-12 left-0 w-full flex flex-row items-center">
+					<Select
+						value={editing[id].border?.style || "solid"}
+						onValueChange={(value) =>
+							setEditing(id, "border", { style: value })
+						}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder="Border style" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectItem value="solid">Solid</SelectItem>
+								<SelectItem value="dashed">Dashed</SelectItem>
+								<SelectItem value="dotted">Dotted</SelectItem>
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+					<Button
+						size="icon"
+						className="ml-2 min-w-[2rem] h-8"
+						onClick={() => {
+							setEditing(id, "border", {
+								status: undefined,
+							});
+							MupdateNode.mutate({
+								id,
+								borderStyle: editing[id].border?.style,
+							});
+						}}
+					>
+						<Check className="w-4 h-4" />
+					</Button>
+				</div>
+			)}
 		</div>
 	);
 }
