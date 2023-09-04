@@ -51,9 +51,9 @@ export const usersRouter = router({
 				where: {
 					OR: [
 						{ email: input.emailOrName },
-						{ name: { search: input.emailOrName } },
-						{ login: input.emailOrName },
-						{ id: input.id },
+						{ name: { search: input.emailOrName ?? undefined } },
+						{ login: input.emailOrName ?? undefined },
+						{ id: input.id ?? undefined },
 					],
 				},
 				select: {

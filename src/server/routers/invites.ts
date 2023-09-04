@@ -41,7 +41,7 @@ export const invitesRouter = router({
 			const invite = await prisma.invite.create({
 				data: {
 					canvasId: input.canvasId,
-					maxUses: input.maxUses,
+					maxUses: input.maxUses ?? undefined,
 					expires: input.expires,
 					code: code,
 					userId: ctx.user.id,

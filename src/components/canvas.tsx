@@ -1,5 +1,5 @@
 import { edgeTypes, flowSelector, nodeTypes } from "@/lib/constants";
-import { ConnectionLineType, useKeyPress, useReactFlow } from "reactflow";
+import { useKeyPress, useReactFlow } from "reactflow";
 import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
 import { registerCallbacks } from "@/lib/callbacks";
@@ -8,7 +8,6 @@ import { useStore } from "@/lib/store";
 import { subscribe } from "@/lib/subscriptions";
 import { useSession } from "next-auth/react";
 import { useRef } from "react";
-import Selecto from "react-selecto";
 import CanvasContext from "./canvas-context";
 import HelperLines from "./helper-lines";
 
@@ -19,7 +18,7 @@ const Flow = ({
 }) => {
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
 	const { data: session } = useSession();
-	const { nodes, edges, findAndUpdateNode } = useStore(flowSelector);
+	const { nodes, edges } = useStore(flowSelector);
 
 	const shiftDown = useKeyPress("Shift");
 
@@ -28,10 +27,6 @@ const Flow = ({
 	const setContextMenuPosition = useStore(
 		(state) => state.setContextMenuPosition,
 	);
-	const [selecting, setSelecting] = useStore((state) => [
-		state.selecting,
-		state.setSelecting,
-	]);
 	const helperLineHorizontal = useStore((state) => state.helperLineHorizontal);
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
 	const setInstance = useStore((state) => state.setInstance);
@@ -41,7 +36,6 @@ const Flow = ({
 	const {
 		onConnect,
 		onEdgesChange,
-		onNodeClick,
 		onNodeDrag,
 		onNodeDragStart,
 		onNodeDragStop,
@@ -79,7 +73,6 @@ const Flow = ({
 					onNodeDragStart={onNodeDragStart}
 					onNodeDrag={onNodeDrag}
 					onEdgesChange={onEdgesChange}
-					onNodeClick={onNodeClick}
 					onConnect={onConnect}
 					snapToGrid={shiftDown}
 					nodeTypes={nodeTypes}

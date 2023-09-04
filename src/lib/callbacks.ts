@@ -34,10 +34,6 @@ export const registerCallbacks = () => {
 		state.shouldEmit,
 		state.setShouldEmit,
 	]);
-	const [selecting, setSelecting] = useStore((state) => [
-		state.selecting,
-		state.setSelecting,
-	]);
 	const [helperLineHorizontal, setHelperLineHorizontal] = useStore((state) => [
 		state.helperLineHorizontal,
 		state.setHelperLineHorizontal,
@@ -45,10 +41,6 @@ export const registerCallbacks = () => {
 	const [helperLineVertical, setHelperLineVertical] = useStore((state) => [
 		state.helperLineVertical,
 		state.setHelperLineVertical,
-	]);
-	const [selectedBrush, setSelectedBrush] = useStore((state) => [
-		state.selectedBrush,
-		state.setSelectedBrush,
 	]);
 
 	const { data: session } = useSession();
@@ -163,50 +155,6 @@ export const registerCallbacks = () => {
 			}
 		}
 	};
-	const onNodeClick = useCallback(
-		(event: React.MouseEvent, node: Node) => {
-			const selectedNodes = nodes.filter((n) => n.selected);
-			const selectedEdges = edges.filter((e) => e.selected);
-			if (
-				selectedBrush === "delete" &&
-				(selectedNodes.length > 0 || selectedEdges.length > 0)
-			) {
-				const nodeIds = selectedNodes.map((node) => node.id);
-				const edgeIds = selectedEdges.map((edge) => edge.id);
-				const edges = useStore.getState().edges;
-				const connectedEdgesIds = edges
-					.filter((edge) => {
-						return (
-							nodeIds.includes(edge.source) || nodeIds.includes(edge.target)
-						);
-					})
-					.map((edge) => edge.id);
-				const nodes = useStore.getState().nodes;
-				const childrenNodesIds = nodes
-					.filter((e) => nodeIds.includes(e.parentNode || ""))
-					.map((e) => e.id);
-				findAndUpdateNode(
-					(n) => nodeIds.includes(n.parentNode || ""),
-					(n) => ({
-						...n,
-						parentNode: undefined,
-					}),
-				);
-				if (session?.user.id && !["welcome", ""].includes(canvasId)) {
-					updateManyNodes.mutate({
-						nodes: childrenNodesIds.map((node) => ({
-							id: node,
-							parentId: null,
-						})),
-					});
-					deleteManyNodes.mutate({ ids: nodeIds });
-					deleteManyEdges.mutate({ ids: [...edgeIds, ...connectedEdgesIds] });
-				}
-				return;
-			}
-		},
-		[nodes],
-	);
 	const onNodesChangeProxy = (nodeChanges: NodeChange[]) => {
 		setHelperLineHorizontal(undefined);
 		setHelperLineVertical(undefined);
@@ -244,11 +192,7 @@ export const registerCallbacks = () => {
 		// console.log("onNodesChangeProxy", nodeChanges);
 		// console.log("selecting", selecting);
 		// This is done to avoid the instant unselection of the nodes after selection (we update the selected attribute manually)
-		onNodesChange(
-			selectedBrush === "select"
-				? nodeChanges.filter((e) => e.type !== "select")
-				: nodeChanges,
-		);
+		onNodesChange(nodeChanges);
 	};
 
 	const onNodeDrag = useCallback<(event: React.MouseEvent, node: Node) => void>(
@@ -314,7 +258,6 @@ export const registerCallbacks = () => {
 		onNodeDragStop,
 		onEdgesChange: onEdgesChangeProxy,
 		onNodesChange: onNodesChangeProxy,
-		onNodeClick,
 		onNodeDrag,
 		onConnect: onConnectProxy,
 	};
