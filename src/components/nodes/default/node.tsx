@@ -290,9 +290,15 @@ function DefaultNode({
 													}
 													position={position}
 													key={position}
-													className={cn({
+													className={cn("rounded-md", {
 														"bg-primary": handle.type === "source",
 														"bg-accent": handle.type === "target",
+														"w-4 h-2":
+															position === Position.Top ||
+															position === Position.Bottom,
+														"h-4 w-2":
+															position === Position.Left ||
+															position === Position.Right,
 													})}
 													id={handle.id}
 												/>
@@ -313,7 +319,13 @@ function DefaultNode({
 											</ContextMenuContent>
 										</ContextMenu>
 									);
-								else if (selected)
+								else if (
+									selected &&
+									!Object.keys(editing[id] || {})
+										//@ts-ignore
+										.map((k) => editing[id][k].status)
+										.some(Boolean)
+								)
 									return (
 										<Popover
 											key={position}

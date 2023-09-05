@@ -8,6 +8,7 @@ import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { Check, Pipette } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
 
@@ -29,14 +30,22 @@ export function GradientPicker({
 	id?: string;
 }) {
 	const solids = [
-		"#E2E2E2",
 		"#ff75c3",
+		"#ff4500",
 		"#ffa647",
+		"#ffbb55",
 		"#ffe83f",
+		"#bada55",
 		"#9fff5b",
 		"#70e2ff",
+		"#accbee",
+		"#0088cc",
 		"#cd93ff",
 		"#09203f",
+		"#537895",
+		"#d5d4d0",
+		"#e7f0fd",
+		"transparent",
 	];
 
 	const gradients = [
@@ -81,8 +90,16 @@ export function GradientPicker({
 					{solids.map((s) => (
 						<div
 							key={s}
-							style={{ background: s }}
-							className="rounded-md h-6 w-6 cursor-pointer active:scale-105"
+							style={{
+								background: s,
+							}}
+							className={cn(
+								"rounded-md h-6 w-6 cursor-pointer active:scale-105",
+								{
+									"border-2 border-primary": background === s,
+									"border border-muted-foreground": s === "transparent",
+								},
+							)}
 							onClick={() => setBackground(s)}
 						/>
 					))}

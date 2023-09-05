@@ -66,9 +66,13 @@ export default function DefaultEdge({
 				markerEnd={markerEnd}
 				style={{
 					...style,
-					stroke: data.linkColor
-						? sourceNode?.data.color
-						: editing[id]?.picker?.value ?? data.color,
+					stroke:
+						data.linkColor &&
+						!["url", "gradient", "transparent"].some((s) =>
+							sourceNode?.data.color.includes(s),
+						)
+							? sourceNode?.data.color
+							: editing[id]?.picker?.value ?? data.color,
 				}}
 			/>
 			<EdgeLabelRenderer>
