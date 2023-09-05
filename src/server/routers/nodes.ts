@@ -6,6 +6,7 @@ import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 const emitters = new Map<string, EventEmitter>();
+import { emitter as edgesEmitter } from "./edges";
 
 export const emitter = (id: string): EventEmitter => {
 	if (!emitters.has(id)) {
@@ -54,6 +55,26 @@ export const nodesRouter = router({
 				throw new Error("User is not allowed to update handle");
 			}
 
+			// Switch if the handle position is already taken
+			const otherHandle = await prisma.nodeHandle.findFirst({
+				where: {
+					position: input.position ?? undefined,
+					nodeId: handle.node.id,
+				},
+			});
+
+			if (otherHandle) {
+				await prisma.nodeHandle.update({
+					where: {
+						id: otherHandle.id,
+					},
+
+					data: {
+						position: handle.position,
+					},
+				});
+			}
+
 			const res = await prisma.nodeHandle.update({
 				where: {
 					id: input.id,
@@ -72,6 +93,88 @@ export const nodesRouter = router({
 			});
 
 			emitter(handle.node.canvas.id).emit("update", res.node);
+
+			return res;
+		}),
+	deleteHandle: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const handle = await prisma.nodeHandle.findUnique({
+				where: {
+					id: input.id,
+				},
+				include: {
+					node: {
+						include: {
+							canvas: {
+								include: {
+									owner: true,
+									members: true,
+								},
+							},
+						},
+					},
+				},
+			});
+
+			if (!handle) {
+				throw new Error("Handle not found");
+			}
+
+			if (
+				handle.node.canvas.owner.id !== ctx.user.id &&
+				!handle.node.canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to delete handle");
+			}
+
+			const res = await prisma.nodeHandle.delete({
+				where: {
+					id: input.id,
+				},
+			});
+			const ids = await prisma.edge.findMany({
+				where: {
+					OR: [
+						{
+							fromHandleId: res.id,
+						},
+						{
+							toHandleId: res.id,
+						},
+					],
+				},
+				select: {
+					id: true,
+				},
+			});
+			await prisma.edge.deleteMany({
+				where: {
+					id: {
+						in: ids.map((edge) => edge.id),
+					},
+				},
+			});
+
+			for (const edge of ids) {
+				edgesEmitter(handle.node.canvas.id).emit("delete", {
+					edge,
+					userId: ctx.user.id,
+				});
+			}
+			const newNode = await prisma.node.findUnique({
+				where: {
+					id: handle.node.id,
+				},
+				include: {
+					handles: true,
+				},
+			});
+			emitter(handle.node.canvas.id).emit("update", newNode);
 
 			return res;
 		}),

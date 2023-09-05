@@ -29,7 +29,12 @@ import {
 	CaseSensitive,
 	Copy,
 	MessageSquare,
+	Move,
+	MoveDown,
 	MoveHorizontal,
+	MoveLeft,
+	MoveRight,
+	MoveUp,
 	MoveVertical,
 	Paintbrush,
 	Pipette,
@@ -41,6 +46,7 @@ import {
 	Text,
 	TextCursor,
 	Trash,
+	Trash2,
 	Type,
 	Unlink,
 	X,
@@ -109,6 +115,7 @@ function DefaultNode({
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const updateNode = trpc.nodes.update.useMutation();
 	const updateHandle = trpc.nodes.updateHandle.useMutation();
+	const deleteHandle = trpc.nodes.deleteHandle.useMutation();
 	const duplicateNode = trpc.nodes.duplicate.useMutation();
 	const createComment = trpc.comments.add.useMutation();
 
@@ -314,7 +321,76 @@ function DefaultNode({
 													}}
 												>
 													<Repeat className="w-4 h-4 mr-2" />
-													Toggle type
+													{handle.type.charAt(0).toUpperCase() +
+														handle.type.slice(1)}
+												</ContextMenuItem>
+												<ContextMenuSub>
+													<ContextMenuSubTrigger>
+														<Move className="w-4 h-4 mr-2" />
+														Position
+													</ContextMenuSubTrigger>
+													<ContextMenuSubContent>
+														<ContextMenuCheckboxItem
+															checked={handle.position === Position.Top}
+															onCheckedChange={(e) => {
+																updateHandle.mutate({
+																	id: handle.id,
+																	position: e ? Position.Top : Position.Top,
+																});
+															}}
+														>
+															<MoveUp className="w-4 h-4 mr-2" />
+															Top
+														</ContextMenuCheckboxItem>
+														<ContextMenuCheckboxItem
+															checked={handle.position === Position.Left}
+															onCheckedChange={(e) => {
+																updateHandle.mutate({
+																	id: handle.id,
+																	position: e ? Position.Left : Position.Top,
+																});
+															}}
+														>
+															<MoveLeft className="w-4 h-4 mr-2" />
+															Left
+														</ContextMenuCheckboxItem>
+														<ContextMenuCheckboxItem
+															checked={handle.position === Position.Right}
+															onCheckedChange={(e) => {
+																updateHandle.mutate({
+																	id: handle.id,
+																	position: e ? Position.Right : Position.Top,
+																});
+															}}
+														>
+															<MoveRight className="w-4 h-4 mr-2" />
+															Right
+														</ContextMenuCheckboxItem>
+														<ContextMenuCheckboxItem
+															checked={handle.position === Position.Bottom}
+															onCheckedChange={(e) => {
+																updateHandle.mutate({
+																	id: handle.id,
+																	position: e ? Position.Bottom : Position.Top,
+																});
+															}}
+														>
+															<MoveDown className="w-4 h-4 mr-2" />
+															Bottom
+														</ContextMenuCheckboxItem>
+													</ContextMenuSubContent>
+												</ContextMenuSub>
+												<ContextMenuSeparator />
+												<ContextMenuItem
+													onClick={() => {
+														deleteHandle.mutate({
+															id: handle.id,
+														});
+													}}
+													className="text-destructive"
+												>
+													<Trash2 className="w-4 h-4 mr-2" />
+													Remove
 												</ContextMenuItem>
 											</ContextMenuContent>
 										</ContextMenu>
@@ -322,72 +398,52 @@ function DefaultNode({
 								else if (
 									selected &&
 									!Object.keys(editing[id] || {})
+										.filter((k) => k !== "handle")
 										//@ts-ignore
 										.map((k) => editing[id][k].status)
 										.some(Boolean)
 								)
 									return (
-										<Popover
+										<Button
+											size="smallIcon"
+											variant="dotted"
 											key={position}
-											open={
-												editing[id]?.handle?.status &&
-												editing[id]?.handle?.position === position
-											}
-										>
-											<PopoverTrigger asChild>
-												<Button
-													size="smallIcon"
-													variant="dotted"
-													key={position}
-													className={cn(
-														"border absolute nodrag opacity-0 hover:opacity-100 transition-opacity",
+											className={cn(
+												"border absolute nodrag opacity-0 hover:opacity-100 transition-opacity",
+												{
+													"-top-8": position === Position.Top,
+													"-left-8": position === Position.Left,
+													"-right-8": position === Position.Right,
+													"-bottom-8": position === Position.Bottom,
+												},
+											)}
+											onClick={() => {
+												updateNode.mutate({
+													id,
+													handles: [
 														{
-															"-top-8": position === Position.Top,
-															"-left-8": position === Position.Left,
-															"-right-8": position === Position.Right,
-															"-bottom-8": position === Position.Bottom,
+															position,
+															type: "target",
 														},
-													)}
-													onClick={() => {
-														setEditing(id, "handle", {
-															status: !editing[id]?.handle?.status,
-															position: position,
-														});
-													}}
-												>
-													<Plus className="w-4 h-4 text-primary" />
-												</Button>
-											</PopoverTrigger>
-											<PopoverContent
-												side={position}
-												className="bg-transparent shadow-none border-none w-40"
-											>
-												<Select
-													onValueChange={(e) => {
-														updateNode.mutate({
-															id,
-															handles: [
-																{
-																	position,
-																	type: e,
-																},
-															],
-														});
-														setEditing(id, "handle", {
-															status: false,
-														});
-													}}
-												>
-													<SelectTrigger className="w-full">
-														<SelectValue placeholder="Type" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="source">Source</SelectItem>
-														<SelectItem value="target">Target</SelectItem>
-													</SelectContent>
-												</Select>
-											</PopoverContent>
-										</Popover>
+													],
+												});
+											}}
+											onContextMenu={(e) => {
+												e.stopPropagation();
+												e.preventDefault();
+												updateNode.mutate({
+													id,
+													handles: [
+														{
+															position,
+															type: "source",
+														},
+													],
+												});
+											}}
+										>
+											<Plus className="w-4 h-4 text-primary" />
+										</Button>
 									);
 							},
 						)}
