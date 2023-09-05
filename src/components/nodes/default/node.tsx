@@ -272,10 +272,6 @@ function DefaultNode({
 						horizontalAlign={data.horizontalAlign}
 					/>
 					{data.handles &&
-						!Object.keys(editing[id] || {})
-							.filter((k) => k !== "handle")
-							.map((k) => (editing as any)[id][k].status)
-							.some(Boolean) &&
 						[Position.Left, Position.Right, Position.Bottom, Position.Top].map(
 							(position) => {
 								const handle = data.handles.find(
