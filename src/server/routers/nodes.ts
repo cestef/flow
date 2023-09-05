@@ -56,23 +56,25 @@ export const nodesRouter = router({
 			}
 
 			// Switch if the handle position is already taken
-			const otherHandle = await prisma.nodeHandle.findFirst({
-				where: {
-					position: input.position ?? undefined,
-					nodeId: handle.node.id,
-				},
-			});
-
-			if (otherHandle) {
-				await prisma.nodeHandle.update({
+			if (input.position) {
+				const otherHandle = await prisma.nodeHandle.findFirst({
 					where: {
-						id: otherHandle.id,
-					},
-
-					data: {
-						position: handle.position,
+						position: input.position ?? undefined,
+						nodeId: handle.node.id,
 					},
 				});
+
+				if (otherHandle) {
+					await prisma.nodeHandle.update({
+						where: {
+							id: otherHandle.id,
+						},
+
+						data: {
+							position: handle.position,
+						},
+					});
+				}
 			}
 
 			const res = await prisma.nodeHandle.update({
