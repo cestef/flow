@@ -5,7 +5,8 @@
 ![GitHub issues](https://img.shields.io/github/issues/cestef/flow)
 ![Github Workflow Status](https://img.shields.io/github/actions/workflow/status/cestef/flow/ci.yml)
 ![GitHub Repo stars](https://img.shields.io/github/stars/cestef/flow?style=social)
-## ⚠️ This project is still in heavy development and is not ready for production use, expect bugs and breaking changes ⚠️
+
+## ⚠️ This project is still in heavy development and is not ready for production use, expect data loss and breaking changes ⚠️
 
 <p align="center">
     <img src="assets/banner_rounded.png" width="auto" height="250px">
@@ -13,7 +14,12 @@
 
 **Collaborate with your teammates and get started on projects right away, in real-time.**
 
-Flow is a web application that allows you to create and share canvases consisting of nodes and groups that can be connected to each other. It is built with [Next.js](https://nextjs.org/), [tRPC](https://trpc.io/), [Prisma](https://prisma.dev), [next-auth](https://next-auth.js.org/) and [react-flow](https://reactflow.dev/)
+Flow is a web application that allows you to create, edit and share flowcharts. It is completely <u>free and open-source</u>. 
+
+You can use it to create flowcharts for your projects, plan your next vacation or even to create a mind map.
+
+**Live demo**: [flow.cstef.dev](https://flow.cstef.dev)
+
 ## Running Locally
 
 ### Prerequisites
@@ -95,3 +101,11 @@ If you need help with anything related to the project, feel free to join the [Di
 ## License
 
 This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/).
+
+## Acknowledgements
+
+- [`Next.js`](https://nextjs.org/) - [React](https://reactjs.org/) framework
+- [`tRPC`](https://trpc.io/) - End-to-end typesafe API client and server
+- [`Prisma`](https://prisma.dev) - Database ORM
+- [`next-auth`](https://next-auth.js.org/) - Authentication
+- [`react-flow`](https://reactflow.dev/) - Node-based graph library
