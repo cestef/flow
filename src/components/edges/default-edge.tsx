@@ -1,5 +1,15 @@
-import { cn, trpc } from "@/lib/utils";
-import { Check, MoreHorizontal, Play, Repeat, Trash } from "lucide-react";
+import { flowSelector } from "@/lib/constants";
+import { useStore } from "@/lib/store";
+import { cn, sanitizeColor, trpc } from "@/lib/utils";
+import {
+	Check,
+	Link,
+	MoreHorizontal,
+	Pipette,
+	Play,
+	Repeat,
+	Trash,
+} from "lucide-react";
 import {
 	BaseEdge,
 	EdgeLabelRenderer,
@@ -13,6 +23,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { GradientPicker } from "../ui/picker";
 
 export default function DefaultEdge({
 	id,
@@ -26,7 +37,13 @@ export default function DefaultEdge({
 	markerEnd,
 	selected,
 	animated,
+	data = {},
+	source,
+	target,
 }: EdgeProps) {
+	const { getNode } = useStore(flowSelector);
+	const sourceNode = getNode(source);
+	const targetNode = getNode(target);
 	const [edgePath, labelX, labelY] = getBezierPath({
 		sourceX,
 		sourceY,
@@ -38,10 +55,23 @@ export default function DefaultEdge({
 
 	const updateEdge = trpc.edges.update.useMutation();
 	const invertEdge = trpc.edges.invert.useMutation();
+	const [editing, setEditing] = useStore((state) => [
+		state.editing,
+		state.setEditing,
+	]);
 
 	return (
 		<>
-			<BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+			<BaseEdge
+				path={edgePath}
+				markerEnd={markerEnd}
+				style={{
+					...style,
+					stroke: data.linkColor
+						? sourceNode?.data.color
+						: editing[id]?.picker?.value ?? data.color,
+				}}
+			/>
 			<EdgeLabelRenderer>
 				<div
 					style={{
@@ -66,6 +96,17 @@ export default function DefaultEdge({
 						<DropdownMenuContent>
 							<DropdownMenuItem
 								onClick={() => {
+									setEditing(id, "picker", {
+										status: true,
+										color: data.color,
+									});
+								}}
+							>
+								<Pipette className="w-4 h-4 mr-2" />
+								Color
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
 									updateEdge.mutate({
 										id,
 										animated: !animated,
@@ -75,6 +116,25 @@ export default function DefaultEdge({
 								<Play className="w-4 h-4 mr-2" />
 								Animate
 								{animated && <Check className="w-4 h-4 ml-auto" />}
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									updateEdge.mutate({
+										id,
+										linkColor: !data.linkColor,
+									});
+								}}
+							>
+								<div className="flex justify-between items-center w-full">
+									<Link className="w-4 h-4 mr-2" />
+									Link Color
+									<Check
+										className={cn("w-4 h-4 ml-2", {
+											"opacity-0": !data.linkColor,
+											"opacity-100": data.linkColor,
+										})}
+									/>
+								</div>
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								onClick={() => {
@@ -92,6 +152,33 @@ export default function DefaultEdge({
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
+					{editing[id]?.picker?.status && (
+						<div className="scale-75 absolute transform left-1/2 top-0 -translate-x-1/2 -z-1">
+							<GradientPicker
+								background={editing[id]?.picker?.value as string}
+								setBackground={(color) => {
+									setEditing(id, "picker", {
+										value: color,
+									});
+								}}
+								onSubmit={() => {
+									setEditing(id, "picker", {
+										status: false,
+									});
+									if (!editing[id]?.picker?.value) return;
+									const sanitized = sanitizeColor(
+										editing[id]?.picker?.value as string,
+									);
+									updateEdge.mutate({
+										id,
+										color: sanitized,
+									});
+								}}
+								gradient={false}
+								className="w-full h-full nodrag"
+							/>
+						</div>
+					)}
 				</div>
 			</EdgeLabelRenderer>
 		</>

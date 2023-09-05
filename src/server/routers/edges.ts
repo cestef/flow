@@ -281,6 +281,8 @@ export const edgesRouter = router({
 				from: z.string().nullish(),
 				to: z.string().nullish(),
 				animated: z.boolean().nullish(),
+				color: z.string().nullish(),
+				linkColor: z.boolean().nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -329,6 +331,8 @@ export const edgesRouter = router({
 						},
 					}),
 					animated: input.animated ?? undefined,
+					color: input.color ?? undefined,
+					linkColor: input.linkColor ?? undefined,
 				},
 			});
 

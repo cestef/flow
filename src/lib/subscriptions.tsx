@@ -1,4 +1,4 @@
-import { formatRemoteNodes, trpc } from "./utils";
+import { formatRemoteEdges, formatRemoteNodes, trpc } from "./utils";
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -156,11 +156,8 @@ export const subscribe = () => {
 			async onData({ edge, userId }) {
 				if (userId === session?.user.id) return;
 				if (edges.find((e) => e.id === edge.id)) return;
-				addEdge({
-					id: edge.id,
-					source: edge.fromId,
-					target: edge.toId,
-				});
+				const [formatted] = formatRemoteEdges([edge]);
+				addEdge(formatted);
 			},
 			onError(err) {
 				console.log(err);
@@ -191,14 +188,8 @@ export const subscribe = () => {
 		{
 			async onData({ edge, userId }) {
 				// if (userId === session?.user.id) return;
-				updateEdge({
-					id: edge.id,
-					animated: edge.animated,
-					source: edge.fromId,
-					target: edge.toId,
-					sourceHandle: edge.fromHandleId,
-					targetHandle: edge.toHandleId,
-				});
+				const [formatted] = formatRemoteEdges([edge]);
+				updateEdge(formatted);
 			},
 			onError(err) {
 				console.log(err);

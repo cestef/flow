@@ -446,6 +446,10 @@ export const formatRemoteEdges = (data: PrismaEdge[]): Edge[] => {
 		animated: edge.animated,
 		sourceHandle: edge.fromHandleId,
 		targetHandle: edge.toHandleId,
+		data: {
+			color: edge.color,
+			linkColor: edge.linkColor,
+		},
 	}));
 };
 
