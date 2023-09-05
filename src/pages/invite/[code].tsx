@@ -43,7 +43,7 @@ export default function Profile({
 
 	if (!invite || status === "loading") {
 		return (
-			<div className="flex justify-center items-center h-screen">
+			<div className="flex justify-center items-center h-[100svh]">
 				<Loader2 className="h-16 w-16 stroke-2 animate-spin" />
 			</div>
 		);
@@ -51,7 +51,7 @@ export default function Profile({
 
 	if (invite.user?.id === session?.user?.id) {
 		return (
-			<div className="flex flex-col items-center justify-center w-screen h-screen shadow-sm px-4">
+			<div className="flex flex-col items-center justify-center w-screen h-[100svh] shadow-sm px-4">
 				<Card className="w-full p-2 md:w-[450px] lg:w-[600px]">
 					<CardHeader>
 						<CardTitle>Wait a second...</CardTitle>
@@ -76,7 +76,7 @@ export default function Profile({
 	}
 
 	return (
-		<div className="flex flex-col items-center justify-center w-screen h-screen shadow-sm px-4">
+		<div className="flex flex-col items-center justify-center w-screen h-[100svh] shadow-sm px-4">
 			<Card className="w-full p-2 md:w-[450px] lg:w-[600px]">
 				<CardHeader>
 					<CardTitle>

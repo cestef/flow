@@ -42,7 +42,7 @@ export default function Login({
 	const error = search.get("error") ?? undefined;
 
 	return (
-		<div className="flex flex-col items-center justify-center w-screen h-screen shadow-sm px-4">
+		<div className="flex flex-col items-center justify-center w-screen h-[100svh] shadow-sm px-4">
 			<Card className="w-full p-2 md:w-[450px] lg:w-[600px]">
 				<CardHeader>
 					<CardTitle className="text-4xl font-bold">Login to Flow</CardTitle>

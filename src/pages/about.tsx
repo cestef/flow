@@ -15,7 +15,7 @@ import React from "react";
 
 const AboutPage = () => {
 	return (
-		<div className="flex flex-col items-center justify-center w-screen h-screen shadow-sm">
+		<div className="flex flex-col items-center justify-center w-screen h-[100svh] shadow-sm">
 			<Card className="w-[750px] p-3 relative animate-in fade-in zoom-in-75 duration-300">
 				<CardHeader>
 					<CardTitle className="text-4xl font-bold">About Flow</CardTitle>
