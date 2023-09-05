@@ -43,7 +43,6 @@ export default function DefaultEdge({
 }: EdgeProps) {
 	const { getNode } = useStore(flowSelector);
 	const sourceNode = getNode(source);
-	const targetNode = getNode(target);
 	const [edgePath, labelX, labelY] = getBezierPath({
 		sourceX,
 		sourceY,
