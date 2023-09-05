@@ -1,5 +1,5 @@
 import { cn, trpc } from "@/lib/utils";
-import { Check, MoreHorizontal, Play, Trash } from "lucide-react";
+import { Check, MoreHorizontal, Play, Repeat, Trash } from "lucide-react";
 import {
 	BaseEdge,
 	EdgeLabelRenderer,
@@ -37,6 +37,7 @@ export default function DefaultEdge({
 	});
 
 	const updateEdge = trpc.edges.update.useMutation();
+	const invertEdge = trpc.edges.invert.useMutation();
 
 	return (
 		<>
@@ -74,6 +75,16 @@ export default function DefaultEdge({
 								<Play className="w-4 h-4 mr-2" />
 								Animate
 								{animated && <Check className="w-4 h-4 ml-auto" />}
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									invertEdge.mutate({
+										id,
+									});
+								}}
+							>
+								<Repeat className="w-4 h-4 mr-2" />
+								Invert
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => {}} className="text-destructive">
 								<Trash className="w-4 h-4 mr-2 text-destructive" />

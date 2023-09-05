@@ -56,6 +56,7 @@ export const subscribe = () => {
 		{
 			async onData(node) {
 				const [formatted] = formatRemoteNodes([node]);
+				console.log("formatted", formatted);
 				updateNode(formatted);
 				updateNodeInternal(node.id);
 			},
@@ -193,6 +194,10 @@ export const subscribe = () => {
 				updateEdge({
 					id: edge.id,
 					animated: edge.animated,
+					source: edge.fromId,
+					target: edge.toId,
+					sourceHandle: edge.fromHandleId,
+					targetHandle: edge.toHandleId,
 				});
 			},
 			onError(err) {

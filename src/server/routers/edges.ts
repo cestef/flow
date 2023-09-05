@@ -5,6 +5,7 @@ import { Edge } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { emitter as nodeEmitter } from "./nodes";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -594,5 +595,124 @@ export const edgesRouter = router({
 			});
 
 			return res;
+		}),
+	invert: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const edge = await prisma.edge.findUnique({
+				where: {
+					id: input.id,
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+					fromHandle: true,
+					toHandle: true,
+				},
+			});
+
+			if (!edge) {
+				throw new Error("Edge not found");
+			}
+
+			if (
+				edge.canvas.owner.id !== ctx.user.id &&
+				!edge.canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to delete edge");
+			}
+
+			// Invert the handles and from/to
+			const res = await prisma.edge.update({
+				where: {
+					id: input.id,
+				},
+				data: {
+					from: {
+						connect: {
+							id: edge.toId,
+						},
+					},
+					to: {
+						connect: {
+							id: edge.fromId,
+						},
+					},
+					fromHandle: {
+						...(edge.toHandleId && {
+							connect: {
+								id: edge.toHandleId,
+							},
+						}),
+					},
+					toHandle: {
+						...(edge.fromHandleId && {
+							connect: {
+								id: edge.fromHandleId,
+							},
+						}),
+					},
+				},
+			});
+			if (edge.fromHandleId && edge.toHandleId) {
+				// Update the handles types
+				const node2 = await prisma.node.update({
+					where: {
+						id: edge.fromId,
+					},
+					data: {
+						handles: {
+							update: {
+								where: {
+									id: edge.fromHandleId,
+								},
+								data: {
+									type: edge.toHandle?.type ?? "default",
+								},
+							},
+						},
+					},
+					include: {
+						handles: true,
+					},
+				});
+
+				const node1 = await prisma.node.update({
+					where: {
+						id: edge.toId,
+					},
+					data: {
+						handles: {
+							update: {
+								where: {
+									id: edge.toHandleId,
+								},
+								data: {
+									type: edge.fromHandle?.type ?? "default",
+								},
+							},
+						},
+					},
+					include: {
+						handles: true,
+					},
+				});
+
+				nodeEmitter(edge.canvas.id).emit("update", node1);
+				nodeEmitter(edge.canvas.id).emit("update", node2);
+			}
+
+			emitter(edge.canvas.id).emit("update", {
+				edge: res,
+				userId: ctx.user.id,
+			});
 		}),
 });
