@@ -220,6 +220,7 @@ export const subscribe = () => {
 							router.push(`/?canvasId=${canvas.id}`);
 							res.dismiss();
 						}}
+						className="mt-2"
 					>
 						View
 					</Button>

@@ -16,6 +16,66 @@ export const emitter = (id: string): EventEmitter => {
 };
 
 export const nodesRouter = router({
+	updateHandle: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				type: z.string().nullish(),
+				position: z.string().nullish(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const handle = await prisma.nodeHandle.findUnique({
+				where: {
+					id: input.id,
+				},
+				include: {
+					node: {
+						include: {
+							canvas: {
+								include: {
+									owner: true,
+									members: true,
+								},
+							},
+						},
+					},
+				},
+			});
+
+			if (!handle) {
+				throw new Error("Handle not found");
+			}
+
+			if (
+				handle.node.canvas.owner.id !== ctx.user.id &&
+				!handle.node.canvas.members.some((member) => member.id === ctx.user.id)
+			) {
+				throw new Error("User is not allowed to update handle");
+			}
+
+			const res = await prisma.nodeHandle.update({
+				where: {
+					id: input.id,
+				},
+				data: {
+					type: input.type ?? undefined,
+					position: input.position ?? undefined,
+				},
+				include: {
+					node: {
+						include: {
+							handles: true,
+						},
+					},
+				},
+			});
+
+			emitter(handle.node.canvas.id).emit("update", res.node);
+
+			return res;
+		}),
+
 	list: protectedProcedure
 		.input(
 			z.object({

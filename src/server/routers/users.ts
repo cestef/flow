@@ -47,7 +47,7 @@ export const usersRouter = router({
 			if (!input.emailOrName && !input.id) {
 				throw new Error("Must provide emailOrName or id");
 			}
-			const user = await prisma.user.findMany({
+			const users = await prisma.user.findMany({
 				where: {
 					OR: [
 						{ email: input.emailOrName },
@@ -65,11 +65,11 @@ export const usersRouter = router({
 				},
 			});
 
-			if (!user) {
-				throw new Error("User not found");
+			if (!users) {
+				throw new Error("Users not found");
 			}
 
-			return user;
+			return users.filter((user) => user.id !== ctx.user?.id);
 		}),
 
 	me: protectedProcedure.query(async ({ ctx }) => {

@@ -34,6 +34,7 @@ import {
 	Paintbrush,
 	Pipette,
 	Plus,
+	Repeat,
 	Ruler,
 	Square,
 	Star,
@@ -107,6 +108,7 @@ function DefaultNode({
 	const parent = findNode((n) => n.id === getNode(id)?.parentNode);
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const updateNode = trpc.nodes.update.useMutation();
+	const updateHandle = trpc.nodes.updateHandle.useMutation();
 	const duplicateNode = trpc.nodes.duplicate.useMutation();
 	const createComment = trpc.comments.add.useMutation();
 
@@ -279,19 +281,37 @@ function DefaultNode({
 								);
 								if (handle)
 									return (
-										<Handle
-											type={
-												(data.handles.find((h) => h.position === position)
-													?.type ?? "target") as HandleType
-											}
-											position={position}
-											key={position}
-											className={cn({
-												"bg-primary": handle.type === "source",
-												"bg-accent": handle.type === "target",
-											})}
-											id={handle.id}
-										/>
+										<ContextMenu>
+											<ContextMenuTrigger>
+												<Handle
+													type={
+														(data.handles.find((h) => h.position === position)
+															?.type ?? "target") as HandleType
+													}
+													position={position}
+													key={position}
+													className={cn({
+														"bg-primary": handle.type === "source",
+														"bg-accent": handle.type === "target",
+													})}
+													id={handle.id}
+												/>
+											</ContextMenuTrigger>
+											<ContextMenuContent>
+												<ContextMenuItem
+													onClick={() => {
+														updateHandle.mutate({
+															id: handle.id,
+															type:
+																handle.type === "source" ? "target" : "source",
+														});
+													}}
+												>
+													<Repeat className="w-4 h-4 mr-2" />
+													Toggle type
+												</ContextMenuItem>
+											</ContextMenuContent>
+										</ContextMenu>
 									);
 								else if (selected)
 									return (
