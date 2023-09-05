@@ -308,6 +308,10 @@ export const nodesRouter = router({
 					},
 					preset: input.preset ?? false,
 				},
+
+				include: {
+					handles: true,
+				},
 			});
 
 			emitter(input.canvasId).emit("add", node);
