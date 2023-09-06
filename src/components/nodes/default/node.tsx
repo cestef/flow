@@ -107,7 +107,7 @@ function DefaultNode({
 		{ id: data.draggedBy },
 		{ enabled: !!data.draggedBy },
 	);
-	const canvasId = useStore((state) => state.currentCanvasId);
+	const isMobile = useStore((state) => state.isMobile);
 	const comments = useStore((state) =>
 		state.comments.filter((c) => c.nodeId === id),
 	);
@@ -409,12 +409,13 @@ function DefaultNode({
 											variant="dotted"
 											key={position}
 											className={cn(
-												"border absolute nodrag opacity-0 hover:opacity-100 transition-opacity",
+												"border absolute nodrag transition-opacity",
 												{
 													"-top-8": position === Position.Top,
 													"-left-8": position === Position.Left,
 													"-right-8": position === Position.Right,
 													"-bottom-8": position === Position.Bottom,
+													"opacity-0 hover:opacity-100": !isMobile,
 												},
 											)}
 											onClick={() => {
@@ -429,6 +430,19 @@ function DefaultNode({
 												});
 											}}
 											onContextMenu={(e) => {
+												e.stopPropagation();
+												e.preventDefault();
+												updateNode.mutate({
+													id,
+													handles: [
+														{
+															position,
+															type: "source",
+														},
+													],
+												});
+											}}
+											onDoubleClick={(e) => {
 												e.stopPropagation();
 												e.preventDefault();
 												updateNode.mutate({
