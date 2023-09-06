@@ -47,16 +47,18 @@ export const registerHooks = () => {
 	}, [remoteComments.data]);
 
 	useEffect(() => {
-		if (
-			(!canvasId &&
-				session?.user.id &&
-				!remoteNodes.isFetching &&
-				(!remoteNodes.data || remoteNodes.data?.length === 0)) ||
-			canvasId === "welcome"
-		) {
+		console.log("canvasId", canvasId);
+		console.log("remoteNodes.data", remoteNodes.data);
+		console.log("remoteNodes.fetchStatus", remoteNodes.fetchStatus);
+		if (canvasId === "welcome") {
 			console.log("welcomeNodes", welcomeNodes);
 			setNodes(welcomeNodes);
-		} else if (remoteNodes.data) {
+			window.requestAnimationFrame(() => {
+				window.requestAnimationFrame(() => {
+					fitView();
+				});
+			});
+		} else if (remoteNodes.data && canvasId) {
 			console.log("remoteNodes.data", remoteNodes.data);
 			const formattedNodes = formatRemoteNodes(remoteNodes.data, true);
 			console.log("formattedNodes", formattedNodes);
@@ -67,10 +69,10 @@ export const registerHooks = () => {
 		) {
 			setNodes(loginNodes);
 		}
-	}, [remoteNodes.data, remoteNodes.isLoading, canvasId]);
+	}, [remoteNodes.data, remoteNodes.isFetched, canvasId]);
 
 	useEffect(() => {
-		if ((!canvasId && session?.user.id) || canvasId === "welcome") {
+		if (canvasId === "welcome") {
 			// console.log("welcomeEdges", welcomeEdges);
 			setEdges(welcomeEdges);
 		} else if (remoteEdges.data) {

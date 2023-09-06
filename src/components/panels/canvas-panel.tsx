@@ -19,6 +19,7 @@ import {
 } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef } from "react";
+import { useReactFlow } from "reactflow";
 import { z } from "zod";
 import ComboBox from "../combobox";
 import { Button } from "../ui/button";
@@ -70,6 +71,8 @@ export default function CanvasPanel() {
 	useEffect(() => {
 		if (canvases.data && !currentCanvasId && canvases.data.length > 0) {
 			setCurrentCanvasId(canvases.data[0].id);
+		} else if (canvases.data?.length === 0) {
+			setCurrentCanvasId("welcome");
 		}
 	}, [canvases.data, currentCanvasId]);
 	const togglePanel = useStore((state) => state.toggleCanvasPanel);
@@ -79,6 +82,7 @@ export default function CanvasPanel() {
 	const panelHidden = useStore((state) => state.canvasPanelHidden);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { toast } = useToast();
+	const { fitView } = useReactFlow();
 	return (
 		<div className="relative">
 			{modal}
@@ -135,6 +139,11 @@ export default function CanvasPanel() {
 									onSelect={(e) => {
 										// console.log(e);
 										setCurrentCanvasId(e);
+										window.requestAnimationFrame(() => {
+											window.requestAnimationFrame(() => {
+												fitView();
+											});
+										});
 										toggleChooseCanvas(false);
 									}}
 									onRemove={async (e) => {
