@@ -19,6 +19,7 @@ import { cn, sanitizeColor, trpc } from "@/lib/utils";
 import { Check } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useNodeId } from "reactflow";
+import useFitText from "use-fit-text";
 
 export const fonts = top250;
 
@@ -26,6 +27,7 @@ export default function NodeEditor({
 	label,
 	color,
 	fontSize,
+	fontSizeAuto,
 	fontWeight,
 	fontFamily,
 	verticalAlign,
@@ -34,6 +36,7 @@ export default function NodeEditor({
 	label: string;
 	color: string;
 	fontSize: number;
+	fontSizeAuto: boolean;
 	fontWeight: string;
 	fontFamily: string;
 	verticalAlign: string;
@@ -44,18 +47,23 @@ export default function NodeEditor({
 	const setEditing = useStore((state) => state.setEditing);
 	const { findAndUpdateNode } = useStore(flowSelector);
 	const MupdateNode = trpc.nodes.update.useMutation();
+	const { ref, fontSize: autoFontSize } = useFitText({
+		minFontSize: 0.1,
+	});
 	const id = useNodeId();
 
 	if (!id) {
 		return null;
 	}
 
+	const fontSizeComputed = editing[id]?.font?.size ?? fontSize ?? 16;
+
 	return (
 		<div className="flex flex-col items-center w-full h-full">
 			<div
 				style={{
 					color: editing[id]?.font?.color ?? color,
-					fontSize: editing[id]?.font?.size ?? fontSize ?? 16,
+					fontSize: fontSizeComputed,
 					fontWeight: editing[id]?.font?.weight ?? fontWeight,
 					fontFamily: editing[id]?.font?.family ?? fontFamily,
 					justifyContent: verticalAlign ?? "center",
@@ -136,8 +144,10 @@ export default function NodeEditor({
 					<p
 						style={{
 							wordBreak: "break-word",
+							fontSize: fontSizeAuto ? autoFontSize : undefined,
 						}}
-						className="text-center"
+						className="text-center w-full h-full"
+						ref={ref}
 					>
 						{label}
 					</p>

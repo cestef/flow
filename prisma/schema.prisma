@@ -99,6 +99,7 @@ model Node {
     color           String?
     fontColor       String?
     fontSize        Float?
+    fontSizeAuto    Boolean?     @default(false)
     fontWeight      String?
     fontFamily      String?
     borderRadius    Float?

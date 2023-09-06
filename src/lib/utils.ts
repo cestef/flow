@@ -407,6 +407,7 @@ export const formatRemoteNodes = (
 				draggedBy: undefined,
 				fontColor: node.fontColor,
 				fontSize: node.fontSize,
+				fontSizeAuto: node.fontSizeAuto,
 				fontWeight: node.fontWeight,
 				fontFamily: node.fontFamily,
 				borderRadius: node.borderRadius,

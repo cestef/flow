@@ -66,6 +66,7 @@ export default function PresetNode({
 							fontFamily: node.data.fontFamily ?? undefined,
 							fontWeight: node.data.fontWeight ?? undefined,
 							fontSize: node.data.fontSize ?? undefined,
+							fontSizeAuto: node.data.fontSizeAuto ?? undefined,
 							handles: node.data.handles ?? undefined,
 							width: (node.style?.width as number) ?? undefined,
 							height: (node.style?.height as number) ?? undefined,

@@ -27,7 +27,9 @@ import {
 	Bold,
 	Brush,
 	CaseSensitive,
+	Check,
 	Copy,
+	Expand,
 	MessageSquare,
 	Move,
 	MoveDown,
@@ -41,6 +43,7 @@ import {
 	Plus,
 	Repeat,
 	Ruler,
+	Shrink,
 	Square,
 	Star,
 	Text,
@@ -86,6 +89,7 @@ function DefaultNode({
 		color: string;
 		fontColor: string;
 		fontSize: number;
+		fontSizeAuto: boolean;
 		fontWeight: string;
 		fontFamily: string;
 		borderRadius: number;
@@ -276,10 +280,12 @@ function DefaultNode({
 						color={data.fontColor}
 						fontFamily={data.fontFamily}
 						fontSize={data.fontSize}
+						fontSizeAuto={data.fontSizeAuto}
 						fontWeight={data.fontWeight}
 						verticalAlign={data.verticalAlign}
 						horizontalAlign={data.horizontalAlign}
 					/>
+
 					{data.handles &&
 						[Position.Left, Position.Right, Position.Bottom, Position.Top].map(
 							(position) => {
@@ -678,6 +684,23 @@ function DefaultNode({
 						>
 							<Ruler className="w-4 h-4 mr-2" />
 							Size
+						</ContextMenuItem>
+						<ContextMenuItem
+							onClick={(e) => {
+								updateNode.mutate({
+									id,
+									fontSizeAuto: !data.fontSizeAuto,
+								});
+							}}
+						>
+							<Shrink className="w-4 h-4 mr-2" />
+							Fit
+							<Check
+								className={cn("w-4 h-4 ml-auto", {
+									"opacity-0": !data.fontSizeAuto,
+									"opacity-100": data.fontSizeAuto,
+								})}
+							/>
 						</ContextMenuItem>
 						<ContextMenuItem
 							onClick={() =>
