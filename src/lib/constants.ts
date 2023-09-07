@@ -52,3 +52,8 @@ export const flowSelector = (state: StoreState) => ({
 });
 
 export const DRAG_THRESHOLD = 100;
+
+export const DEEFAULT_NODE_DIMENSIONS = {
+	width: 100,
+	height: 50,
+};

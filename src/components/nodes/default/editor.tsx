@@ -146,7 +146,9 @@ export default function NodeEditor({
 							wordBreak: "break-word",
 							fontSize: fontSizeAuto ? autoFontSize : undefined,
 						}}
-						className="text-center w-full h-full"
+						className={cn("text-center", {
+							"w-full h-full": fontSizeAuto,
+						})}
 						ref={ref}
 					>
 						{label}

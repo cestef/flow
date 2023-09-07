@@ -4,9 +4,18 @@ import {
 	Node,
 	NodeChange,
 	NodePositionChange,
+	OnConnectStartParams,
 	useKeyPress,
+	useReactFlow,
+	useStore as useStoreFlow,
 } from "reactflow";
-import { EDGES_TYPES, UPDATE_THROTTLE, flowSelector } from "./constants";
+import {
+	DEEFAULT_NODE_DIMENSIONS,
+	EDGES_TYPES,
+	NODES_TYPES,
+	UPDATE_THROTTLE,
+	flowSelector,
+} from "./constants";
 import {
 	getHelperLines,
 	isNodeInGroupBounds,
@@ -15,11 +24,13 @@ import {
 } from "./utils";
 
 import { useSession } from "next-auth/react";
-import { useCallback } from "react";
+import { RefObject, useCallback, useRef } from "react";
 import { throttle } from "throttle-debounce";
 import { useStore } from "./store";
 
-export const registerCallbacks = () => {
+export const registerCallbacks = (
+	reactFlowWrapper: RefObject<HTMLDivElement>,
+) => {
 	const {
 		nodes,
 		findAndUpdateNode,
@@ -29,6 +40,7 @@ export const registerCallbacks = () => {
 		onNodesChange,
 		onConnect,
 	} = useStore(flowSelector);
+	const currentConnecting = useRef<OnConnectStartParams | null>(null);
 	const canvasId = useStore((state) => state.currentCanvasId);
 	const [shouldEmit, setShouldEmit] = useStore((state) => [
 		state.shouldEmit,
@@ -58,6 +70,35 @@ export const registerCallbacks = () => {
 			});
 		},
 	});
+	const addNode = trpc.nodes.add.useMutation({
+		onSuccess: (data) => {
+			if (currentConnecting.current) {
+				const shouldCreateTarget =
+					currentConnecting.current.handleType === "source";
+				const fromHandle = shouldCreateTarget
+					? currentConnecting.current.handleId!
+					: data.handles[0].id;
+				const toHandle = shouldCreateTarget
+					? data.handles[0].id
+					: currentConnecting.current.handleId!;
+				const from = shouldCreateTarget
+					? currentConnecting.current.nodeId!
+					: data.id;
+				const to = shouldCreateTarget
+					? data.id
+					: currentConnecting.current.nodeId!;
+				MaddEdge.mutate({
+					canvasId,
+					from,
+					to,
+					fromHandle,
+					toHandle,
+					type: EDGES_TYPES.DEFAULT,
+				});
+				currentConnecting.current = null;
+			}
+		},
+	});
 	const dragUpdateNode = trpc.nodes.dragUpdate.useMutation();
 	const dragEndNode = trpc.nodes.dragEnd.useMutation();
 	const deleteNode = trpc.nodes.delete.useMutation();
@@ -80,6 +121,89 @@ export const registerCallbacks = () => {
 			setShouldEmit(should);
 		},
 		[canvasId],
+	);
+	const { project } = useReactFlow();
+	const onConnectStart = useCallback(
+		(
+			event: React.MouseEvent | React.TouchEvent,
+			params: OnConnectStartParams,
+		) => {
+			console.log("onConnectStart", params);
+			currentConnecting.current = params;
+		},
+		[],
+	);
+
+	const onConnectEnd = useCallback(
+		(event: MouseEvent | TouchEvent) => {
+			const targetIsPane = (event.target as any)?.classList.contains(
+				"react-flow__pane",
+			);
+
+			if (targetIsPane && reactFlowWrapper.current) {
+				const sourceHandles = useStore
+					.getState()
+					.getNode(currentConnecting.current?.nodeId!)?.data.handles;
+				const handle = sourceHandles?.find(
+					(h: any) => h.id === currentConnecting.current?.handleId,
+				);
+				console.log("handle", handle);
+				let handlePosition = "top";
+				switch (handle?.position) {
+					case "top":
+						handlePosition = "bottom";
+						break;
+					case "bottom":
+						handlePosition = "top";
+						break;
+					case "left":
+						handlePosition = "right";
+						break;
+					case "right":
+						handlePosition = "left";
+						break;
+				}
+
+				const handleOffset = { x: 0, y: 0 };
+				switch (handlePosition) {
+					case "top":
+						handleOffset.x = -DEEFAULT_NODE_DIMENSIONS.width;
+						break;
+					case "bottom":
+						handleOffset.x = -DEEFAULT_NODE_DIMENSIONS.width;
+						handleOffset.y = -DEEFAULT_NODE_DIMENSIONS.height * 2;
+						break;
+					case "left":
+						handleOffset.y = -DEEFAULT_NODE_DIMENSIONS.height;
+						break;
+					case "right":
+						handleOffset.y = -DEEFAULT_NODE_DIMENSIONS.height;
+						handleOffset.x = -DEEFAULT_NODE_DIMENSIONS.width * 2;
+						break;
+				}
+				const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
+
+				const position = project({
+					x: (event as any).clientX - left + handleOffset.x,
+					y: (event as any).clientY - top + handleOffset.y,
+				});
+				if (session?.user?.id)
+					addNode.mutate({
+						canvasId,
+						type: NODES_TYPES.DEFAULT,
+						name: "Node",
+						x: position.x,
+						y: position.y,
+						handles: [
+							{
+								position: handlePosition,
+								type: handle?.type === "source" ? "target" : "source",
+							},
+						],
+					});
+			}
+		},
+		[project, canvasId],
 	);
 
 	const onNodeDragStop = useCallback<
@@ -260,5 +384,7 @@ export const registerCallbacks = () => {
 		onNodesChange: onNodesChangeProxy,
 		onNodeDrag,
 		onConnect: onConnectProxy,
+		onConnectEnd,
+		onConnectStart,
 	};
 };

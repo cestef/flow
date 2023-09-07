@@ -71,7 +71,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { flowSelector } from "@/lib/constants";
+import { DEEFAULT_NODE_DIMENSIONS, flowSelector } from "@/lib/constants";
 import { useStore } from "@/lib/store";
 import { NodeHandle } from "@prisma/client";
 import { memo, useEffect } from "react";
@@ -156,8 +156,8 @@ function DefaultNode({
 						!editing[id]?.comment?.status &&
 						!editing[id]?.border?.status
 					}
-					minWidth={100}
-					minHeight={50}
+					minWidth={DEEFAULT_NODE_DIMENSIONS.width}
+					minHeight={DEEFAULT_NODE_DIMENSIONS.height}
 					onResizeEnd={(event, params) => {
 						const { width, height, x, y } = params;
 						if (!id) return;
@@ -175,7 +175,7 @@ function DefaultNode({
 				<BorderResizer visible={selected} />
 				<div
 					className={cn(
-						"px-4 py-2 min-w-[100px] min-h-[50px]",
+						`px-4 py-2 min-w-[${DEEFAULT_NODE_DIMENSIONS.width}px] min-h-[${DEEFAULT_NODE_DIMENSIONS.height}px]`,
 						"flex flex-col justify-center relative items-center h-full w-full transition-none",
 						!data.borderColor && "outline-stone-400",
 						!data.borderWidth && "outline-2",
@@ -294,7 +294,7 @@ function DefaultNode({
 								);
 								if (handle)
 									return (
-										<ContextMenu>
+										<ContextMenu key={position}>
 											<ContextMenuTrigger>
 												<Handle
 													type={

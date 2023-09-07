@@ -35,12 +35,14 @@ const Flow = ({
 
 	const {
 		onConnect,
+		onConnectStart,
+		onConnectEnd,
 		onEdgesChange,
+		onNodesChange,
 		onNodeDrag,
 		onNodeDragStart,
 		onNodeDragStop,
-		onNodesChange,
-	} = registerCallbacks();
+	} = registerCallbacks(reactFlowWrapper);
 	if (session?.user?.id) subscribe();
 
 	return (
@@ -74,6 +76,8 @@ const Flow = ({
 					onNodeDrag={onNodeDrag}
 					onEdgesChange={onEdgesChange}
 					onConnect={onConnect}
+					onConnectEnd={onConnectEnd}
+					onConnectStart={onConnectStart}
 					snapToGrid={shiftDown}
 					nodeTypes={nodeTypes}
 					edgeTypes={edgeTypes}
