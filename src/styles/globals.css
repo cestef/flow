@@ -86,3 +86,9 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+& .emoji {
+	width: 1.5em;
+	height: 1.5em;
+	/* vertical-align: -0.25em; */
+}

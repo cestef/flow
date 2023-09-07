@@ -75,6 +75,7 @@
 		"tailwindcss": "3.3.3",
 		"tailwindcss-animate": "^1.0.6",
 		"throttle-debounce": "^5.0.0",
+		"twemoji": "^14.0.2",
 		"use-debounce": "^9.0.4",
 		"use-fit-text": "^2.4.0",
 		"use-undoable": "^3.3.12",
