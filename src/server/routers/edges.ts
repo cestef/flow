@@ -198,7 +198,7 @@ export const edgesRouter = router({
 								id: input.canvasId,
 							},
 						},
-						name: input.name ?? undefined,
+						name: edge.name ?? undefined,
 						type: edge.type,
 						animated: edge.animated,
 						...(edge.fromHandle && {
