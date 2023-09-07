@@ -8,12 +8,14 @@ import {
 	Pipette,
 	Play,
 	Repeat,
+	TextCursor,
 	Trash,
 } from "lucide-react";
 import {
 	BaseEdge,
 	EdgeLabelRenderer,
 	EdgeProps,
+	MarkerType,
 	getBezierPath,
 } from "reactflow";
 import { Button } from "../ui/button";
@@ -63,7 +65,7 @@ export default function DefaultEdge({
 		<>
 			<BaseEdge
 				path={edgePath}
-				markerEnd={markerEnd}
+				markerEnd={MarkerType.Arrow}
 				style={{
 					...style,
 					stroke:
@@ -76,6 +78,31 @@ export default function DefaultEdge({
 				}}
 			/>
 			<EdgeLabelRenderer>
+				{data.label && (
+					<div
+						style={{
+							position: "absolute",
+							transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+							fontSize: 12,
+							// everything inside EdgeLabelRenderer has no pointer events by default
+							// if you have an interactive element, set pointer-events: all
+							pointerEvents: "all",
+						}}
+						className={cn(
+							"opacity-100 transition-opacity duration-200 bg-accent p-1 rounded-md",
+							selected && "opacity-0",
+						)}
+					>
+						<p
+							className={cn(
+								"text-xs text-center opacity-100",
+								selected && "opacity-0",
+							)}
+						>
+							{data.label}
+						</p>
+					</div>
+				)}
 				<div
 					style={{
 						position: "absolute",
@@ -86,7 +113,7 @@ export default function DefaultEdge({
 						pointerEvents: "all",
 					}}
 					className={cn(
-						"opacity-0 transition-opacity duration-200",
+						"opacity-0 transition-opacity duration-200 z-10",
 						selected && "opacity-100",
 					)}
 				>
@@ -97,6 +124,17 @@ export default function DefaultEdge({
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
+							<DropdownMenuItem
+								onClick={() => {
+									setEditing(id, "name", {
+										status: true,
+										value: data.label,
+									});
+								}}
+							>
+								<TextCursor className="w-4 h-4 mr-2" />
+								Label
+							</DropdownMenuItem>
 							<DropdownMenuItem
 								onClick={() => {
 									setEditing(id, "picker", {
@@ -179,6 +217,43 @@ export default function DefaultEdge({
 								}}
 								gradient={false}
 								className="w-full h-full nodrag"
+							/>
+						</div>
+					)}
+					{editing[id]?.name?.status && (
+						<div
+							className={cn(
+								"bg-accent p-1 rounded-md bsolute transform left-1/2 top-0 -translate-x-1/2",
+							)}
+						>
+							<textarea
+								className="bg-transparent text-xs resize-none outline-none z-50 self-center"
+								value={editing[id]?.name?.value}
+								onChange={(e) => {
+									setEditing(id, "name", {
+										value: e.target.value,
+									});
+								}}
+								onBlur={() => {
+									setEditing(id, "name", {
+										status: false,
+									});
+									updateEdge.mutate({
+										id,
+										name: editing[id]?.name?.value,
+									});
+								}}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" && !e.shiftKey) {
+										setEditing(id, "name", {
+											status: false,
+										});
+										updateEdge.mutate({
+											id,
+											name: editing[id]?.name?.value,
+										});
+									}
+								}}
 							/>
 						</div>
 					)}

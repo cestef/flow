@@ -450,6 +450,7 @@ export const formatRemoteEdges = (data: PrismaEdge[]): Edge[] => {
 		data: {
 			color: edge.color,
 			linkColor: edge.linkColor,
+			label: edge.name,
 		},
 	}));
 };
@@ -484,6 +485,9 @@ export const formatLocalEdges = (data: Edge[]) => {
 	return data.map((edge) => ({
 		id: edge.id,
 		type: edge.type!,
+		name: edge.data.label,
+		linkColor: edge.data.linkColor,
+		color: edge.data.color,
 		animated: edge.animated || false,
 		from: edge.source,
 		to: edge.target,

@@ -149,6 +149,7 @@ model Edge {
     updatedAt    DateTime    @updatedAt
     color        String?
     linkColor    Boolean     @default(false)
+    name         String?
 }
 
 model Comment {

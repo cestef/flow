@@ -60,6 +60,7 @@ export const edgesRouter = router({
 				type: z.string(),
 				fromHandle: z.string().nullish(),
 				toHandle: z.string().nullish(),
+				name: z.string().nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -104,6 +105,7 @@ export const edgesRouter = router({
 					},
 					id: input.id ?? undefined,
 					type: input.type,
+					name: input.name ?? undefined,
 					// fromHandle: {
 					// 	connect: {
 					// 		id: input.fromHandle,
@@ -150,6 +152,7 @@ export const edgesRouter = router({
 						animated: z.boolean().default(false),
 						fromHandle: z.string().nullish(),
 						toHandle: z.string().nullish(),
+						name: z.string().nullish(),
 					}),
 				),
 			}),
@@ -195,6 +198,7 @@ export const edgesRouter = router({
 								id: input.canvasId,
 							},
 						},
+						name: input.name ?? undefined,
 						type: edge.type,
 						animated: edge.animated,
 						...(edge.fromHandle && {
@@ -283,6 +287,7 @@ export const edgesRouter = router({
 				animated: z.boolean().nullish(),
 				color: z.string().nullish(),
 				linkColor: z.boolean().nullish(),
+				name: z.string().nullish(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -330,6 +335,7 @@ export const edgesRouter = router({
 							},
 						},
 					}),
+					name: input.name ?? undefined,
 					animated: input.animated ?? undefined,
 					color: input.color ?? undefined,
 					linkColor: input.linkColor ?? undefined,

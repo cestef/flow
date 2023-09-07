@@ -83,6 +83,7 @@ const Flow = ({
 					edgeTypes={edgeTypes}
 					fitView
 					minZoom={0.1}
+					maxZoom={3}
 					proOptions={{
 						hideAttribution: true,
 					}}

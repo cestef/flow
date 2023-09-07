@@ -1,20 +1,15 @@
 import { NODES_TYPES, flowSelector } from "@/lib/constants";
 import { useStore, useTemporalStore } from "@/lib/store";
 import { cn, nodesEqual, orderNodes, trpc } from "@/lib/utils";
-import ELK, { ElkNode, LayoutOptions } from "elkjs/lib/elk.bundled.js";
 import {
 	ClipboardCopy,
 	ClipboardPaste,
-	Download,
 	FileJson2,
 	Image,
 	Maximize,
-	MoveHorizontal,
-	MoveVertical,
 	Settings2,
 } from "lucide-react";
 import {
-	Node,
 	getRectOfNodes,
 	getTransformForBounds,
 	useOnSelectionChange,
@@ -45,8 +40,8 @@ function downloadImage(dataUrl: string) {
 	a.click();
 }
 
-const imageWidth = 1024;
-const imageHeight = 768;
+const imageWidth = 2048;
+const imageHeight = 2048;
 
 export default function ActionsPanel() {
 	const clipboard = useStore((state) => state.clipboard);
@@ -122,8 +117,25 @@ export default function ActionsPanel() {
 				realTheme = "light";
 			}
 		}
+		const viewport = document.querySelector(
+			".react-flow__viewport",
+		) as HTMLElement;
+		if (!viewport) return;
+		const waterMark = document.createElement("div");
 
-		toPng(document.querySelector(".react-flow__viewport") as HTMLElement, {
+		waterMark.style.fontSize = "1rem";
+		waterMark.style.color = realTheme === "dark" ? "#fff" : "#000";
+		waterMark.style.backgroundColor = realTheme === "dark" ? "#000" : "#fff";
+		waterMark.style.opacity = "0.5";
+		waterMark.style.zIndex = "9999";
+		waterMark.innerText = "Made with flow.cstef.dev";
+		waterMark.style.textAlign = "end";
+		waterMark.style.width = "fit-content";
+		viewport.appendChild(waterMark);
+		waterMark.style.transform = `translate(${
+			nodesBounds.x + nodesBounds.width - waterMark.clientWidth / 2
+		}px, ${nodesBounds.y + nodesBounds.height + waterMark.clientHeight}px)`;
+		toPng(viewport, {
 			backgroundColor: realTheme === "dark" ? "#020817" : "#fff",
 			width: imageWidth,
 			height: imageHeight,
@@ -132,7 +144,11 @@ export default function ActionsPanel() {
 				height: `${imageHeight}px`,
 				transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
 			},
-		}).then(downloadImage);
+		})
+			.then(downloadImage)
+			.finally(() => {
+				viewport.removeChild(waterMark);
+			});
 	}, []);
 	const canvasId = useStore((state) => state.currentCanvasId);
 	const canvas = trpc.canvas.get.useQuery({
