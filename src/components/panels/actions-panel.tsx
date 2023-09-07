@@ -149,7 +149,7 @@ export default function ActionsPanel() {
 			.finally(() => {
 				viewport.removeChild(waterMark);
 			});
-	}, []);
+	}, [theme]);
 	const canvasId = useStore((state) => state.currentCanvasId);
 	const canvas = trpc.canvas.get.useQuery({
 		id: canvasId,
