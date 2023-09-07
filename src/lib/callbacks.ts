@@ -134,13 +134,15 @@ export const registerCallbacks = (
 		[],
 	);
 
+	const connectionStatus = useStoreFlow((state) => state?.connectionStatus);
+
 	const onConnectEnd = useCallback(
 		(event: MouseEvent | TouchEvent) => {
 			const targetIsPane = (event.target as any)?.classList.contains(
 				"react-flow__pane",
 			);
 
-			if (targetIsPane && reactFlowWrapper.current) {
+			if (targetIsPane && reactFlowWrapper.current && !connectionStatus) {
 				const sourceHandles = useStore
 					.getState()
 					.getNode(currentConnecting.current?.nodeId!)?.data.handles;
@@ -205,7 +207,7 @@ export const registerCallbacks = (
 					});
 			}
 		},
-		[project, canvasId],
+		[project, canvasId, connectionStatus],
 	);
 
 	const onNodeDragStop = useCallback<
@@ -366,6 +368,7 @@ export const registerCallbacks = (
 	);
 	const onConnectProxy = useCallback(
 		(params: Connection) => {
+			console.log("onConnectProxy", params);
 			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
 			if (!params.source || !params.target) return;
 			MaddEdge.mutate({

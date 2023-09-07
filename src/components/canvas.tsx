@@ -88,7 +88,6 @@ const Flow = ({
 						hideAttribution: true,
 					}}
 					className="h-full"
-					selectionKeyCode={"Meta"}
 					onInit={setInstance}
 				>
 					<BackgroundStyled />
