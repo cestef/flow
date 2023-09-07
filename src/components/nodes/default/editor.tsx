@@ -138,6 +138,10 @@ export default function NodeEditor({
 								}
 							}}
 							className="w-full resize-none bg-transparent text-center outline-none nodrag"
+							style={{
+								wordBreak: "break-word",
+								fontSize: fontSizeAuto ? autoFontSize : undefined,
+							}}
 						/>
 					</form>
 				) : (

@@ -1053,6 +1053,9 @@ export const nodesRouter = router({
 					},
 					preset: input.preset ?? false,
 				},
+				include: {
+					handles: true,
+				},
 			});
 
 			emitter(node.canvas.id).emit("add", res);
