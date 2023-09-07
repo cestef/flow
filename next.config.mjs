@@ -1,4 +1,5 @@
 import million from "million/compiler";
+import * as pack from "./package.json" assert { type: "json" };
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -8,6 +9,7 @@ const nextConfig = {
 		APP_URL: process.env.APP_URL,
 		WS_URL: process.env.WS_URL,
 		GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID,
+		VERSION: pack.default.version,
 	},
 };
 

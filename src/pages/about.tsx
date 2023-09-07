@@ -20,13 +20,16 @@ import {
 import { cn, getLatestTag, trpc } from "@/lib/utils";
 import { Github, Home } from "lucide-react";
 import { useTheme } from "next-themes";
+import config from "next/config";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import semver from "semver";
 
+const { publicRuntimeConfig } = config();
+const { VERSION } = publicRuntimeConfig;
+
 const AboutPage = () => {
-	const version = trpc.version.useQuery();
 	const [latestTag, setLatestTag] = useState<string | null>(null);
 	useEffect(() => {
 		getLatestTag("cestef/flow").then((tag) => setLatestTag(tag));
@@ -79,11 +82,11 @@ const AboutPage = () => {
 									className={cn("text-2xl text-muted-foreground", {
 										"text-destructive": semver.gt(
 											latestTag?.replace(/^v/, "") || "0.0.0",
-											version.data?.version || "0.0.0",
+											VERSION || "0.0.0",
 										),
 									})}
 								>
-									v{version.data?.version}
+									v{VERSION}
 								</span>
 							</TooltipTrigger>
 							<TooltipContent>
