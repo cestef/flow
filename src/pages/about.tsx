@@ -18,7 +18,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn, getLatestTag, trpc } from "@/lib/utils";
-import { Github } from "lucide-react";
+import { Github, Home } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
@@ -67,7 +67,7 @@ const AboutPage = () => {
 						alt="Flow"
 						width={150}
 						height={150}
-						className="absolute top-4 right-4"
+						className="absolute top-4 right-4 hidden lg:block"
 					/>
 				)}
 				<CardHeader>
@@ -135,14 +135,13 @@ const AboutPage = () => {
 						</Link>
 					</p>
 				</CardContent>
-				<CardFooter className="flex flex-row gap-2 justify-between">
-					{/* <Button size="lg" className="flex-grow">
-						Leave a <Twemoji emoji="⭐" /> on GitHub
-					</Button>
-					<Button size="lg" className="flex-grow">
-						<Link href="/docs">Read the docs</Link>
-						<Twemoji emoji="📖" />
-					</Button> */}
+				<CardFooter className="flex flex-row justify-center">
+					<Link href="/">
+						<Button size="lg" className="w-full lg:w-auto">
+							<Home className="w-6 h-6 mr-2" />
+							Back to Flow
+						</Button>
+					</Link>
 				</CardFooter>
 			</Card>
 			<BackgroundStyled className="-z-10" />
