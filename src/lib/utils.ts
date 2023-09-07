@@ -520,3 +520,9 @@ export const sanitizeColor = (color: string) => {
 	}
 	return color;
 };
+
+export const getLatestTag = async (repo: string) => {
+	const res = await fetch(`https://api.github.com/repos/${repo}/tags`);
+	const tags = await res.json();
+	return tags[0].name;
+};

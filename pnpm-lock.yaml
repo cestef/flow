@@ -152,6 +152,9 @@ dependencies:
   reactflow:
     specifier: ^11.8.1
     version: 11.8.1(@types/react@18.2.20)(react-dom@18.2.0)(react@18.2.0)
+  semver:
+    specifier: ^7.5.4
+    version: 7.5.4
   shallow-equal:
     specifier: ^3.1.0
     version: 3.1.0
@@ -211,6 +214,9 @@ devDependencies:
   '@types/react-dom':
     specifier: 18.2.7
     version: 18.2.7
+  '@types/semver':
+    specifier: ^7.5.1
+    version: 7.5.1
   '@types/throttle-debounce':
     specifier: ^5.0.0
     version: 5.0.0
@@ -3460,6 +3466,10 @@ packages:
   /@types/scheduler@0.16.3:
     resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
 
+  /@types/semver@7.5.1:
+    resolution: {integrity: sha512-cJRQXpObxfNKkFAZbJl2yjWtJCqELQIdShsogr1d2MilP8dKD9TE/nEKHkJgUNHdGKCQaf9HbIynuV2csLGVLg==}
+    dev: true
+
   /@types/stylis@4.2.0:
     resolution: {integrity: sha512-n4sx2bqL0mW1tvDf/loQ+aMX7GQD3lc3fkCMC55VFNDu/vBOabO+LTIeXKM14xK0ppk5TUGcWRjiSpIlUpghKw==}
     dev: false
@@ -5402,7 +5412,6 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
-    dev: true
 
   /sentence-case@3.0.4:
     resolution: {integrity: sha512-8LS0JInaQMCRoQ7YUytAo/xUu5W2XnQxV2HI/6uM6U7CITS1RqPElr30V6uIqyMKM9lJGRVFy5/4CuzcixNYSg==}
