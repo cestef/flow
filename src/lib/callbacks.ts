@@ -194,6 +194,8 @@ export const registerCallbacks = (
 						name: "Node",
 						x: position.x,
 						y: position.y,
+						width: DEEFAULT_NODE_DIMENSIONS.width,
+						height: DEEFAULT_NODE_DIMENSIONS.height,
 						handles: [
 							{
 								position: handlePosition,
