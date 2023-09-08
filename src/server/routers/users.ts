@@ -27,6 +27,30 @@ export const usersRouter = router({
 					email: true,
 					name: true,
 					image: true,
+					createdAt: true,
+					canvases: {
+						select: {
+							id: true,
+							name: true,
+							createdAt: true,
+						},
+						where: {
+							OR: [
+								{
+									members: {
+										some: {
+											id: ctx.user?.id,
+										},
+									},
+								},
+								{
+									owner: {
+										id: ctx.user?.id,
+									},
+								},
+							],
+						},
+					},
 				},
 			});
 

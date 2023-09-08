@@ -6,26 +6,39 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type {
-	GetServerSidePropsContext,
-	InferGetServerSidePropsType,
-} from "next";
 
+import { ModeToggle } from "@/components/mode-toggle";
+import { BackgroundStyled } from "@/components/themed-flow";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import { getServerSession } from "next-auth/next";
+import { trpc } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import Moment from "react-moment";
 
-export default function Profile({
-	user,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Profile({ id }: { id?: string }) {
+	const { data: session, status: sessionStatus } = useSession();
+	const { data: user, status } = trpc.users.get.useQuery({
+		id: id ?? session?.user?.id ?? "",
+	});
+
+	if (status === "loading" || sessionStatus === "loading") {
+		return (
+			<div className="flex flex-col items-center justify-center w-screen h-[100svh]">
+				<Loader2 className="w-12 h-12 animate-spin" />
+			</div>
+		);
+	}
+
 	return (
-		<div className="flex flex-col items-center justify-center w-screen h-[100svh] shadow-sm px-4">
+		<div className="flex flex-col items-center justify-center w-screen h-[100svh] px-4">
+			<ModeToggle className="absolute top-0 left-0 m-6" />
+
 			<Card className="w-full p-2 md:w-[450px] lg:w-[600px] relative">
 				<CardHeader>
 					<CardTitle className="text-4xl font-bold">{user?.name}</CardTitle>
@@ -39,7 +52,7 @@ export default function Profile({
 							<TooltipContent>
 								<p>
 									<Moment
-										format="MMMM Do YYYY, h:mm:ss a"
+										format="MMMM Do YYYY, h:mm A"
 										date={user?.createdAt}
 									/>
 								</p>
@@ -57,46 +70,37 @@ export default function Profile({
 						</AvatarFallback>
 					</Avatar>
 				</CardHeader>
-				<CardContent className="flex flex-col gap-4 justify-center items-center" />
+				<CardContent>
+					<p className="text-2xl font-bold mb-4 text-center text-muted-foreground">
+						Shared with you
+					</p>
+					<div className="flex flex-wrap gap-4 justify-center items-center">
+						{user?.canvases.map((canvas) => (
+							<Link href={`/?canvasId=${canvas.id}`} key={canvas.id}>
+								<div className="bg-card rounded-lg border px-6 py-4 cursor-pointer hover:shadow-md transition-shadow duration-200">
+									<p className="text-xl font-bold">{canvas.name}</p>
+									<Tooltip>
+										<TooltipTrigger>
+											<p className="text-muted-foreground mt-1 text-sm">
+												Created <Moment fromNow date={canvas.createdAt} />
+											</p>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>
+												<Moment
+													format="MMMM Do YYYY, h:mm A"
+													date={canvas.createdAt}
+												/>
+											</p>
+										</TooltipContent>
+									</Tooltip>
+								</div>
+							</Link>
+						))}
+					</div>
+				</CardContent>
 			</Card>
+			<BackgroundStyled className="-z-10" />
 		</div>
 	);
-}
-
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-	const session = await getServerSession(context.req, context.res, authOptions);
-	if (!session) {
-		return { redirect: { destination: "/auth/login" } };
-	}
-	let id = context.params?.id as string;
-	if (!id) {
-		id = session.user.id as string;
-	}
-	const user = await prisma.user.findUnique({
-		where: {
-			id,
-		},
-		select: {
-			id: true,
-			name: true,
-			image: true,
-			canvases: {
-				select: { _count: true },
-			},
-			createdAt: true,
-		},
-	});
-
-	if (!user) {
-		return { notFound: true };
-	}
-
-	return {
-		props: {
-			user: {
-				...user,
-				createdAt: user.createdAt.toISOString(),
-			},
-		},
-	};
 }
