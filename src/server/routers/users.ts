@@ -37,7 +37,10 @@ export const usersRouter = router({
 				throw new Error("User not found");
 			}
 			if (user.settings?.public === false) {
-				throw new Error("User is private");
+				return {
+					id: user.id,
+					name: user.name,
+				};
 			}
 
 			if (user.settings?.canvas_count === false) {

@@ -101,7 +101,15 @@ export const subscribe = () => {
 			canvasId,
 		},
 		{
-			async onData(node) {},
+			async onData({ node, userId }) {
+				if (userId === session?.user.id) return;
+				updateNode({
+					id: node.id,
+					data: {
+						draggedBy: userId,
+					},
+				});
+			},
 			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
 	);
@@ -118,11 +126,6 @@ export const subscribe = () => {
 					position: {
 						x: node.x,
 						y: node.y,
-					},
-					data: {
-						label: node.name,
-						color: node.color,
-						draggedBy: userId,
 					},
 				});
 			},

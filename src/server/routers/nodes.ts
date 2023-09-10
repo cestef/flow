@@ -749,7 +749,10 @@ export const nodesRouter = router({
 				throw new Error("User is not allowed to drag node");
 			}
 
-			emitter(node.canvas.id).emit("dragStart", node);
+			emitter(node.canvas.id).emit("dragStart", {
+				node,
+				userId: ctx.user.id,
+			});
 
 			return node;
 		}),
@@ -760,9 +763,9 @@ export const nodesRouter = router({
 			}),
 		)
 		.subscription(({ ctx, input }) => {
-			return observable<Node>((observer) => {
-				const onDragStart = (node: Node) => {
-					observer.next(node);
+			return observable<{ node: Node; userId: string }>((observer) => {
+				const onDragStart = (event: { node: Node; userId: string }) => {
+					observer.next(event);
 				};
 
 				emitter(input.canvasId).on("dragStart", onDragStart);
@@ -917,28 +920,26 @@ export const nodesRouter = router({
 
 			// console.log(input.changes);
 
-			const updateNodes = input.changes.map((change) =>
-				prisma.node.update({
-					where: {
-						id: change.id,
-					},
-					data: {
-						x: change.x,
-						y: change.y,
-					},
-				}),
-			);
+			// const updateNodes = input.changes.map((change) =>
+			// 	prisma.node.update({
+			// 		where: {
+			// 			id: change.id,
+			// 		},
+			// 		data: {
+			// 			x: change.x,
+			// 			y: change.y,
+			// 		},
+			// 	}),
+			// );
 
-			const res = await prisma.$transaction(updateNodes);
+			// const res = await prisma.$transaction(updateNodes);
 
-			res.forEach((node) => {
-				emitter(node.canvasId).emit("dragUpdate", {
+			input.changes.forEach((node) => {
+				emitter(canvas.id).emit("dragUpdate", {
 					node,
 					userId: ctx.user.id,
 				});
 			});
-
-			return res;
 		}),
 
 	onDragUpdate: protectedProcedure

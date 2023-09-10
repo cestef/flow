@@ -18,7 +18,10 @@ const Flow = ({
 }) => {
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
 	const { data: session } = useSession();
-	const { nodes, edges } = useStore(flowSelector);
+	const { nodes, edges } = useStore((s) => ({
+		nodes: s.nodes,
+		edges: s.edges,
+	}));
 
 	const shiftDown = useKeyPress("Shift");
 

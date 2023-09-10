@@ -101,6 +101,7 @@ export const registerCallbacks = (
 	});
 	const dragUpdateNode = trpc.nodes.dragUpdate.useMutation();
 	const dragEndNode = trpc.nodes.dragEnd.useMutation();
+	const dragStartNode = trpc.nodes.dragStart.useMutation();
 	const deleteNode = trpc.nodes.delete.useMutation();
 	const deleteManyNodes = trpc.nodes.deleteMany.useMutation();
 	const updateManyNodes = trpc.nodes.updateMany.useMutation();
@@ -119,6 +120,11 @@ export const registerCallbacks = (
 				canvasId,
 			});
 			setShouldEmit(should);
+			if (should) {
+				dragStartNode.mutate({
+					id: node.id,
+				});
+			}
 		},
 		[canvasId],
 	);
@@ -364,7 +370,7 @@ export const registerCallbacks = (
 				})),
 			});
 		}),
-		[nodes],
+		[canvasId, shouldEmit, session?.user?.id],
 	);
 	const onConnectProxy = useCallback(
 		(params: Connection) => {
