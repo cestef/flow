@@ -182,7 +182,7 @@ function DefaultNode({
 						!data.color && !editing[id]?.picker?.value && "bg-accent",
 						!data.fontColor &&
 							editing[id]?.font?.status !== "color" &&
-							"text-primary",
+							"text-foreground",
 						user.data && "border-primary",
 					)}
 					id={id}
@@ -303,9 +303,9 @@ function DefaultNode({
 													}
 													position={position}
 													key={position}
-													className={cn("rounded-md border-2 border-primary", {
+													className={cn("rounded-md border-none", {
 														"bg-primary": handle.type === "source",
-														"bg-accent": handle.type === "target",
+														"bg-secondary": handle.type === "target",
 														"w-4 h-2":
 															position === Position.Top ||
 															position === Position.Bottom,

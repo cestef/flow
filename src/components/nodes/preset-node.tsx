@@ -82,7 +82,7 @@ export default function PresetNode({
 							!node.data.borderColor && "outline-stone-400",
 							!node.data.borderWidth && "outline-2",
 							!node.data.color && "bg-accent",
-							!node.data.fontColor && "text-primary",
+							!node.data.fontColor && "text-foreground",
 						)}
 						style={{
 							background: node.data.color ?? undefined,
