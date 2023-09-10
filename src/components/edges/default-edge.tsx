@@ -71,7 +71,7 @@ export default function DefaultEdge({
 					stroke:
 						data.linkColor &&
 						!["url", "gradient", "transparent"].some((s) =>
-							sourceNode?.data.color.includes(s),
+							sourceNode?.data.color?.includes(s),
 						)
 							? sourceNode?.data.color
 							: editing[id]?.picker?.value ?? data.color,
