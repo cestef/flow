@@ -358,11 +358,11 @@ export const registerCallbacks = (
 		[nodes],
 	);
 	const updateNodePositionThrottled = useCallback(
-		throttle(UPDATE_THROTTLE, (changes: NodePositionChange[]) => {
+		throttle(UPDATE_THROTTLE, async (changes: NodePositionChange[]) => {
 			if (!shouldEmit) return;
 			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
 			if (!session?.user?.id) return;
-			dragUpdateNode.mutate({
+			await dragUpdateNode.mutateAsync({
 				changes: changes.map((change) => ({
 					id: change.id,
 					x: change.position!.x,

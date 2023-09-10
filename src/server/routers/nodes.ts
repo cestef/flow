@@ -940,6 +940,8 @@ export const nodesRouter = router({
 					userId: ctx.user.id,
 				});
 			});
+
+			return input.changes;
 		}),
 
 	onDragUpdate: protectedProcedure
