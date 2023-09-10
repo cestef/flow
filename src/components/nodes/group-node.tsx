@@ -57,7 +57,7 @@ const GroupNode = ({
 				<>
 					{user.data && (
 						<Avatar className="absolute -top-4 -right-4 w-8 h-8 border-2 border-primary">
-							<AvatarImage src={user.data?.image ?? undefined} />
+							<AvatarImage src={(user.data as any)?.image ?? undefined} />
 							<AvatarFallback>
 								{user.data?.name?.slice(0, 2).toUpperCase()}
 							</AvatarFallback>

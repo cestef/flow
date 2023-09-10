@@ -37,10 +37,9 @@ export const usersRouter = router({
 				throw new Error("User not found");
 			}
 			if (user.settings?.public === false) {
-				return {
-					id: user.id,
-					name: user.name,
-				};
+				user.canvases = [];
+				user.image = null;
+				user.email = null;
 			}
 
 			if (user.settings?.canvas_count === false) {
