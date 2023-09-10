@@ -22,40 +22,26 @@ export const usersRouter = router({
 				where: {
 					id: input.id,
 				},
-				select: {
-					id: true,
-					email: true,
-					name: true,
-					image: true,
-					createdAt: true,
+				include: {
+					settings: true,
 					canvases: {
 						select: {
 							id: true,
 							name: true,
 							createdAt: true,
 						},
-						where: {
-							OR: [
-								{
-									members: {
-										some: {
-											id: ctx.user?.id,
-										},
-									},
-								},
-								{
-									owner: {
-										id: ctx.user?.id,
-									},
-								},
-							],
-						},
 					},
 				},
 			});
-
 			if (!user) {
 				throw new Error("User not found");
+			}
+			if (user.settings?.public === false) {
+				throw new Error("User is private");
+			}
+
+			if (user.settings?.canvas_count === false) {
+				user.canvases = [];
 			}
 
 			return user;
@@ -110,10 +96,52 @@ export const usersRouter = router({
 			},
 		});
 
+		// Check if settings exist
+		if (!user?.settings) {
+			await prisma.user.update({
+				where: {
+					id: ctx.user?.id,
+				},
+				data: {
+					settings: {
+						create: {},
+					},
+				},
+			});
+		}
+
 		if (!user) {
 			throw new Error("User not found");
 		}
 
 		return user;
 	}),
+	updateSettings: protectedProcedure
+		.input(
+			z.object({
+				settings: z.object({
+					watermark: z.boolean(),
+					public: z.boolean(),
+					canvas_count: z.boolean(),
+				}),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const user = await prisma.user.update({
+				where: {
+					id: ctx.user?.id,
+				},
+				data: {
+					settings: {
+						update: input.settings,
+					},
+				},
+			});
+
+			if (!user) {
+				throw new Error("User not found");
+			}
+
+			return user;
+		}),
 });

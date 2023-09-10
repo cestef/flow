@@ -124,6 +124,7 @@ export const useStore = createWithEqualityFn(
 					edges: [] as Edge[],
 				},
 				settingsOpen: false,
+				userSettingsOpen: false,
 				helperLineVertical: undefined as number | undefined,
 				helperLineHorizontal: undefined as number | undefined,
 				createInvitePanel: {
@@ -139,7 +140,8 @@ export const useStore = createWithEqualityFn(
 				inContextMenu: false,
 			},
 			(set) => ({
-				setCmdk: (cmdk: boolean) => set({ cmdk }),
+				setUserSettingsOpen: (userSettingsOpen: boolean) =>
+					set({ userSettingsOpen }),
 				setCmdkSearch: (cmdkSearch: string) => set({ cmdkSearch }),
 				setDraggingPosition: (id: string, x: number, y: number) => {
 					set((state) => ({

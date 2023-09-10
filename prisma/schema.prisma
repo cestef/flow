@@ -42,20 +42,20 @@ model Session {
 }
 
 model User {
-    id            String         @id @default(cuid())
-    login         String         @unique
+    id            String        @id @default(cuid())
+    login         String        @unique
     name          String?
-    email         String?        @unique
+    email         String?       @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
     canvases      Canvas[]
-    invitedTo     Canvas[]       @relation("InvitedTo")
+    invitedTo     Canvas[]      @relation("InvitedTo")
     invites       Invite[]
-    settings      UserSettings[]
-    createdAt     DateTime       @default(now())
-    updatedAt     DateTime       @updatedAt
+    settings      UserSettings?
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
 
     comments Comment[]
 
@@ -180,9 +180,12 @@ model Invite {
 }
 
 model UserSettings {
-    id        String   @id @default(cuid())
-    userId    String
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id           String   @id @default(cuid())
+    userId       String   @unique
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    watermark    Boolean? @default(true)
+    public       Boolean? @default(true)
+    canvas_count Boolean? @default(true)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
 }

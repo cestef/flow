@@ -1,23 +1,168 @@
+import { LogIn } from "lucide-react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Github, LogIn } from "lucide-react";
-import { signIn, signOut, useSession } from "next-auth/react";
 
-import { Button } from "../ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
+import { Switch } from "../ui/switch";
+
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+} from "@/components/ui/form";
+import { toast } from "@/components/ui/use-toast";
+import { useStore } from "@/lib/store";
+import { trpc } from "@/lib/utils";
+
+const SettingsFormSchema = z.object({
+	watermark: z.boolean(),
+	public: z.boolean(),
+	canvas_count: z.boolean(),
+});
+
+export function SettingsForm() {
+	const user = trpc.users.me.useQuery();
+	const [settingsOpen, setSettingsOpen] = useStore(
+		(s) => [s.userSettingsOpen, s.setUserSettingsOpen] as const,
+	);
+
+	const updateSettings = trpc.users.updateSettings.useMutation();
+	useEffect(() => {
+		form.setValue("watermark", user.data?.settings?.watermark ?? true);
+		form.setValue("public", user.data?.settings?.public ?? true);
+	}, [user.data?.settings]);
+	const form = useForm<z.infer<typeof SettingsFormSchema>>({
+		resolver: zodResolver(SettingsFormSchema),
+		defaultValues: {
+			watermark: true,
+			public: true,
+			canvas_count: true,
+		},
+	});
+
+	async function onSubmit(data: z.infer<typeof SettingsFormSchema>) {
+		await updateSettings.mutateAsync({
+			settings: data,
+		});
+		toast({
+			title: "Settings updated",
+			description: "Your settings have been updated.",
+			duration: 3000,
+		});
+		setSettingsOpen(false);
+	}
+
+	return (
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+				<div>
+					<h3 className="mb-4 text-lg font-medium">Exporting</h3>
+					<div className="space-y-4">
+						<FormField
+							control={form.control}
+							name="watermark"
+							render={({ field }) => (
+								<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+									<div className="space-y-0.5">
+										<FormLabel>Watermark</FormLabel>
+										<FormDescription>
+											Display a watermark on your exported images.
+										</FormDescription>
+									</div>
+									<FormControl>
+										<Switch
+											checked={field.value}
+											onCheckedChange={field.onChange}
+										/>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</div>
+				</div>
+				<div>
+					<h3 className="mb-4 text-lg font-medium">Privacy</h3>
+					<div className="space-y-4">
+						<FormField
+							control={form.control}
+							name="public"
+							render={({ field }) => (
+								<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+									<div className="space-y-0.5">
+										<FormLabel>Public profile</FormLabel>
+										<FormDescription>
+											Your profile will be visible to other users.
+										</FormDescription>
+									</div>
+									<FormControl>
+										<Switch
+											checked={field.value}
+											onCheckedChange={field.onChange}
+										/>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="canvas_count"
+							render={({ field }) => (
+								<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+									<div className="space-y-0.5">
+										<FormLabel>Display canvas count</FormLabel>
+										<FormDescription>
+											Display the number of canvases you have created on your
+											profile.
+										</FormDescription>
+									</div>
+									<FormControl>
+										<Switch
+											checked={field.value && form.watch("public")}
+											onCheckedChange={field.onChange}
+										/>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</div>
+				</div>
+				<Button type="submit">Save</Button>
+			</form>
+		</Form>
+	);
+}
 
 export default function () {
 	const { data: session } = useSession();
 	const router = useRouter();
+	const [settingsOpen, setSettingsOpen] = useStore(
+		(s) => [s.userSettingsOpen, s.setUserSettingsOpen] as const,
+	);
 	return (
 		<>
+			<Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<h1 className="text-2xl font-bold">Settings</h1>
+					</DialogHeader>
+					<SettingsForm />
+				</DialogContent>
+			</Dialog>
 			{session ? (
 				<DropdownMenu>
 					<DropdownMenuTrigger>
@@ -36,7 +181,9 @@ export default function () {
 						>
 							Profile
 						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => {}}>Settings</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+							Settings
+						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => router.push("/about")}>
 							About
 						</DropdownMenuItem>

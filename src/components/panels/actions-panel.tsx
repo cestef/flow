@@ -55,6 +55,7 @@ export default function ActionsPanel() {
 		(state) => state.resetSelectedElements,
 	);
 	const updateManyNodes = trpc.nodes.updateMany.useMutation();
+	const me = trpc.users.me.useQuery();
 	// const updateManyEdges = trpc.edges.updateMany.useMutation();
 	const { theme } = useTheme();
 	const { toast } = useToast();
@@ -121,20 +122,22 @@ export default function ActionsPanel() {
 			".react-flow__viewport",
 		) as HTMLElement;
 		if (!viewport) return;
-		const waterMark = document.createElement("div");
+		let waterMark: HTMLDivElement;
+		if (me.data?.settings?.watermark) {
+			waterMark = document.createElement("div");
 
-		waterMark.style.fontSize = "1rem";
-		waterMark.style.color = realTheme === "dark" ? "#fff" : "#000";
-		waterMark.style.backgroundColor = realTheme === "dark" ? "#000" : "#fff";
-		waterMark.style.opacity = "0.5";
-		waterMark.style.zIndex = "9999";
-		waterMark.innerText = "Made with flow.cstef.dev";
-		waterMark.style.textAlign = "end";
-		waterMark.style.width = "fit-content";
-		viewport.appendChild(waterMark);
-		waterMark.style.transform = `translate(${
-			nodesBounds.x + nodesBounds.width - waterMark.clientWidth / 2
-		}px, ${nodesBounds.y + nodesBounds.height + waterMark.clientHeight}px)`;
+			waterMark.style.fontSize = "1rem";
+			waterMark.style.color = realTheme === "dark" ? "#fff" : "#000";
+			waterMark.style.opacity = "0.5";
+			waterMark.style.zIndex = "9999";
+			waterMark.innerText = "Made with flow.cstef.dev";
+			waterMark.style.textAlign = "end";
+			waterMark.style.width = "fit-content";
+			viewport.appendChild(waterMark);
+			waterMark.style.transform = `translate(${
+				nodesBounds.x + nodesBounds.width - waterMark.clientWidth / 2
+			}px, ${nodesBounds.y + nodesBounds.height + waterMark.clientHeight}px)`;
+		}
 		toPng(viewport, {
 			backgroundColor: realTheme === "dark" ? "#020817" : "#fff",
 			width: imageWidth,
@@ -147,9 +150,9 @@ export default function ActionsPanel() {
 		})
 			.then(downloadImage)
 			.finally(() => {
-				viewport.removeChild(waterMark);
+				if (waterMark) viewport.removeChild(waterMark);
 			});
-	}, [theme]);
+	}, [theme, me]);
 	const canvasId = useStore((state) => state.currentCanvasId);
 	const canvas = trpc.canvas.get.useQuery({
 		id: canvasId,
