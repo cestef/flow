@@ -303,7 +303,7 @@ function DefaultNode({
 													}
 													position={position}
 													key={position}
-													className={cn("rounded-md border-none", {
+													className={cn("rounded-md", {
 														"bg-primary": handle.type === "source",
 														"bg-secondary": handle.type === "target",
 														"w-4 h-2":
