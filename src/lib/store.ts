@@ -142,6 +142,7 @@ export const useStore = createWithEqualityFn(
 			(set) => ({
 				setUserSettingsOpen: (userSettingsOpen: boolean) =>
 					set({ userSettingsOpen }),
+				setCmdk: (cmdk: boolean) => set({ cmdk }),
 				setCmdkSearch: (cmdkSearch: string) => set({ cmdkSearch }),
 				setDraggingPosition: (id: string, x: number, y: number) => {
 					set((state) => ({
