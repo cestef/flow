@@ -145,7 +145,7 @@ export default function MembersPanel() {
 						<p className="text-sm font-semibold mb-2 mt-2">
 							Share this link with your friends:
 						</p>
-						<code className="dark:bg-gray-800 bg-gray-100 px-4 py-2 rounded-md w-fit self-center flex items-center text-base">
+						<code className="bg-accent px-4 py-2 rounded-md w-fit self-center flex items-center text-base">
 							{APP_URL}/invite/
 							{createInviteStatus.showResult}
 							<Button

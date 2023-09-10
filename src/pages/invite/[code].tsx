@@ -88,7 +88,7 @@ export default function Profile({
 									</span>
 								</TooltipTrigger>
 								<TooltipContent
-									className="border-none bg-transparent"
+									className="border-none bg-transparent shadow-none"
 									side="left"
 								>
 									<Avatar>
@@ -104,7 +104,7 @@ export default function Profile({
 						<p className="text-2xl font-bold mt-2">{invite.canvas?.name}</p>
 					</CardTitle>
 					<CardDescription className="text-gray-500 text-lg pt-2">
-						You can accept the invite by clicking the button below.
+						Accepting this invite will give you access to this canvas.
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="flex flex-col gap-4 justify-center items-center" />
@@ -113,25 +113,7 @@ export default function Profile({
 						className="w-full"
 						onClick={() => {
 							if (!session) {
-								const res = toast({
-									title: "Login required",
-									action: (
-										<>
-											<Button
-												className="ml-2"
-												onClick={() => {
-													res.dismiss();
-													router.push(
-														`/auth/login?callbackUrl=${router.asPath}`,
-													);
-												}}
-											>
-												Login
-											</Button>
-										</>
-									),
-								});
-								return;
+								return router.push(`/auth/login?callbackUrl=${router.asPath}`);
 							}
 							redeemInvite.mutate({
 								code: router.query.code as string,
@@ -194,7 +176,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 	return {
 		props: {
-			invite,
+			invite: {
+				...invite,
+				expires: invite.expires?.toISOString() ?? null,
+			},
 		},
 	};
 }
