@@ -11,7 +11,7 @@ import {
 import { NODES_TYPES } from "@/lib/constants";
 import { useStore } from "@/lib/store";
 import useConfirm from "@/lib/useConfirm";
-import { trpc } from "@/lib/utils";
+import { canEdit, trpc } from "@/lib/utils";
 
 export default function CanvasContext({
 	children,
@@ -24,6 +24,7 @@ export default function CanvasContext({
 	const createComment = trpc.comments.add.useMutation();
 	const contextMenuPosition = useStore((state) => state.contextMenuPosition);
 	const canvasId = useStore((state) => state.currentCanvasId);
+	const permission = useStore((state) => state.permission);
 	const inContextMenu = useStore((state) => state.inContextMenu);
 	return (
 		<>
@@ -47,6 +48,7 @@ export default function CanvasContext({
 								height: 50,
 							});
 						}}
+						disabled={!canEdit(permission)}
 					>
 						<Workflow className="mr-2 w-4 h-4" />
 						Node
@@ -64,6 +66,7 @@ export default function CanvasContext({
 								width: 260,
 							});
 						}}
+						disabled={!canEdit(permission)}
 					>
 						<Group className="mr-2 w-4 h-4" />
 						Group
@@ -91,6 +94,7 @@ export default function CanvasContext({
 							clearCanvas.mutate({ id: canvasId });
 						}}
 						className="text-destructive"
+						disabled={!canEdit(permission)}
 					>
 						<Trash className="mr-2 w-4 h-4 text-destructive" />
 						Clear canvas

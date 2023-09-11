@@ -5,6 +5,7 @@ import { Edge } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { canAccessCanvas } from "../utils";
 import { emitter as nodeEmitter } from "./nodes";
 
 const emitters = new Map<string, EventEmitter>();
@@ -40,7 +41,7 @@ export const edgesRouter = router({
 							canvas: {
 								members: {
 									some: {
-										id: ctx.user.id,
+										userId: ctx.user.id,
 									},
 								},
 							},
@@ -79,10 +80,7 @@ export const edgesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to add edge");
 			}
 
@@ -173,10 +171,7 @@ export const edgesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to add edge");
 			}
 
@@ -253,10 +248,7 @@ export const edgesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -309,10 +301,7 @@ export const edgesRouter = router({
 				throw new Error("Edge not found");
 			}
 
-			if (
-				edge.canvas.owner.id !== ctx.user.id &&
-				!edge.canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(edge.canvas, ctx)) {
 				throw new Error("User is not allowed to update edge");
 			}
 
@@ -372,10 +361,7 @@ export const edgesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -422,10 +408,7 @@ export const edgesRouter = router({
 				throw new Error("Edge not found");
 			}
 
-			if (
-				edge.canvas.owner.id !== ctx.user.id &&
-				!edge.canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(edge.canvas, ctx)) {
 				throw new Error("User is not allowed to delete edge");
 			}
 
@@ -465,10 +448,7 @@ export const edgesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -518,10 +498,7 @@ export const edgesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to add edge");
 			}
 
@@ -585,7 +562,7 @@ export const edgesRouter = router({
 			const allowedEdges = edges.filter((edge) => {
 				return (
 					edge.canvas.owner.id === ctx.user.id ||
-					edge.canvas.members.some((member) => member.id === ctx.user.id)
+					edge.canvas.members.some((member) => member.userId === ctx.user.id)
 				);
 			});
 
@@ -633,10 +610,7 @@ export const edgesRouter = router({
 				throw new Error("Edge not found");
 			}
 
-			if (
-				edge.canvas.owner.id !== ctx.user.id &&
-				!edge.canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(edge.canvas, ctx)) {
 				throw new Error("User is not allowed to delete edge");
 			}
 

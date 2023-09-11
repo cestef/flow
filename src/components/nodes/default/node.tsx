@@ -16,7 +16,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn, trpc } from "@/lib/utils";
+import { canEdit, cn, trpc } from "@/lib/utils";
 import {
 	AlignHorizontalJustifyCenter,
 	AlignHorizontalJustifyEnd,
@@ -103,6 +103,7 @@ function DefaultNode({
 		{ enabled: !!data.draggedBy },
 	);
 	const isMobile = useStore((state) => state.isMobile);
+	const permission = useStore((state) => state.permission);
 	const comments = useStore((state) =>
 		state.comments.filter((c) => c.nodeId === id),
 	);
@@ -134,7 +135,7 @@ function DefaultNode({
 
 	return (
 		<ContextMenu onOpenChange={(o) => setInContextMenu(o)}>
-			<ContextMenuTrigger>
+			<ContextMenuTrigger disabled={!canEdit(permission)}>
 				<NodeResizer
 					handleClassName="h-3 w-3 rounded-md bg-primary z-10"
 					color="var(--color-primary)"
@@ -186,6 +187,7 @@ function DefaultNode({
 							editing[id]?.border?.style ?? data.borderStyle ?? "solid",
 					}}
 					onDoubleClick={() => {
+						if (!canEdit(permission)) return;
 						if (
 							Object.keys(editing[id] || {})
 								.map((k) => (editing as any)[id][k].status)

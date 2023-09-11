@@ -107,6 +107,7 @@ export const useStore = createWithEqualityFn(
 				addNewMember: {
 					opened: false,
 					email: "",
+					permission: "view",
 				},
 				chooseCanvas: {
 					opened: false,
@@ -133,13 +134,16 @@ export const useStore = createWithEqualityFn(
 					expires: undefined as Date | undefined,
 					showResult: undefined as string | undefined,
 					copied: false,
+					permission: "view",
 				},
 				shouldEmit: false,
 				editing: {} as Editing,
 				selecting: false,
 				inContextMenu: false,
+				permission: "view",
 			},
 			(set) => ({
+				setPermission: (permission: string) => set({ permission }),
 				setUserSettingsOpen: (userSettingsOpen: boolean) =>
 					set({ userSettingsOpen }),
 				setCmdk: (cmdk: boolean) => set({ cmdk }),
@@ -305,6 +309,11 @@ export const useStore = createWithEqualityFn(
 					set((state) => ({
 						addNewMember: { ...state.addNewMember, email },
 					})),
+				setAddNewMemberPermission: (permission: string) =>
+					set((state) => ({
+						addNewMember: { ...state.addNewMember, permission },
+					})),
+
 				toggleChooseCanvas: (opened?: boolean) =>
 					set((state) => ({
 						chooseCanvas: {
@@ -363,6 +372,11 @@ export const useStore = createWithEqualityFn(
 					set((state) => ({
 						createInvitePanel: { ...state.createInvitePanel, copied },
 					})),
+				setCreateInvitePanelPermission: (permission: string) =>
+					set((state) => ({
+						createInvitePanel: { ...state.createInvitePanel, permission },
+					})),
+
 				setShouldEmit: (shouldEmit: boolean) => set({ shouldEmit }),
 
 				setEditing: (id: string, key: keyof Editing[string], value: any) => {

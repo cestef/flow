@@ -1,7 +1,9 @@
 import { protectedProcedure, router } from "../trpc";
 
+import { createHash, randomBytes } from "crypto";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { canAccessCanvas } from "../utils";
 
 export const invitesRouter = router({
 	create: protectedProcedure
@@ -10,6 +12,7 @@ export const invitesRouter = router({
 				canvasId: z.string(),
 				maxUses: z.number().nullish(),
 				expires: z.date().nullish(),
+				permission: z.enum(["view", "edit"]).default("view"),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -24,7 +27,7 @@ export const invitesRouter = router({
 							id: input.canvasId,
 							members: {
 								some: {
-									id: ctx.user.id,
+									userId: ctx.user.id,
 								},
 							},
 						},
@@ -36,7 +39,7 @@ export const invitesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			const code = generateFancyCode(6);
+			const code = generateCodeCrypto(6);
 
 			const invite = await prisma.invite.create({
 				data: {
@@ -45,6 +48,7 @@ export const invitesRouter = router({
 					expires: input.expires,
 					code: code,
 					userId: ctx.user.id,
+					permission: input.permission,
 				},
 			});
 
@@ -88,10 +92,7 @@ export const invitesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.ownerId === ctx.user.id ||
-				canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (canAccessCanvas(canvas, ctx)) {
 				throw new Error("You are already a member of this canvas");
 			}
 
@@ -110,8 +111,9 @@ export const invitesRouter = router({
 				},
 				data: {
 					members: {
-						connect: {
-							id: ctx.user.id,
+						create: {
+							userId: ctx.user.id,
+							permission: invite.permission,
 						},
 					},
 				},
@@ -120,15 +122,21 @@ export const invitesRouter = router({
 			return canvas;
 		}),
 });
-function generateFancyCode(length: number) {
+function generateCode(length: number) {
 	const characters =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
 	let code = "";
-
 	for (let i = 0; i < length; i++) {
 		const randomIndex = Math.floor(Math.random() * characters.length);
 		code += characters.charAt(randomIndex);
 	}
 
 	return code;
+}
+
+function generateCodeCrypto(length: number) {
+	return createHash("sha256")
+		.update(randomBytes(length))
+		.digest("hex")
+		.slice(0, length);
 }

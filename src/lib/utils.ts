@@ -530,3 +530,7 @@ export const getLatestTag = async (repo: string) => {
 	const tags = await res.json();
 	return tags[0].name;
 };
+
+export const canEdit = (permission: string) => {
+	return permission === "edit";
+};

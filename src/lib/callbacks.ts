@@ -17,6 +17,7 @@ import {
 	flowSelector,
 } from "./constants";
 import {
+	canEdit,
 	getHelperLines,
 	isNodeInGroupBounds,
 	trcpProxyClient,
@@ -42,6 +43,7 @@ export const registerCallbacks = (
 	} = useStore(flowSelector);
 	const currentConnecting = useRef<OnConnectStartParams | null>(null);
 	const canvasId = useStore((state) => state.currentCanvasId);
+	const permission = useStore((state) => state.permission);
 	const [shouldEmit, setShouldEmit] = useStore((state) => [
 		state.shouldEmit,
 		state.setShouldEmit,
@@ -116,6 +118,7 @@ export const registerCallbacks = (
 		async (_, node) => {
 			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
 			if (!session?.user?.id) return;
+			if (!canEdit(permission)) return;
 			const should = await trcpProxyClient.nodes.shouldEmit.query({
 				canvasId,
 			});
@@ -126,7 +129,7 @@ export const registerCallbacks = (
 				});
 			}
 		},
-		[canvasId],
+		[canvasId, session?.user?.id, permission],
 	);
 	const { project } = useReactFlow();
 	const onConnectStart = useCallback(
@@ -135,15 +138,17 @@ export const registerCallbacks = (
 			params: OnConnectStartParams,
 		) => {
 			console.log("onConnectStart", params);
+			if (!canEdit(permission)) return;
 			currentConnecting.current = params;
 		},
-		[],
+		[permission],
 	);
 
 	const connectionStatus = useStoreFlow((state) => state?.connectionStatus);
 
 	const onConnectEnd = useCallback(
 		(event: MouseEvent | TouchEvent) => {
+			if (!canEdit(permission)) return;
 			const targetIsPane = (event.target as any)?.classList.contains(
 				"react-flow__pane",
 			);
@@ -213,13 +218,14 @@ export const registerCallbacks = (
 					});
 			}
 		},
-		[project, canvasId, connectionStatus],
+		[project, canvasId, connectionStatus, permission],
 	);
 
 	const onNodeDragStop = useCallback<
 		(event: React.MouseEvent, node: Node) => void
 	>(
 		(_, node) => {
+			if (!canEdit(permission)) return;
 			findAndUpdateNode(
 				(n) =>
 					!!(
@@ -272,10 +278,11 @@ export const registerCallbacks = (
 					});
 			}
 		},
-		[nodes],
+		[nodes, canvasId, session?.user?.id, permission],
 	);
 
 	const onEdgesChangeProxy = (edgeChanges: EdgeChange[]) => {
+		if (!canEdit(permission)) return;
 		onEdgesChange(edgeChanges);
 		for (const change of edgeChanges) {
 			if (
@@ -290,6 +297,7 @@ export const registerCallbacks = (
 		}
 	};
 	const onNodesChangeProxy = (nodeChanges: NodeChange[]) => {
+		if (!canEdit(permission)) return;
 		setHelperLineHorizontal(undefined);
 		setHelperLineVertical(undefined);
 		if (
@@ -331,6 +339,7 @@ export const registerCallbacks = (
 
 	const onNodeDrag = useCallback<(event: React.MouseEvent, node: Node) => void>(
 		(_, node) => {
+			if (!canEdit(permission)) return;
 			const group = isNodeInGroupBounds(node, nodes);
 			if (group) {
 				findAndUpdateNode(
@@ -355,11 +364,12 @@ export const registerCallbacks = (
 				);
 			}
 		},
-		[nodes],
+		[nodes, permission],
 	);
 	const updateNodePositionThrottled = useCallback(
 		throttle(UPDATE_THROTTLE, async (changes: NodePositionChange[]) => {
 			if (!shouldEmit) return;
+			if (!canEdit(permission)) return;
 			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
 			if (!session?.user?.id) return;
 			await dragUpdateNode.mutateAsync({
@@ -370,10 +380,11 @@ export const registerCallbacks = (
 				})),
 			});
 		}),
-		[canvasId, shouldEmit, session?.user?.id],
+		[canvasId, shouldEmit, session?.user?.id, permission],
 	);
 	const onConnectProxy = useCallback(
 		(params: Connection) => {
+			if (!canEdit(permission)) return;
 			console.log("onConnectProxy", params);
 			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
 			if (!params.source || !params.target) return;
@@ -386,7 +397,7 @@ export const registerCallbacks = (
 				toHandle: params.targetHandle ?? undefined,
 			});
 		},
-		[edges, canvasId],
+		[edges, canvasId, permission],
 	);
 	return {
 		onNodeDragStart,

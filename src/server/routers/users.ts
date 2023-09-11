@@ -98,7 +98,7 @@ export const usersRouter = router({
 			include: {
 				canvases: true,
 				comments: true,
-				invitedTo: true,
+				members: true,
 				invites: true,
 				settings: true,
 			},

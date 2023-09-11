@@ -51,13 +51,13 @@ model User {
     accounts      Account[]
     sessions      Session[]
     canvases      Canvas[]
-    invitedTo     Canvas[]      @relation("InvitedTo")
     invites       Invite[]
     settings      UserSettings?
     createdAt     DateTime      @default(now())
     updatedAt     DateTime      @updatedAt
 
     comments Comment[]
+    members  Member[]
 
     @@map("users")
 }
@@ -76,13 +76,24 @@ model Canvas {
     name      String
     ownerId   String
     owner     User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-    members   User[]    @relation("InvitedTo")
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
     nodes     Node[]    @relation("CanvasNodes")
     edges     Edge[]
     invites   Invite[]
     comments  Comment[]
+    members   Member[]
+}
+
+model Member {
+    id         String   @id @default(cuid())
+    canvasId   String
+    canvas     Canvas   @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+    userId     String
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    permission String   @default("view")
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 }
 
 model Node {
@@ -166,17 +177,18 @@ model Comment {
 }
 
 model Invite {
-    id        String    @id @default(cuid())
-    code      String    @unique
-    canvasId  String
-    canvas    Canvas    @relation(fields: [canvasId], references: [id], onDelete: Cascade)
-    maxUses   Int       @default(1)
-    uses      Int       @default(0)
-    user      User?     @relation(fields: [userId], references: [id])
-    userId    String?
-    expires   DateTime?
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+    id         String    @id @default(cuid())
+    code       String    @unique
+    canvasId   String
+    canvas     Canvas    @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+    maxUses    Int       @default(1)
+    uses       Int       @default(0)
+    user       User?     @relation(fields: [userId], references: [id])
+    userId     String?
+    expires    DateTime?
+    permission String    @default("view")
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
 }
 
 model UserSettings {

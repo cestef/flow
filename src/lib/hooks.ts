@@ -5,7 +5,7 @@ import { formatRemoteEdges, formatRemoteNodes, trpc } from "./utils";
 
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { MarkerType, useReactFlow } from "reactflow";
+import { useReactFlow } from "reactflow";
 import { flowSelector } from "./constants";
 import { useStore } from "./store";
 
@@ -39,6 +39,25 @@ export const registerHooks = () => {
 			enabled: !!session?.user?.id,
 		},
 	);
+
+	const me = trpc.members.me.useQuery(
+		{
+			canvasId,
+		},
+		{
+			enabled: !!session?.user?.id && !!canvasId,
+		},
+	);
+	const [permission, setPermission] = useStore((state) => [
+		state.permission,
+		state.setPermission,
+	]);
+
+	useEffect(() => {
+		if (me.data) {
+			setPermission(me.data.permission);
+		}
+	}, [me.data]);
 
 	useEffect(() => {
 		if (remoteComments.data) {
@@ -98,7 +117,11 @@ export const registerHooks = () => {
 	useEffect(() => {
 		if (canvasId && canvasId !== lastCanvasId.current) {
 			lastCanvasId.current = canvasId;
-			fitView();
+			window.requestAnimationFrame(() => {
+				window.requestAnimationFrame(() => {
+					fitView();
+				});
+			});
 		}
 	}, [canvasId]);
 

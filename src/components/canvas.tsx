@@ -6,6 +6,7 @@ import { registerCallbacks } from "@/lib/callbacks";
 import { registerHooks } from "@/lib/hooks";
 import { useStore } from "@/lib/store";
 import { subscribe } from "@/lib/subscriptions";
+import { canEdit } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useRef } from "react";
 import CanvasContext from "./canvas-context";
@@ -30,6 +31,7 @@ const Flow = ({
 	const setContextMenuPosition = useStore(
 		(state) => state.setContextMenuPosition,
 	);
+	const permission = useStore((state) => state.permission);
 	const helperLineHorizontal = useStore((state) => state.helperLineHorizontal);
 	const helperLineVertical = useStore((state) => state.helperLineVertical);
 	const setInstance = useStore((state) => state.setInstance);
@@ -90,6 +92,7 @@ const Flow = ({
 					proOptions={{
 						hideAttribution: true,
 					}}
+					elementsSelectable={canEdit(permission)}
 					className="h-full"
 					onInit={setInstance}
 				>

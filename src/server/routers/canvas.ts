@@ -84,7 +84,7 @@ export const canvasRouter = router({
 							id: input.id,
 							members: {
 								some: {
-									id: ctx.user.id,
+									userId: ctx.user.id,
 								},
 							},
 						},
@@ -97,9 +97,9 @@ export const canvasRouter = router({
 					edges: true,
 					members: {
 						select: {
+							user: { select: { id: true, name: true, image: true } },
+							permission: true,
 							id: true,
-							name: true,
-							image: true,
 						},
 					},
 					owner: true,
@@ -148,7 +148,7 @@ export const canvasRouter = router({
 					{
 						members: {
 							some: {
-								id: ctx.user.id,
+								userId: ctx.user.id,
 							},
 						},
 					},
@@ -194,7 +194,7 @@ export const canvasRouter = router({
 							id: input.id,
 							members: {
 								some: {
-									id: ctx.user.id,
+									userId: ctx.user.id,
 								},
 							},
 						},
@@ -228,7 +228,7 @@ export const canvasRouter = router({
 			where: {
 				members: {
 					some: {
-						id: ctx.user.id,
+						userId: ctx.user.id,
 					},
 				},
 			},
@@ -267,7 +267,7 @@ export const canvasRouter = router({
 							{
 								members: {
 									some: {
-										id: ctx.user.id,
+										userId: ctx.user.id,
 									},
 								},
 							},

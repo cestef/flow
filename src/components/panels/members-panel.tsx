@@ -1,4 +1,14 @@
-import { ArrowDownRight, Copy, Crown, Plus, Trash2, User } from "lucide-react";
+import {
+	ArrowDownRight,
+	Copy,
+	Crown,
+	Eye,
+	Pencil,
+	Plus,
+	Trash2,
+	User,
+	UserCog,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
@@ -12,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 import { useStore } from "@/lib/store";
 import useConfirm from "@/lib/useConfirm";
-import { cn, trpc } from "@/lib/utils";
+import { canEdit, cn, trpc } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import getConfig from "next/config";
 import { useRouter } from "next/router";
@@ -23,11 +33,23 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../ui/select";
 import { Slider } from "../ui/slider";
 import { useToast } from "../ui/use-toast";
 
@@ -43,6 +65,9 @@ export default function MembersPanel() {
 	const addNewMemberState = useStore((state) => state.addNewMember);
 	const toggleAddNewMember = useStore((state) => state.toggleAddNewMember);
 	const setAddNewMemberEmail = useStore((state) => state.setAddNewMemberEmail);
+	const setAddNewMemberPermission = useStore(
+		(state) => state.setAddNewMemberPermission,
+	);
 	const togglePanel = useStore((state) => state.toggleMembersPanel);
 	const panelHidden = useStore((state) => state.membersPanelHidden);
 	const isMobile = useStore((state) => state.isMobile);
@@ -54,13 +79,16 @@ export default function MembersPanel() {
 		createInviteStatus,
 		setShowResult,
 		setCopied,
+		setPermission,
 	} = useStore((state) => ({
 		setMaxUses: state.setCreateInvitePanelMaxUses,
 		setExpires: state.setCreateInvitePanelExpires,
 		createInviteStatus: state.createInvitePanel,
 		setShowResult: state.setCreateInvitePanelShowResult,
 		setCopied: state.setCreateInvitePanelCopied,
+		setPermission: state.setCreateInvitePanelPermission,
 	}));
+	const permission = useStore((state) => state.permission);
 
 	const [debouncedEmail] = useDebounce(addNewMemberState.email, 500);
 
@@ -85,6 +113,18 @@ export default function MembersPanel() {
 		},
 	});
 	const deleteMember = trpc.members.delete.useMutation({
+		onSuccess() {
+			currentCanvas.refetch();
+		},
+		onError(err) {
+			toast({
+				title: "An error occurred",
+				description: err.message,
+				variant: "destructive",
+			});
+		},
+	});
+	const updateMemberPermissions = trpc.members.updatePermission.useMutation({
 		onSuccess() {
 			currentCanvas.refetch();
 		},
@@ -214,13 +254,19 @@ export default function MembersPanel() {
 					<div className="flex items-center justify-end gap-2">
 						<Dialog
 							open={addNewMemberState.opened}
-							onOpenChange={(e) => toggleAddNewMember(e)}
+							onOpenChange={(e) => {
+								if (!canEdit(permission) && e) return;
+								toggleAddNewMember(e);
+							}}
 						>
-							<DialogTrigger asChild>
+							<DialogTrigger asChild disabled={!canEdit(permission)}>
 								{session && (
 									<Avatar
-										className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
-										onClick={() => toggleAddNewMember(true)}
+										className={cn({
+											"cursor-pointer hover:opacity-80 transition-opacity duration-200":
+												canEdit(permission),
+											"cursor-not-allowed": !canEdit(permission),
+										})}
 									>
 										<AvatarFallback>
 											<Plus className="w-5 h-5" />
@@ -240,7 +286,7 @@ export default function MembersPanel() {
 										</TabsTrigger>
 										<TabsTrigger value="invite">Create an invite</TabsTrigger>
 									</TabsList>
-									<TabsContent value="invite">
+									<TabsContent value="invite" className="p-2 rounded-md">
 										<div className="flex flex-col gap-4 mt-4">
 											<Label htmlFor="uses">
 												Max Uses: {createInviteStatus.maxUses}
@@ -260,6 +306,28 @@ export default function MembersPanel() {
 												setDate={setExpires}
 												buttonClassName="w-full"
 											/>
+											<Select
+												value={createInviteStatus.permission}
+												onValueChange={setPermission}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder="Permission" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="view">
+														<div className="flex items-center">
+															<Eye className="w-4 h-4 mr-2" />
+															View
+														</div>
+													</SelectItem>
+													<SelectItem value="edit">
+														<div className="flex items-center">
+															<Pencil className="w-4 h-4 mr-2" />
+															Edit
+														</div>
+													</SelectItem>
+												</SelectContent>
+											</Select>
 											<Button
 												className="mt-4"
 												onClick={() => {
@@ -274,20 +342,20 @@ export default function MembersPanel() {
 											</Button>
 										</div>
 									</TabsContent>
-									<TabsContent value="search">
+									<TabsContent value="search" className="p-2 rounded-md">
 										<div className="flex flex-col space-y-2">
 											<Label htmlFor="email" className="my-2">
 												Search
 											</Label>
-											<div className="flex w-full items-center space-x-2">
-												<Input
-													type="email"
-													id="email"
-													placeholder="Email or name"
-													value={addNewMemberState.email}
-													onChange={(e) => setAddNewMemberEmail(e.target.value)}
-												/>
-											</div>
+											<Input
+												type="email"
+												id="email"
+												placeholder="Email or name"
+												className="w-full"
+												autoComplete="off"
+												value={addNewMemberState.email}
+												onChange={(e) => setAddNewMemberEmail(e.target.value)}
+											/>
 											{(findUser?.data?.length || 0) > 0 ? (
 												<div className="flex flex-col space-y-2">
 													<p className="text-sm font-semibold mb-2 mt-2">
@@ -305,21 +373,50 @@ export default function MembersPanel() {
 																			{user?.name?.slice(0, 2).toUpperCase()}
 																		</AvatarFallback>
 																	</Avatar>
-																	<div className="flex flex-col">
-																		<p className="text-2xl">
-																			{user.name ?? user.login}
-																		</p>
-																		<p className="text-lg text-muted-foreground">
-																			{user.login}
-																		</p>
+																	<div className="md:flex-row md:space-x-4 flex flex-col space-y-2">
+																		<div className="flex flex-col">
+																			<p className="lg:text-2xl text-xl">
+																				{user.name ?? user.login}
+																			</p>
+																			<p className="hidden md:block text-lg text-muted-foreground">
+																				{user.login}
+																			</p>
+																		</div>
+																		<div className="md:flex-grow" />
+																		<Select
+																			value={addNewMemberState.permission}
+																			onValueChange={setAddNewMemberPermission}
+																		>
+																			<SelectTrigger>
+																				<SelectValue placeholder="Permission" />
+																			</SelectTrigger>
+																			<SelectContent>
+																				<SelectItem value="view">
+																					<div className="flex items-center">
+																						<Eye className="w-4 h-4 mr-2" />
+																						View
+																					</div>
+																				</SelectItem>
+																				<SelectItem value="edit">
+																					<div className="flex items-center">
+																						<Pencil className="w-4 h-4 mr-2" />
+																						Edit
+																					</div>
+																				</SelectItem>
+																			</SelectContent>
+																		</Select>
 																	</div>
-
 																	<div className="flex-grow" />
+
 																	<Button
 																		onClick={() => {
 																			addMember.mutate({
 																				canvasId: currentCanvasId,
 																				id: user.id,
+																				permission:
+																					addNewMemberState.permission as
+																						| "view"
+																						| "edit",
 																			});
 																		}}
 																	>
@@ -342,45 +439,78 @@ export default function MembersPanel() {
 								</Tabs>
 							</DialogContent>
 						</Dialog>
-						{(currentCanvas.data?.members.some((e) => e.id === session?.user.id)
+						{(currentCanvas.data?.members.some(
+							(e) => e.user.id === session?.user.id,
+						)
 							? [
-									currentCanvas.data?.owner,
+									{
+										user: currentCanvas.data?.owner,
+										permission: "edit",
+										id: "",
+									},
 									...currentCanvas.data.members.filter(
-										(e) => e.id !== session?.user.id,
+										(e) => e.user.id !== session?.user.id,
 									),
 							  ]
 							: currentCanvas.data?.members ?? []
 						).map((member) => (
-							<div className="relative" key={member.id}>
-								{currentCanvas.data?.owner.id === member.id && (
+							<div className="relative" key={member.user.id}>
+								{currentCanvas.data?.owner.id === member.user.id && (
 									<Crown className="text-yellow-400 w-4 h-4 absolute -top-3 left-1/2 transform -translate-x-1/2" />
 								)}
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
 										<Avatar
 											className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
-											key={member.id}
+											key={member.user.id}
 										>
-											<AvatarImage src={member?.image ?? undefined} />
+											<AvatarImage src={member?.user.image ?? undefined} />
 											<AvatarFallback>
-												{member.name?.slice(0, 2).toUpperCase()}
+												{member.user.name?.slice(0, 2).toUpperCase()}
 											</AvatarFallback>
 										</Avatar>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent>
 										<DropdownMenuItem
-											onClick={() => router.push(`/profile/${member.id}`)}
+											onClick={() => router.push(`/profile/${member.user.id}`)}
 										>
 											<User className="w-4 h-4 mr-2" />
 											Profile
 										</DropdownMenuItem>
 										{currentCanvas.data?.owner.id === session?.user.id && (
 											<>
+												<DropdownMenuSub>
+													<DropdownMenuSubTrigger>
+														<UserCog className="w-4 h-4 mr-2" />
+														Permissions
+													</DropdownMenuSubTrigger>
+													<DropdownMenuSubContent>
+														<DropdownMenuRadioGroup
+															value={member.permission}
+															onValueChange={(value) => {
+																if (["view", "edit"].includes(value))
+																	updateMemberPermissions.mutate({
+																		canvasId: currentCanvasId,
+																		id: member.id,
+																		permission: value as "view" | "edit",
+																	});
+															}}
+														>
+															<DropdownMenuRadioItem value="view">
+																<Eye className="w-4 h-4 mr-2" />
+																View
+															</DropdownMenuRadioItem>
+															<DropdownMenuRadioItem value="edit">
+																<Pencil className="w-4 h-4 mr-2" />
+																Edit
+															</DropdownMenuRadioItem>
+														</DropdownMenuRadioGroup>
+													</DropdownMenuSubContent>
+												</DropdownMenuSub>
 												<DropdownMenuSeparator />
 												<DropdownMenuItem
 													className="text-destructive"
 													onClick={async () => {
-														if (member.id === session?.user.id) return;
 														if (
 															currentCanvas.data?.owner.id !== session?.user.id
 														)
@@ -391,7 +521,7 @@ export default function MembersPanel() {
 														if (result) {
 															deleteMember.mutate({
 																canvasId: currentCanvasId,
-																userId: member.id,
+																id: member.id,
 															});
 														}
 													}}

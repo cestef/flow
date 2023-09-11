@@ -5,6 +5,7 @@ import EventEmitter from "events";
 import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { canAccessCanvas } from "../utils";
 
 const emitters = new Map<string, EventEmitter>();
 
@@ -39,7 +40,7 @@ export const commentsRouter = router({
 							canvas: {
 								members: {
 									some: {
-										id: ctx.user.id,
+										userId: ctx.user.id,
 									},
 								},
 							},
@@ -89,10 +90,7 @@ export const commentsRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to add node");
 			}
 
@@ -135,10 +133,7 @@ export const commentsRouter = router({
 				throw new Error("Comment not found");
 			}
 
-			if (
-				comment.canvas.owner.id !== ctx.user.id &&
-				!comment.canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(comment.canvas, ctx)) {
 				throw new Error("User is not allowed to update comment");
 			}
 
@@ -176,10 +171,7 @@ export const commentsRouter = router({
 				throw new Error("Comment not found");
 			}
 
-			if (
-				comment.canvas.owner.id !== ctx.user.id &&
-				!comment.canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(comment.canvas, ctx)) {
 				throw new Error("User is not allowed to delete comment");
 			}
 
@@ -215,10 +207,7 @@ export const commentsRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -255,10 +244,7 @@ export const commentsRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -295,10 +281,7 @@ export const commentsRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 

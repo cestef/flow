@@ -6,6 +6,7 @@ import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 const emitters = new Map<string, EventEmitter>();
+import { canAccessCanvas } from "../utils";
 import { emitter as edgesEmitter } from "./edges";
 
 export const emitter = (id: string): EventEmitter => {
@@ -50,7 +51,9 @@ export const nodesRouter = router({
 
 			if (
 				handle.node.canvas.owner.id !== ctx.user.id &&
-				!handle.node.canvas.members.some((member) => member.id === ctx.user.id)
+				!handle.node.canvas.members.some(
+					(member) => member.userId === ctx.user.id,
+				)
 			) {
 				throw new Error("User is not allowed to update handle");
 			}
@@ -129,7 +132,9 @@ export const nodesRouter = router({
 
 			if (
 				handle.node.canvas.owner.id !== ctx.user.id &&
-				!handle.node.canvas.members.some((member) => member.id === ctx.user.id)
+				!handle.node.canvas.members.some(
+					(member) => member.userId === ctx.user.id,
+				)
 			) {
 				throw new Error("User is not allowed to delete handle");
 			}
@@ -203,7 +208,7 @@ export const nodesRouter = router({
 							canvas: {
 								members: {
 									some: {
-										id: ctx.user.id,
+										userId: ctx.user.id,
 									},
 								},
 							},
@@ -266,10 +271,7 @@ export const nodesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to add node");
 			}
 
@@ -374,10 +376,7 @@ export const nodesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to add node");
 			}
 
@@ -473,10 +472,7 @@ export const nodesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -545,7 +541,7 @@ export const nodesRouter = router({
 
 			if (
 				node.canvas.owner.id !== ctx.user.id &&
-				!node.canvas.members.some((member) => member.id === ctx.user.id)
+				!node.canvas.members.some((member) => member.userId === ctx.user.id)
 			) {
 				throw new Error("User is not allowed to update node");
 			}
@@ -616,10 +612,7 @@ export const nodesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -662,7 +655,7 @@ export const nodesRouter = router({
 
 			if (
 				node.canvas.owner.id !== ctx.user.id &&
-				!node.canvas.members.some((member) => member.id === ctx.user.id)
+				!node.canvas.members.some((member) => member.userId === ctx.user.id)
 			) {
 				throw new Error("User is not allowed to delete node");
 			}
@@ -698,10 +691,7 @@ export const nodesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -744,7 +734,7 @@ export const nodesRouter = router({
 
 			if (
 				node.canvas.owner.id !== ctx.user.id &&
-				!node.canvas.members.some((member) => member.id === ctx.user.id)
+				!node.canvas.members.some((member) => member.userId === ctx.user.id)
 			) {
 				throw new Error("User is not allowed to drag node");
 			}
@@ -803,7 +793,7 @@ export const nodesRouter = router({
 
 			if (
 				node.canvas.owner.id !== ctx.user.id &&
-				!node.canvas.members.some((member) => member.id === ctx.user.id)
+				!node.canvas.members.some((member) => member.userId === ctx.user.id)
 			) {
 				throw new Error("User is not allowed to drag node");
 			}
@@ -847,10 +837,7 @@ export const nodesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -911,10 +898,7 @@ export const nodesRouter = router({
 
 			const canvas = nodes[0].canvas;
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to update nodes in this canvas");
 			}
 
@@ -966,10 +950,7 @@ export const nodesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -1021,7 +1002,7 @@ export const nodesRouter = router({
 
 			if (
 				node.canvas.owner.id !== ctx.user.id &&
-				!node.canvas.members.some((member) => member.id === ctx.user.id)
+				!node.canvas.members.some((member) => member.userId === ctx.user.id)
 			) {
 				throw new Error("User is not allowed to duplicate node");
 			}
@@ -1097,10 +1078,7 @@ export const nodesRouter = router({
 
 			const canvas = nodes[0].canvas;
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to duplicate nodes");
 			}
 			const insertNodes = nodes.map((node) =>
@@ -1190,10 +1168,7 @@ export const nodesRouter = router({
 			}
 			const canvas = nodes[0].canvas;
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to update nodes");
 			}
 
@@ -1250,10 +1225,7 @@ export const nodesRouter = router({
 				throw new Error(`Canvas ${input.canvasId} not found`);
 			}
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
@@ -1288,10 +1260,7 @@ export const nodesRouter = router({
 
 			const canvas = nodes[0].canvas;
 
-			if (
-				canvas.owner.id !== ctx.user.id &&
-				!canvas.members.some((member) => member.id === ctx.user.id)
-			) {
+			if (!canAccessCanvas(canvas, ctx)) {
 				throw new Error("User is not allowed to delete nodes");
 			}
 
