@@ -40,9 +40,11 @@ cd flow
 pnpm install
 ```
 
-3. Register a new OAuth app on [GitHub](https://github.com/settings/applications/new) and set the callback URL to `http://localhost:3000/api/auth/callback/`
+3. Register a new OAuth app on [GitHub](https://github.com/settings/applications/new) and set the callback URL to `http://localhost:3000/api/auth/callback/github`
 
-4. Create a `.env` file based on the `.env.example` in the root directory and add the following
+4. Register a new OAuth app on [Discord](https://discord.com/developers/applications) and set the callback URL to `http://localhost:3000/api/auth/callback/discord`
+
+5. Create a `.env` file based on the `.env.example` in the root directory and add the following
 ```bash
 DATABASE_URL="postgresql://postgres:@localhost:5432/flow-dev?schema=public"
 NEXTAUTH_SECRET="ultra-secure-secret"
@@ -56,7 +58,7 @@ DISCORD_CLIENT_SECRET="discord-oauth-client-secret"
 GOOGLE_ANALYTICS_ID="optional-google-analytics-id"
 ```
 
-5. Start the development server
+1. Start the development server
 ```bash
 pnpm dev
 ```
@@ -74,19 +76,15 @@ You can use the provided `docker-compose.yml` file to run the app in production 
 
 An image is automatically built and pushed to the [GitHub Container Registry](https://ghcr.io/cestef/flow) on every version tag.
 
-Follow [Running Locally](#running-locally) steps **1**, **3** and **4** to set up the OAuth app and `.env` file.
+Follow [Running Locally](#running-locally) steps **1**, **3**, **4** and **5** to set up the OAuth apps and `.env` file.
 
 and run the following command to start the app
 
 ```bash
 docker-compose up
 ```
-
-You can also start the app in detached mode with
-
-```bash
-docker-compose up -d
-```
+> **Note**
+> You can also start the app in detached mode with `-d`
 
 ## Contributing
 
@@ -109,4 +107,4 @@ This project is licensed under the [MIT License](https://choosealicense.com/lice
 - [`tRPC`](https://trpc.io/) - End-to-end typesafe API client and server
 - [`Prisma`](https://prisma.dev) - Database ORM
 - [`next-auth`](https://next-auth.js.org/) - Authentication
-- [`react-flow`](https://reactflow.dev/) - Node-based graph library
+- [`react-flow`](https://reactflow.dev/) - React component for building node-based editors
