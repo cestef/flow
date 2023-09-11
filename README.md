@@ -6,7 +6,8 @@
 ![Github Workflow Status](https://img.shields.io/github/actions/workflow/status/cestef/flow/ci.yml)
 ![GitHub Repo stars](https://img.shields.io/github/stars/cestef/flow?style=social)
 
-## ⚠️ This project is still in heavy development and is not ready for production use, expect data loss and breaking changes ⚠️
+> **Warning** 
+> This project is still in heavy development and is not ready for production use, expect data loss and breaking changes
 
 <p align="center">
     <img src="assets/banner_rounded.png" width="auto" height="250px">
