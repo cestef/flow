@@ -7,7 +7,7 @@ export const canAccessCanvas = (
 			id: string;
 		};
 	},
-	permission?: "view" | "edit",
+	permission?: "view" | "edit" | "owner",
 ) => {
 	if (!canvas) {
 		return false;
@@ -20,6 +20,21 @@ export const canAccessCanvas = (
 	return canvas.members.some(
 		(member) =>
 			member.userId === ctx.user.id &&
-			(!permission || member.permission === permission),
+			(!permission || hasPermission(member.permission, permission)),
 	);
+};
+
+export const SUB_PERMISSIONS: {
+	[key: string]: string[];
+} = {
+	owner: ["view", "edit"],
+	edit: ["view"],
+	view: [],
+};
+
+export const hasPermission = (
+	permission: string,
+	needed: "edit" | "view" | "owner",
+) => {
+	return permission === needed || SUB_PERMISSIONS[permission]?.includes(needed);
 };
