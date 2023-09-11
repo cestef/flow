@@ -1,4 +1,4 @@
-import { Comment, User } from "@prisma/client";
+import { Comment, User, UserSettings } from "@prisma/client";
 import {
 	Connection,
 	Edge,
@@ -141,8 +141,10 @@ export const useStore = createWithEqualityFn(
 				selecting: false,
 				inContextMenu: false,
 				permission: "view",
+				settings: undefined as UserSettings | undefined,
 			},
 			(set) => ({
+				setSettings: (settings: UserSettings) => set({ settings }),
 				setPermission: (permission: string) => set({ permission }),
 				setUserSettingsOpen: (userSettingsOpen: boolean) =>
 					set({ userSettingsOpen }),

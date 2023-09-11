@@ -37,17 +37,25 @@ const SettingsFormSchema = z.object({
 });
 
 export function SettingsForm() {
-	const user = trpc.users.me.useQuery();
 	const [settingsOpen, setSettingsOpen] = useStore(
 		(s) => [s.userSettingsOpen, s.setUserSettingsOpen] as const,
 	);
+	const [settings, setSettings] = useStore(
+		(s) => [s.settings, s.setSettings] as const,
+	);
 
-	const updateSettings = trpc.users.updateSettings.useMutation();
+	const updateSettings = trpc.users.updateSettings.useMutation({
+		onSuccess(data) {
+			if (data) {
+				setSettings(data);
+			}
+		},
+	});
 	useEffect(() => {
-		form.setValue("watermark", user.data?.settings?.watermark ?? true);
-		form.setValue("public", user.data?.settings?.public ?? true);
-		form.setValue("canvas_count", user.data?.settings?.canvas_count ?? true);
-	}, [user.data?.settings]);
+		form.setValue("watermark", settings?.watermark ?? true);
+		form.setValue("public", settings?.public ?? true);
+		form.setValue("canvas_count", settings?.canvas_count ?? true);
+	}, [settings]);
 	const form = useForm<z.infer<typeof SettingsFormSchema>>({
 		resolver: zodResolver(SettingsFormSchema),
 		defaultValues: {

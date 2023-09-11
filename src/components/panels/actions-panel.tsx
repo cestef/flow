@@ -55,8 +55,6 @@ export default function ActionsPanel() {
 		(state) => state.resetSelectedElements,
 	);
 	const updateManyNodes = trpc.nodes.updateMany.useMutation();
-	const me = trpc.users.me.useQuery();
-	// const updateManyEdges = trpc.edges.updateMany.useMutation();
 	const { theme } = useTheme();
 	const { toast } = useToast();
 
@@ -101,6 +99,8 @@ export default function ActionsPanel() {
 		resetSelectedElements();
 	});
 
+	const settings = useStore((state) => state.settings);
+
 	const download = useCallback(() => {
 		const nodesBounds = getRectOfNodes(getNodes());
 		const transform = getTransformForBounds(
@@ -123,7 +123,7 @@ export default function ActionsPanel() {
 		) as HTMLElement;
 		if (!viewport) return;
 		let waterMark: HTMLDivElement;
-		if (me.data?.settings?.watermark) {
+		if (settings?.watermark) {
 			waterMark = document.createElement("div");
 
 			waterMark.style.fontSize = "1rem";
@@ -152,7 +152,7 @@ export default function ActionsPanel() {
 			.finally(() => {
 				if (waterMark) viewport.removeChild(waterMark);
 			});
-	}, [theme, me]);
+	}, [theme, settings]);
 	const canvasId = useStore((state) => state.currentCanvasId);
 	const canvas = trpc.canvas.get.useQuery({
 		id: canvasId,

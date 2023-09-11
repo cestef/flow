@@ -144,12 +144,15 @@ export const usersRouter = router({
 						update: input.settings,
 					},
 				},
+				include: {
+					settings: true,
+				},
 			});
 
 			if (!user) {
 				throw new Error("User not found");
 			}
 
-			return user;
+			return user.settings;
 		}),
 });

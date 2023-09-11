@@ -40,7 +40,7 @@ export const registerHooks = () => {
 		},
 	);
 
-	const me = trpc.members.me.useQuery(
+	const memberMe = trpc.members.me.useQuery(
 		{
 			canvasId,
 		},
@@ -48,16 +48,29 @@ export const registerHooks = () => {
 			enabled: !!session?.user?.id && !!canvasId,
 		},
 	);
+	const me = trpc.users.me.useQuery(undefined, {
+		enabled: !!session?.user?.id,
+	});
+	const [settings, setSettings] = useStore((state) => [
+		state.settings,
+		state.setSettings,
+	]);
+	useEffect(() => {
+		if (me.data?.settings) {
+			setSettings(me.data.settings);
+		}
+	}, [me.data]);
+
 	const [permission, setPermission] = useStore((state) => [
 		state.permission,
 		state.setPermission,
 	]);
 
 	useEffect(() => {
-		if (me.data) {
-			setPermission(me.data.permission);
+		if (memberMe.data) {
+			setPermission(memberMe.data.permission);
 		}
-	}, [me.data]);
+	}, [memberMe.data]);
 
 	useEffect(() => {
 		if (remoteComments.data) {
