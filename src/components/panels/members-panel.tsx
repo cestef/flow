@@ -286,7 +286,7 @@ export default function MembersPanel() {
 										</TabsTrigger>
 										<TabsTrigger value="invite">Create an invite</TabsTrigger>
 									</TabsList>
-									<TabsContent value="invite" className="p-2 rounded-md">
+									<TabsContent value="invite">
 										<div className="flex flex-col gap-4 mt-4">
 											<Label htmlFor="uses">
 												Max Uses: {createInviteStatus.maxUses}
@@ -342,7 +342,7 @@ export default function MembersPanel() {
 											</Button>
 										</div>
 									</TabsContent>
-									<TabsContent value="search" className="p-2 rounded-md">
+									<TabsContent value="search">
 										<div className="flex flex-col space-y-2">
 											<Label htmlFor="email" className="my-2">
 												Search
