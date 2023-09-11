@@ -129,7 +129,7 @@ const AboutPage = () => {
 					<p className="text-gray-500 text-lg pt-2">
 						Built with <Twemoji emoji="❤️" /> by{" "}
 						<Link
-							href="cstef.dev"
+							href="https://cstef.dev"
 							className="text-primary hover:underline"
 							target="_blank"
 							rel="noopener noreferrer"
