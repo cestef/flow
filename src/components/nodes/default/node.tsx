@@ -294,15 +294,37 @@ function DefaultNode({
 													}
 													position={position}
 													key={position}
-													className={cn("rounded-md", {
-														"bg-primary": handle.type === "source",
-														"bg-secondary": handle.type === "target",
+													className={cn("rounded-md border-none bg-primary", {
+														"left-0":
+															handle.type === "target" &&
+															position === Position.Left,
+														"right-0":
+															handle.type === "target" &&
+															position === Position.Right,
+														"top-0":
+															handle.type === "target" &&
+															position === Position.Top,
+														"bottom-0":
+															handle.type === "target" &&
+															position === Position.Bottom,
 														"w-4 h-2":
 															position === Position.Top ||
 															position === Position.Bottom,
 														"h-4 w-2":
 															position === Position.Left ||
 															position === Position.Right,
+														"w-4 h-1 rounded-t-none":
+															position === Position.Top &&
+															handle.type === "target",
+														"w-4 h-1 rounded-b-none":
+															position === Position.Bottom &&
+															handle.type === "target",
+														"h-4 w-1 rounded-l-none":
+															position === Position.Left &&
+															handle.type === "target",
+														"h-4 w-1 rounded-r-none":
+															position === Position.Right &&
+															handle.type === "target",
 													})}
 													id={handle.id}
 												/>
