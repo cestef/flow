@@ -29,7 +29,6 @@ import {
 	CaseSensitive,
 	Check,
 	Copy,
-	Expand,
 	MessageSquare,
 	Move,
 	MoveDown,
@@ -46,7 +45,6 @@ import {
 	Shrink,
 	Square,
 	Star,
-	Text,
 	TextCursor,
 	Trash,
 	Trash2,
@@ -64,13 +62,6 @@ import {
 
 import BorderResizer from "@/components/border-resizer";
 import { Button } from "@/components/ui/button";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { DEEFAULT_NODE_DIMENSIONS, flowSelector } from "@/lib/constants";
 import { useStore } from "@/lib/store";
 import { NodeHandle } from "@prisma/client";
@@ -183,7 +174,7 @@ function DefaultNode({
 						!data.fontColor &&
 							editing[id]?.font?.status !== "color" &&
 							"text-foreground",
-						user.data && "border-primary",
+						user.data && "outline-primary",
 					)}
 					id={id}
 					style={{
