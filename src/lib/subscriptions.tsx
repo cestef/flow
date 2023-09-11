@@ -223,11 +223,12 @@ export const subscribe = () => {
 							router.push(`/?canvasId=${canvas.id}`);
 							res.dismiss();
 						}}
-						className="mt-2"
+						className="mt-2 ml-0 w-full"
 					>
 						View
 					</Button>
 				),
+				duration: 10000000,
 			});
 		},
 		enabled: !!session && !["welcome", ""].includes(canvasId),

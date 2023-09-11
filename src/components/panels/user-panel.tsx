@@ -28,6 +28,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useStore } from "@/lib/store";
 import { trpc } from "@/lib/utils";
+import { Separator } from "../ui/separator";
 
 const SettingsFormSchema = z.object({
 	watermark: z.boolean(),
@@ -45,6 +46,7 @@ export function SettingsForm() {
 	useEffect(() => {
 		form.setValue("watermark", user.data?.settings?.watermark ?? true);
 		form.setValue("public", user.data?.settings?.public ?? true);
+		form.setValue("canvas_count", user.data?.settings?.canvas_count ?? true);
 	}, [user.data?.settings]);
 	const form = useForm<z.infer<typeof SettingsFormSchema>>({
 		resolver: zodResolver(SettingsFormSchema),
@@ -107,6 +109,15 @@ export function SettingsForm() {
 										<FormLabel>Public profile</FormLabel>
 										<FormDescription>
 											Your profile will be visible to other users.
+											{!form.watch("public") && (
+												<>
+													<Separator className="my-2" />
+													<p className="text-sm text-muted-foreground">
+														<strong>Note:</strong> People won't be able to
+														search for your profile.
+													</p>
+												</>
+											)}
 										</FormDescription>
 									</div>
 									<FormControl>

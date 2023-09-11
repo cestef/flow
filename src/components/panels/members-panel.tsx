@@ -296,7 +296,7 @@ export default function MembersPanel() {
 													{findUser.data?.map((user) => (
 														<Card>
 															<CardHeader>
-																<div className="flex items-center space-x-4">
+																<div className="flex items-center space-x-6">
 																	<Avatar>
 																		<AvatarImage
 																			src={user.image ?? undefined}
@@ -305,9 +305,15 @@ export default function MembersPanel() {
 																			{user?.name?.slice(0, 2).toUpperCase()}
 																		</AvatarFallback>
 																	</Avatar>
-																	<p className="text-lg">
-																		{user.name || user.login}
-																	</p>
+																	<div className="flex flex-col">
+																		<p className="text-2xl">
+																			{user.name ?? user.login}
+																		</p>
+																		<p className="text-lg text-muted-foreground">
+																			{user.login}
+																		</p>
+																	</div>
+
 																	<div className="flex-grow" />
 																	<Button
 																		onClick={() => {

@@ -9,25 +9,27 @@ import {
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { BackgroundStyled } from "@/components/themed-flow";
+import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { trpc } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { prisma } from "@/lib/prisma";
+import { Home, Loader2 } from "lucide-react";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import { getSession, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
 import Moment from "react-moment";
 
-export default function Profile({ id }: { id?: string }) {
+export default function Profile({
+	user,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+	const router = useRouter();
 	const { data: session, status: sessionStatus } = useSession();
-	const { data: user, status } = trpc.users.get.useQuery({
-		id: id ?? session?.user?.id ?? "",
-	});
 
-	if (status === "loading" || sessionStatus === "loading") {
+	if (sessionStatus === "loading") {
 		return (
 			<div className="flex flex-col items-center justify-center w-screen h-[100svh]">
 				<Loader2 className="w-12 h-12 animate-spin" />
@@ -38,10 +40,18 @@ export default function Profile({ id }: { id?: string }) {
 	return (
 		<div className="flex flex-col items-center justify-center w-screen h-[100svh] px-4">
 			<ModeToggle className="absolute top-0 left-0 m-6" />
-
+			<Button
+				onClick={() => router.push("/")}
+				className="absolute top-0 right-0 m-6"
+				size="icon"
+			>
+				<Home className="w-6 h-6" />
+			</Button>
 			<Card className="w-full p-2 md:w-[450px] lg:w-[600px] relative">
 				<CardHeader>
-					<CardTitle className="text-4xl font-bold">{user?.name}</CardTitle>
+					<CardTitle className="text-4xl font-bold">
+						{user?.name ?? "Private User"}
+					</CardTitle>
 					<CardDescription className="text-gray-500 text-lg pt-2">
 						<Tooltip>
 							<TooltipTrigger>
@@ -58,10 +68,12 @@ export default function Profile({ id }: { id?: string }) {
 								</p>
 							</TooltipContent>
 						</Tooltip>
-						<p className="mt-2 text-muted-foreground">
-							{user?.canvases.length} canvas
-							{user?.canvases.length !== 1 && "es"}
-						</p>
+						{user.settings.canvas_count !== false && user.settings.public && (
+							<p className="mt-2 text-muted-foreground">
+								{user?.canvases.length} canvas
+								{user?.canvases.length !== 1 && "es"}
+							</p>
+						)}
 					</CardDescription>
 					<Avatar className="absolute right-6 top-6 w-12 h-12">
 						<AvatarImage src={user?.image ?? undefined} />
@@ -71,36 +83,133 @@ export default function Profile({ id }: { id?: string }) {
 					</Avatar>
 				</CardHeader>
 				<CardContent>
-					<p className="text-2xl font-bold mb-4 text-center text-muted-foreground">
-						Shared with you
-					</p>
-					<div className="flex flex-wrap gap-4 justify-center items-center">
-						{user?.canvases.map((canvas) => (
-							<Link href={`/?canvasId=${canvas.id}`} key={canvas.id}>
-								<div className="bg-card rounded-lg border px-6 py-4 cursor-pointer hover:shadow-md transition-shadow duration-200">
-									<p className="text-xl font-bold">{canvas.name}</p>
-									<Tooltip>
-										<TooltipTrigger>
-											<p className="text-muted-foreground mt-1 text-sm">
-												Created <Moment fromNow date={canvas.createdAt} />
-											</p>
-										</TooltipTrigger>
-										<TooltipContent>
-											<p>
-												<Moment
-													format="MMMM Do YYYY, h:mm A"
-													date={canvas.createdAt}
-												/>
-											</p>
-										</TooltipContent>
-									</Tooltip>
-								</div>
-							</Link>
-						))}
-					</div>
+					{user.settings.public === false ? (
+						<p className="text-lg font-semibold text-center text-muted-foreground">
+							This user has their profile set to private
+						</p>
+					) : (
+						user.settings.canvas_count === false && (
+							<p className="text-lg font-semibold text-center text-muted-foreground">
+								This user turned off canvas sharing
+							</p>
+						)
+					)}
+					{user.settings.canvas_count && (
+						<>
+							<p className="text-2xl font-bold mb-4 text-center">
+								Shared with you
+							</p>
+							<div className="flex flex-wrap gap-4 justify-center items-center">
+								{user?.canvases.map((canvas) => (
+									<Link href={`/?canvasId=${canvas.id}`} key={canvas.id}>
+										<div className="bg-card rounded-lg border px-6 py-4 cursor-pointer hover:shadow-md transition-shadow duration-200">
+											<p className="text-xl font-bold">{canvas.name}</p>
+											<Tooltip>
+												<TooltipTrigger>
+													<p className="text-muted-foreground mt-1 text-sm">
+														Created <Moment fromNow date={canvas.createdAt} />
+													</p>
+												</TooltipTrigger>
+												<TooltipContent>
+													<p>
+														<Moment
+															format="MMMM Do YYYY, h:mm A"
+															date={canvas.createdAt}
+														/>
+													</p>
+												</TooltipContent>
+											</Tooltip>
+										</div>
+									</Link>
+								))}
+								{user?.canvases.length === 0 && (
+									<p className="text-center text-lg text-muted-foreground">
+										This user hasn't shared any canvases with you
+									</p>
+								)}
+							</div>
+						</>
+					)}
 				</CardContent>
 			</Card>
 			<BackgroundStyled className="-z-10" />
 		</div>
 	);
+}
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+	const session = await getSession(ctx);
+	if (!session) {
+		return {
+			redirect: {
+				destination: "/auth/login",
+				permanent: false,
+			},
+		};
+	}
+
+	const id = ctx.params?.id as string;
+	if (!id) {
+		return {
+			notFound: true,
+		};
+	}
+
+	const user = await prisma.user.findUnique({
+		where: {
+			id,
+		},
+		include: {
+			settings: true,
+			canvases: {
+				select: {
+					id: true,
+					name: true,
+					createdAt: true,
+					members: true,
+					ownerId: true,
+				},
+			},
+		},
+	});
+	if (!user) {
+		throw new Error("User not found");
+	}
+	if (user.settings?.public === null) user.settings.public = true;
+	if (user.settings?.canvas_count === null) user.settings.canvas_count = true;
+	if (!user.settings?.public) {
+		user.canvases = [];
+		user.image = null;
+		user.email = null;
+		user.name = null;
+	}
+
+	if (!user.settings?.canvas_count) {
+		user.canvases = [];
+	}
+
+	return {
+		props: {
+			user: {
+				...user,
+				createdAt: user.createdAt.toString(),
+				updatedAt: user.updatedAt.toString(),
+				settings: {
+					...user.settings,
+					createdAt: user.settings?.createdAt.toString(),
+					updatedAt: user.settings?.updatedAt.toString(),
+				},
+				canvases: user.canvases
+					.filter(
+						(e) =>
+							e.ownerId === session.user.id ||
+							e.members.some((m) => m.id === session.user.id),
+					)
+					.map((canvas) => ({
+						...canvas,
+						createdAt: canvas.createdAt.toString(),
+					})),
+			},
+		},
+	};
 }

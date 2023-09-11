@@ -36,13 +36,17 @@ export const usersRouter = router({
 			if (!user) {
 				throw new Error("User not found");
 			}
-			if (user.settings?.public === false) {
+			if (user.settings?.public === null) user.settings.public = true;
+			if (user.settings?.canvas_count === null)
+				user.settings.canvas_count = true;
+			if (!user.settings?.public) {
 				user.canvases = [];
 				user.image = null;
 				user.email = null;
+				user.name = null;
 			}
 
-			if (user.settings?.canvas_count === false) {
+			if (!user.settings?.canvas_count) {
 				user.canvases = [];
 			}
 
@@ -67,10 +71,12 @@ export const usersRouter = router({
 						{ login: input.emailOrName ?? undefined },
 						{ id: input.id ?? undefined },
 					],
+					settings: {
+						public: true,
+					},
 				},
 				select: {
 					id: true,
-					email: true,
 					name: true,
 					image: true,
 					login: true,
