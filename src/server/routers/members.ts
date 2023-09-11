@@ -1,7 +1,7 @@
 import { protectedProcedure, router } from "../trpc";
 
 import EventEmitter from "events";
-import { Canvas } from "@prisma/client";
+import { Canvas, Member } from "@prisma/client";
 import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
@@ -267,7 +267,7 @@ export const membersRouter = router({
 				throw new Error("Canvas not found or user is not allowed to delete");
 			}
 
-			await prisma.canvas.update({
+			const res = await prisma.canvas.update({
 				where: {
 					id: input.canvasId,
 				},
@@ -283,6 +283,54 @@ export const membersRouter = router({
 						},
 					},
 				},
+				include: {
+					members: true,
+				},
+			});
+			const me = res.members.find((member) => member.id === input.id);
+			if (!me) {
+				throw new Error("Member not found (wtf???)");
+			}
+
+			emitter(canvas.id).emit("updatePermission", me);
+
+			return res;
+		}),
+	onUpdatePermission: protectedProcedure
+		.input(
+			z.object({
+				canvasId: z.string(),
+			}),
+		)
+		.subscription(async ({ ctx, input }) => {
+			// Check if the user is allowed to subscribe to this canvas
+			const canvas = await prisma.canvas.findUnique({
+				where: {
+					id: input.canvasId,
+				},
+				include: {
+					owner: true,
+					members: true,
+				},
+			});
+
+			if (!canvas) {
+				throw new Error("Canvas not found");
+			}
+
+			if (!canAccessCanvas(canvas, ctx)) {
+				throw new Error("User is not allowed to subscribe to this canvas");
+			}
+
+			return observable<Member>((observer) => {
+				const onUpdatePermission = (member: Member) => {
+					observer.next(member);
+				};
+
+				emitter(input.canvasId).on("updatePermission", onUpdatePermission);
+				return () => {
+					emitter(input.canvasId).off("updatePermission", onUpdatePermission);
+				};
 			});
 		}),
 });

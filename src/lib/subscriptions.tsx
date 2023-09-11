@@ -233,6 +233,27 @@ export const subscribe = () => {
 		},
 		enabled: !!session && !["welcome", ""].includes(canvasId),
 	});
+	const setPermission = useStore((state) => state.setPermission);
+	trpc.members.onUpdatePermission.useSubscription(
+		{
+			canvasId,
+		},
+		{
+			async onData(member) {
+				if (
+					member.userId === session?.user.id &&
+					member.canvasId === canvasId
+				) {
+					toast({
+						title: "Your permissions have been updated",
+						description: `Your permissions have been updated to ${member.permission}`,
+					});
+					setPermission(member.permission);
+				}
+			},
+			enabled: !!session && !["welcome", ""].includes(canvasId),
+		},
+	);
 
 	trpc.comments.onAdd.useSubscription(
 		{

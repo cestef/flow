@@ -1,6 +1,4 @@
 import { Canvas, Member } from "@prisma/client";
-import { User } from "next-auth";
-import { Context } from "./context";
 
 export const canAccessCanvas = (
 	canvas: (Canvas & { members: Member[] }) | null,
@@ -9,7 +7,7 @@ export const canAccessCanvas = (
 			id: string;
 		};
 	},
-	permission: "view" | "edit" = "view",
+	permission?: "view" | "edit",
 ) => {
 	if (!canvas) {
 		return false;
@@ -21,6 +19,7 @@ export const canAccessCanvas = (
 
 	return canvas.members.some(
 		(member) =>
-			member.userId === ctx.user.id && member.permission === permission,
+			member.userId === ctx.user.id &&
+			(!permission || member.permission === permission),
 	);
 };
