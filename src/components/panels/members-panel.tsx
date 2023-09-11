@@ -1,4 +1,4 @@
-import { ArrowDownRight, Copy, Crown, Plus } from "lucide-react";
+import { ArrowDownRight, Copy, Crown, Plus, Trash2, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
@@ -15,9 +15,17 @@ import useConfirm from "@/lib/useConfirm";
 import { cn, trpc } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import getConfig from "next/config";
+import { useRouter } from "next/router";
 import { useDebounce } from "use-debounce";
 import { Button } from "../ui/button";
 import { DatePicker } from "../ui/date-picker";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Slider } from "../ui/slider";
@@ -29,6 +37,7 @@ const { APP_URL, WS_URL } = publicRuntimeConfig;
 
 export default function MembersPanel() {
 	const { data: session } = useSession();
+	const router = useRouter();
 
 	const currentCanvasId = useStore((state) => state.currentCanvasId);
 	const addNewMemberState = useStore((state) => state.addNewMember);
@@ -338,35 +347,56 @@ export default function MembersPanel() {
 						).map((member) => (
 							<div className="relative" key={member.id}>
 								{currentCanvas.data?.owner.id === member.id && (
-									// Place a crown icon on the top middle of the avatar
 									<Crown className="text-yellow-400 w-4 h-4 absolute -top-3 left-1/2 transform -translate-x-1/2" />
 								)}
-								<Avatar
-									className={`${
-										currentCanvas.data?.owner.id === session?.user.id &&
-										"cursor-pointer  hover:opacity-80 transition-opacity duration-200"
-									}`}
-									onClick={async () => {
-										if (member.id === session?.user.id) return;
-										if (currentCanvas.data?.owner.id !== session?.user.id)
-											return;
-										const result = await confirm(
-											"Are you sure you want to remove this member?",
-										);
-										if (result) {
-											deleteMember.mutate({
-												canvasId: currentCanvasId,
-												userId: member.id,
-											});
-										}
-									}}
-									key={member.id}
-								>
-									<AvatarImage src={member?.image ?? undefined} />
-									<AvatarFallback>
-										{member.name?.slice(0, 2).toUpperCase()}
-									</AvatarFallback>
-								</Avatar>
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Avatar
+											className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+											key={member.id}
+										>
+											<AvatarImage src={member?.image ?? undefined} />
+											<AvatarFallback>
+												{member.name?.slice(0, 2).toUpperCase()}
+											</AvatarFallback>
+										</Avatar>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent>
+										<DropdownMenuItem
+											onClick={() => router.push(`/profile/${member.id}`)}
+										>
+											<User className="w-4 h-4 mr-2" />
+											Profile
+										</DropdownMenuItem>
+										{currentCanvas.data?.owner.id === session?.user.id && (
+											<>
+												<DropdownMenuSeparator />
+												<DropdownMenuItem
+													className="text-destructive"
+													onClick={async () => {
+														if (member.id === session?.user.id) return;
+														if (
+															currentCanvas.data?.owner.id !== session?.user.id
+														)
+															return;
+														const result = await confirm(
+															"Are you sure you want to remove this member?",
+														);
+														if (result) {
+															deleteMember.mutate({
+																canvasId: currentCanvasId,
+																userId: member.id,
+															});
+														}
+													}}
+												>
+													<Trash2 className="w-4 h-4 mr-2" />
+													Remove
+												</DropdownMenuItem>
+											</>
+										)}
+									</DropdownMenuContent>
+								</DropdownMenu>
 							</div>
 						))}
 						{session ? (
@@ -375,7 +405,7 @@ export default function MembersPanel() {
 									// Place a crown icon on the top middle of the avatar
 									<Crown className="text-yellow-400 w-4 h-4 absolute -top-3 left-1/2 transform -translate-x-1/2" />
 								)}
-								<Avatar className="cursor-pointer hover:opacity-80 transition-opacity duration-200">
+								<Avatar>
 									<AvatarImage src={session?.user?.image || undefined} />
 									<AvatarFallback>
 										{(session?.user.name || session.user.login)
