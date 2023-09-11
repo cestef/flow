@@ -85,7 +85,7 @@ export default function ComboBox({
 									{e.deletable && (
 										<Button
 											size="icon"
-											className="ml-auto hover:bg-destructive"
+											className="ml-auto hover:bg-destructive/50"
 											variant="ghost"
 											onClick={() => onRemove?.(e.value)}
 										>
