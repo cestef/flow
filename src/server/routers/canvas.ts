@@ -107,35 +107,6 @@ export const canvasRouter = router({
 			});
 		}),
 
-	find: protectedProcedure
-		.input(
-			z.object({
-				name: z.string(),
-			}),
-		)
-		.query(({ ctx, input }) => {
-			return prisma.canvas.findFirst({
-				where: {
-					OR: [
-						{
-							name: input.name,
-							owner: {
-								id: ctx.user.id,
-							},
-						},
-						{
-							name: input.name,
-							members: {
-								some: {
-									id: ctx.user.id,
-								},
-							},
-						},
-					],
-				},
-			});
-		}),
-
 	list: protectedProcedure.input(z.object({})).query(({ ctx, input }) => {
 		return prisma.canvas.findMany({
 			where: {
@@ -195,6 +166,7 @@ export const canvasRouter = router({
 							members: {
 								some: {
 									userId: ctx.user.id,
+									permission: "edit",
 								},
 							},
 						},
@@ -268,6 +240,7 @@ export const canvasRouter = router({
 								members: {
 									some: {
 										userId: ctx.user.id,
+										permission: "edit",
 									},
 								},
 							},

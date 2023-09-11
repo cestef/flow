@@ -9,6 +9,7 @@ export const canAccessCanvas = (
 			id: string;
 		};
 	},
+	permission: "view" | "edit" = "view",
 ) => {
 	if (!canvas) {
 		return false;
@@ -18,5 +19,8 @@ export const canAccessCanvas = (
 		return true;
 	}
 
-	return canvas.members.some((member) => member.userId === ctx.user.id);
+	return canvas.members.some(
+		(member) =>
+			member.userId === ctx.user.id && member.permission === permission,
+	);
 };

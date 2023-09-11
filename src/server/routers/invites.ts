@@ -28,6 +28,7 @@ export const invitesRouter = router({
 							members: {
 								some: {
 									userId: ctx.user.id,
+									permission: "edit",
 								},
 							},
 						},

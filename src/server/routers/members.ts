@@ -74,6 +74,7 @@ export const membersRouter = router({
 							members: {
 								some: {
 									userId: ctx.user.id,
+									permission: "edit",
 								},
 							},
 						},
@@ -85,7 +86,9 @@ export const membersRouter = router({
 			});
 
 			if (!canvas) {
-				throw new Error("Canvas not found");
+				throw new Error(
+					"Canvas not found or user is not allowed to add members",
+				);
 			}
 
 			if (
@@ -134,7 +137,7 @@ export const membersRouter = router({
 			});
 
 			if (!canvas) {
-				throw new Error("Canvas not found");
+				throw new Error("Canvas not found or user is not allowed to delete");
 			}
 
 			console.log(input);
@@ -256,20 +259,12 @@ export const membersRouter = router({
 							id: input.canvasId,
 							ownerId: ctx.user.id,
 						},
-						{
-							id: input.canvasId,
-							members: {
-								some: {
-									id: ctx.user.id,
-								},
-							},
-						},
 					],
 				},
 			});
 
 			if (!canvas) {
-				throw new Error("Canvas not found");
+				throw new Error("Canvas not found or user is not allowed to delete");
 			}
 
 			await prisma.canvas.update({

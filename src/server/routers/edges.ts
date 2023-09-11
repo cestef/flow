@@ -80,7 +80,7 @@ export const edgesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (!canAccessCanvas(canvas, ctx)) {
+			if (!canAccessCanvas(canvas, ctx, "edit")) {
 				throw new Error("User is not allowed to add edge");
 			}
 
@@ -171,7 +171,7 @@ export const edgesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (!canAccessCanvas(canvas, ctx)) {
+			if (!canAccessCanvas(canvas, ctx, "edit")) {
 				throw new Error("User is not allowed to add edge");
 			}
 
@@ -301,7 +301,7 @@ export const edgesRouter = router({
 				throw new Error("Edge not found");
 			}
 
-			if (!canAccessCanvas(edge.canvas, ctx)) {
+			if (!canAccessCanvas(edge.canvas, ctx, "edit")) {
 				throw new Error("User is not allowed to update edge");
 			}
 
@@ -408,7 +408,7 @@ export const edgesRouter = router({
 				throw new Error("Edge not found");
 			}
 
-			if (!canAccessCanvas(edge.canvas, ctx)) {
+			if (!canAccessCanvas(edge.canvas, ctx, "edit")) {
 				throw new Error("User is not allowed to delete edge");
 			}
 
@@ -498,8 +498,8 @@ export const edgesRouter = router({
 				throw new Error("Canvas not found");
 			}
 
-			if (!canAccessCanvas(canvas, ctx)) {
-				throw new Error("User is not allowed to add edge");
+			if (!canAccessCanvas(canvas, ctx, "edit")) {
+				throw new Error("User is not allowed to add edges");
 			}
 
 			const edges = input.edges.map((edge) =>
@@ -560,10 +560,7 @@ export const edgesRouter = router({
 			});
 
 			const allowedEdges = edges.filter((edge) => {
-				return (
-					edge.canvas.owner.id === ctx.user.id ||
-					edge.canvas.members.some((member) => member.userId === ctx.user.id)
-				);
+				return canAccessCanvas(edge.canvas, ctx, "edit");
 			});
 
 			const res = await prisma.edge.deleteMany({
@@ -610,8 +607,8 @@ export const edgesRouter = router({
 				throw new Error("Edge not found");
 			}
 
-			if (!canAccessCanvas(edge.canvas, ctx)) {
-				throw new Error("User is not allowed to delete edge");
+			if (!canAccessCanvas(edge.canvas, ctx, "edit")) {
+				throw new Error("User is not allowed to invert edge");
 			}
 
 			// Invert the handles and from/to
