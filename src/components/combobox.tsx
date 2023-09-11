@@ -81,6 +81,7 @@ export default function ComboBox({
 										)}
 									/>
 									{e.label}
+									<p className="absolute opacity-0">{e.value}</p>
 									{e.deletable && (
 										<Button
 											size="icon"
