@@ -56,6 +56,7 @@ export default function DefaultEdge({
 
 	const updateEdge = trpc.edges.update.useMutation();
 	const invertEdge = trpc.edges.invert.useMutation();
+	const removeEdge = trpc.edges.delete.useMutation();
 	const [editing, setEditing] = useStore((state) => [
 		state.editing,
 		state.setEditing,
@@ -187,7 +188,14 @@ export default function DefaultEdge({
 								<Repeat className="w-4 h-4 mr-2" />
 								Invert
 							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => {}} className="text-destructive">
+							<DropdownMenuItem
+								onClick={() => {
+									removeEdge.mutate({
+										id,
+									});
+								}}
+								className="text-destructive"
+							>
 								<Trash className="w-4 h-4 mr-2 text-destructive" />
 								Remove
 							</DropdownMenuItem>
