@@ -44,7 +44,7 @@ pnpm install
 
 4. Register a new OAuth app on [Discord](https://discord.com/developers/applications) and set the callback URL to `http://localhost:3000/api/auth/callback/discord`
 
-5. Create a `.env` file based on the `.env.example` in the root directory and add the following
+5. Create a `.env` file based on the [`.env.example`](.env.example) in the root directory or copy the following:
 ```bash
 DATABASE_URL="postgresql://postgres:@localhost:5432/flow-dev?schema=public"
 NEXTAUTH_SECRET="ultra-secure-secret"
@@ -58,7 +58,7 @@ DISCORD_CLIENT_SECRET="discord-oauth-client-secret"
 GOOGLE_ANALYTICS_ID="optional-google-analytics-id"
 ```
 
-1. Start the development server
+6. Start the development server
 ```bash
 pnpm dev
 ```
@@ -72,7 +72,7 @@ You can now access the app at [localhost:3000](http://localhost:3000)
 
 ### Installing and Running
 
-You can use the provided `docker-compose.yml` file to run the app in production mode. It will automatically start a PostgreSQL database, a Next.js server and a WebSocket server.
+You can use the provided [`docker-compose.yml`](docker-compose.yml) file to run the app in production mode. It will automatically start a PostgreSQL database, a Next.js server and a WebSocket server.
 
 An image is automatically built and pushed to the [GitHub Container Registry](https://ghcr.io/cestef/flow) on every version tag.
 
@@ -92,7 +92,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Support
 
-If you need help with anything related to the project, feel free to join the [Discord server](https://discord.gg/CYQwAW2Yuq) and ask in the `#support` channel.
+If you need help with anything related to the project, feel free to join the [Discord server](https://discord.gg/CYQwAW2Yuq) and ask in the [`#support`](https://discord.com/channels/1141658461403357184/1142511788307525732) channel.
 
 [![Discord](https://img.shields.io/discord/1141658461403357184?color=7289DA&label=Discord&logo=discord&logoColor=white)](https://discord.gg/CYQwAW2Yuq)
 
