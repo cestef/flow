@@ -25,7 +25,7 @@ You can use it to create flowcharts for your projects, plan your next vacation o
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/en/) (v18.0.0 or higher)
-- [pnpm](https://pnpm.io/) (v9.0.0 or higher)
+- [pnpm](https://pnpm.io/) (v8.0.0 or higher)
 
 ### Installing and Running
 
