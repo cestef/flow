@@ -71,12 +71,12 @@ export default function ComboBox({
 								<CommandItem
 									key={e.value}
 									onSelect={() => onSelect?.(e.value)}
-									className="mt-1"
+									className="mt-1 h-12 cursor-pointer"
 									style={getItemStyle?.(e)}
 								>
 									<Check
 										className={cn(
-											"mr-2 h-4 w-4",
+											"mx-2 h-4 w-4",
 											value === e.value ? "opacity-100" : "opacity-0",
 										)}
 									/>
@@ -85,7 +85,7 @@ export default function ComboBox({
 									{e.deletable && (
 										<Button
 											size="icon"
-											className="ml-auto"
+											className="ml-auto hover:bg-destructive"
 											variant="ghost"
 											onClick={() => onRemove?.(e.value)}
 										>
