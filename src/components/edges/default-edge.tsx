@@ -43,7 +43,7 @@ export default function DefaultEdge({
 	source,
 	target,
 }: EdgeProps) {
-	const { getNode } = useStore(flowSelector);
+	const { getNode, deleteEdge } = useStore(flowSelector);
 	const sourceNode = getNode(source);
 	const [edgePath, labelX, labelY] = getBezierPath({
 		sourceX,
@@ -193,6 +193,7 @@ export default function DefaultEdge({
 									removeEdge.mutate({
 										id,
 									});
+									deleteEdge(id);
 								}}
 								className="text-destructive"
 							>
