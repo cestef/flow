@@ -184,6 +184,7 @@ export const canvasRouter = router({
 			await prisma.node.deleteMany({
 				where: {
 					canvasId: input.id,
+					preset: false,
 				},
 			});
 
