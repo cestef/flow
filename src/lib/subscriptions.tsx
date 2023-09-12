@@ -27,6 +27,7 @@ export const subscribe = () => {
 		updateComment,
 		deleteComment,
 		updateEdge,
+		updateManyNodes,
 	} = useStore(flowSelector);
 	const updateNodeInternal = useUpdateNodeInternals();
 	const { data: session } = useSession();
@@ -101,14 +102,16 @@ export const subscribe = () => {
 			canvasId,
 		},
 		{
-			async onData({ node, userId }) {
+			async onData({ nodes, userId }) {
 				if (userId === session?.user.id) return;
-				updateNode({
-					id: node.id,
-					data: {
-						draggedBy: userId,
-					},
-				});
+				updateManyNodes(
+					nodes.map((node) => ({
+						id: node.id,
+						data: {
+							draggedBy: userId,
+						},
+					})),
+				);
 			},
 			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
@@ -118,16 +121,18 @@ export const subscribe = () => {
 			canvasId,
 		},
 		{
-			async onData({ node, userId }) {
+			async onData({ nodes, userId }) {
 				if (userId === session?.user.id) return;
 				// Update node position
-				updateNode({
-					id: node.id,
-					position: {
-						x: node.x,
-						y: node.y,
-					},
-				});
+				updateManyNodes(
+					nodes.map((node) => ({
+						id: node.id,
+						position: {
+							x: node.x,
+							y: node.y,
+						},
+					})),
+				);
 			},
 			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},
@@ -137,15 +142,20 @@ export const subscribe = () => {
 			canvasId,
 		},
 		{
-			async onData({ node, userId }) {
-				updateNode({
-					id: node.id,
-					data: {
-						label: node.name,
-						color: node.color,
-						draggedBy: undefined,
-					},
-				});
+			async onData({ nodes, userId }) {
+				if (userId === session?.user.id) return;
+				updateManyNodes(
+					nodes.map((node) => ({
+						id: node.id,
+						data: {
+							draggedBy: undefined,
+						},
+						position: {
+							x: node.x,
+							y: node.y,
+						},
+					})),
+				);
 			},
 			enabled: !!session && !["welcome", ""].includes(canvasId),
 		},

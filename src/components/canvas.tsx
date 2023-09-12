@@ -47,6 +47,9 @@ const Flow = ({
 		onNodeDrag,
 		onNodeDragStart,
 		onNodeDragStop,
+		onSelectionDrag,
+		onSelectionDragStart,
+		onSelectionDragStop,
 	} = registerCallbacks(reactFlowWrapper);
 	if (session?.user?.id) subscribe();
 
@@ -79,6 +82,9 @@ const Flow = ({
 					onNodeDragStop={onNodeDragStop}
 					onNodeDragStart={onNodeDragStart}
 					onNodeDrag={onNodeDrag}
+					onSelectionDrag={onSelectionDrag}
+					onSelectionDragStart={onSelectionDragStart}
+					onSelectionDragStop={onSelectionDragStop}
 					onEdgesChange={onEdgesChange}
 					onConnect={onConnect}
 					onConnectEnd={onConnectEnd}

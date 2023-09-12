@@ -25,7 +25,7 @@ import {
 } from "./utils";
 
 import { useSession } from "next-auth/react";
-import { RefObject, useCallback, useRef } from "react";
+import React, { RefObject, useCallback, useRef } from "react";
 import { throttle } from "throttle-debounce";
 import { useStore } from "./store";
 
@@ -116,6 +116,7 @@ export const registerCallbacks = (
 		(event: React.MouseEvent, node: Node) => void
 	>(
 		async (_, node) => {
+			// console.log("onNodeDragStart", node);
 			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
 			if (!session?.user?.id) return;
 			if (!canEdit(permission)) return;
@@ -125,7 +126,7 @@ export const registerCallbacks = (
 			setShouldEmit(should);
 			if (should) {
 				dragStartNode.mutate({
-					id: node.id,
+					ids: [node.id],
 				});
 			}
 		},
@@ -137,7 +138,7 @@ export const registerCallbacks = (
 			event: React.MouseEvent | React.TouchEvent,
 			params: OnConnectStartParams,
 		) => {
-			console.log("onConnectStart", params);
+			// console.log("onConnectStart", params);
 			if (!canEdit(permission)) return;
 			currentConnecting.current = params;
 		},
@@ -225,6 +226,7 @@ export const registerCallbacks = (
 		(event: React.MouseEvent, node: Node) => void
 	>(
 		(_, node) => {
+			console.log("onNodeDragStop", node);
 			if (!canEdit(permission)) return;
 			findAndUpdateNode(
 				(n) =>
@@ -272,9 +274,13 @@ export const registerCallbacks = (
 				});
 				if (session?.user?.id && !["welcome", ""].includes(canvasId) && node.id)
 					dragEndNode.mutate({
-						id: node.id,
-						x: node.position.x,
-						y: node.position.y,
+						nodes: [
+							{
+								id: node.id,
+								x: node.position.x,
+								y: node.position.y,
+							},
+						],
 					});
 			}
 		},
@@ -339,6 +345,7 @@ export const registerCallbacks = (
 
 	const onNodeDrag = useCallback<(event: React.MouseEvent, node: Node) => void>(
 		(_, node) => {
+			// console.log("onNodeDrag", node);
 			if (!canEdit(permission)) return;
 			const group = isNodeInGroupBounds(node, nodes);
 			if (group) {
@@ -399,6 +406,52 @@ export const registerCallbacks = (
 		},
 		[edges, canvasId, permission],
 	);
+	const onSelectionDrag = useCallback(
+		(event: React.MouseEvent, nodes: Node[]) => {
+			if (!canEdit(permission)) return;
+			console.log("onSelectionDrag", nodes);
+			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
+			if (!session?.user?.id) return;
+			dragUpdateNode.mutate({
+				changes: nodes.map((node) => ({
+					id: node.id,
+					x: node.position.x,
+					y: node.position.y,
+				})),
+			});
+		},
+		[canvasId, permission],
+	);
+	const onSelectionDragStop = useCallback(
+		(event: React.MouseEvent, nodes: Node[]) => {
+			if (!canEdit(permission)) return;
+			console.log("onSelectionDragStop", nodes);
+			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
+			if (!session?.user?.id) return;
+			dragEndNode.mutate({
+				nodes: nodes.map((node) => ({
+					id: node.id,
+					x: node.position.x,
+					y: node.position.y,
+				})),
+			});
+		},
+		[canvasId, permission],
+	);
+
+	const onSelectionDragStart = useCallback(
+		(event: React.MouseEvent, nodes: Node[]) => {
+			if (!canEdit(permission)) return;
+			console.log("onSelectionStart", nodes);
+			if (!canvasId || ["welcome", ""].includes(canvasId)) return;
+			if (!session?.user?.id) return;
+			dragStartNode.mutate({
+				ids: nodes.map((node) => node.id),
+			});
+		},
+		[canvasId, permission],
+	);
+
 	return {
 		onNodeDragStart,
 		onNodeDragStop,
@@ -408,5 +461,8 @@ export const registerCallbacks = (
 		onConnect: onConnectProxy,
 		onConnectEnd,
 		onConnectStart,
+		onSelectionDrag,
+		onSelectionDragStop,
+		onSelectionDragStart,
 	};
 };

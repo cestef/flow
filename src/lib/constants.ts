@@ -50,6 +50,7 @@ export const flowSelector = (state: StoreState) => ({
 	deleteComment: state.deleteComment,
 	updateComment: state.updateComment,
 	updateEdge: state.updateEdge,
+	updateManyNodes: state.updateManyNodes,
 });
 
 export const DRAG_THRESHOLD = 100;

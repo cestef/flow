@@ -694,13 +694,15 @@ export const nodesRouter = router({
 	dragStart: protectedProcedure
 		.input(
 			z.object({
-				id: z.string(),
+				ids: z.array(z.string()),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			const node = await prisma.node.findUnique({
+			const nodes = await prisma.node.findMany({
 				where: {
-					id: input.id,
+					id: {
+						in: input.ids,
+					},
 				},
 				include: {
 					canvas: {
@@ -712,20 +714,20 @@ export const nodesRouter = router({
 				},
 			});
 
-			if (!node) {
+			if (!nodes) {
 				throw new Error("Node not found");
 			}
 
-			if (!canAccessCanvas(node.canvas, ctx, "edit")) {
+			if (!nodes.every((node) => canAccessCanvas(node.canvas, ctx, "edit"))) {
 				throw new Error("User is not allowed to drag node");
 			}
 
-			emitter(node.canvas.id).emit("dragStart", {
-				node,
+			emitter(nodes[0].canvas.id).emit("dragStart", {
+				nodes,
 				userId: ctx.user.id,
 			});
 
-			return node;
+			return nodes;
 		}),
 	onDragStart: protectedProcedure
 		.input(
@@ -734,8 +736,8 @@ export const nodesRouter = router({
 			}),
 		)
 		.subscription(({ ctx, input }) => {
-			return observable<{ node: Node; userId: string }>((observer) => {
-				const onDragStart = (event: { node: Node; userId: string }) => {
+			return observable<{ nodes: Node[]; userId: string }>((observer) => {
+				const onDragStart = (event: { nodes: Node[]; userId: string }) => {
 					observer.next(event);
 				};
 
@@ -748,15 +750,21 @@ export const nodesRouter = router({
 	dragEnd: protectedProcedure
 		.input(
 			z.object({
-				id: z.string(),
-				x: z.number(),
-				y: z.number(),
+				nodes: z.array(
+					z.object({
+						id: z.string(),
+						x: z.number(),
+						y: z.number(),
+					}),
+				),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			const node = await prisma.node.findUnique({
+			const nodes = await prisma.node.findMany({
 				where: {
-					id: input.id,
+					id: {
+						in: input.nodes.map((node) => node.id),
+					},
 				},
 				include: {
 					canvas: {
@@ -768,26 +776,33 @@ export const nodesRouter = router({
 				},
 			});
 
-			if (!node) {
+			if (!nodes) {
 				throw new Error("Node not found");
 			}
 
-			if (!canAccessCanvas(node.canvas, ctx, "edit")) {
+			if (!nodes.every((node) => canAccessCanvas(node.canvas, ctx, "edit"))) {
 				throw new Error("User is not allowed to drag node");
 			}
 
-			const res = await prisma.node.update({
-				where: {
-					id: input.id,
-				},
-				data: {
-					x: input.x,
-					y: input.y,
-				},
-			});
+			const updates = input.nodes.map((node) =>
+				prisma.node.update({
+					where: {
+						id: node.id,
+					},
+					data: {
+						x: node.x,
+						y: node.y,
+					},
+					include: {
+						handles: true,
+					},
+				}),
+			);
 
-			emitter(node.canvas.id).emit("dragEnd", {
-				node: res,
+			const res = await prisma.$transaction(updates);
+
+			emitter(nodes[0].canvas.id).emit("dragEnd", {
+				nodes: res,
 				userId: ctx.user.id,
 			});
 
@@ -819,9 +834,9 @@ export const nodesRouter = router({
 				throw new Error("User is not allowed to subscribe to this canvas");
 			}
 
-			return observable<{ node: Node; userId: string }>((observer) => {
+			return observable<{ nodes: Node[]; userId: string }>((observer) => {
 				const onDragEnd = (event: {
-					node: Node;
+					nodes: Node[];
 					userId: string;
 				}) => {
 					if (event.userId === ctx.user.id) {
@@ -896,11 +911,9 @@ export const nodesRouter = router({
 
 			// const res = await prisma.$transaction(updateNodes);
 
-			input.changes.forEach((node) => {
-				emitter(canvas.id).emit("dragUpdate", {
-					node,
-					userId: ctx.user.id,
-				});
+			emitter(canvas.id).emit("dragUpdate", {
+				nodes: input.changes,
+				userId: ctx.user.id,
 			});
 
 			return input.changes;
@@ -933,10 +946,10 @@ export const nodesRouter = router({
 			}
 
 			return observable<{
-				node: Node;
+				nodes: Node[];
 				userId: string;
 			}>((observer) => {
-				const onDragUpdate = (event: { node: Node; userId: string }) => {
+				const onDragUpdate = (event: { nodes: Node[]; userId: string }) => {
 					if (event.userId === ctx.user.id) {
 						return;
 					}

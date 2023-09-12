@@ -211,6 +211,18 @@ export const useStore = createWithEqualityFn(
 						}),
 					}));
 				},
+				updateManyNodes: (nodes: Partial<Node>[]) => {
+					// console.log("updateNode", node);
+					set((state) => ({
+						nodes: state.nodes.map((n) => {
+							const node = nodes.find((node) => node.id === n.id);
+							if (node) {
+								return shallowMerge(n, node);
+							}
+							return n;
+						}),
+					}));
+				},
 				addNode: (node: Node) => {
 					set((state) => ({
 						nodes: [...state.nodes, node],
