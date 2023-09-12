@@ -1,6 +1,7 @@
 import { useStore } from "@/lib/store";
 import { cn, trpc } from "@/lib/utils";
 import { ArrowDown, Loader2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useRef } from "react";
 import PresetNode from "../nodes/preset-node";
 import { Button } from "../ui/button";
@@ -11,6 +12,7 @@ export default function DragPanel() {
 		state.dragPanelHidden,
 		state.toggleDragPanel,
 	]);
+	const { data: session } = useSession();
 	const toggleCanvasPanel = useStore((state) => state.toggleCanvasPanel);
 	const toggleMembersPanel = useStore((state) => state.toggleMembersPanel);
 	const isMobile = useStore((state) => state.isMobile);
@@ -54,14 +56,25 @@ export default function DragPanel() {
 					<CardTitle>Presets</CardTitle>
 				</CardHeader>
 				<CardContent>
-					{nodes.filter((e) => e.data.preset).length === 0 && (
+					{session?.user.id ? (
+						nodes.filter((e) => e.data.preset).length === 0 && (
+							<p
+								className={cn(
+									"text-center text-muted-foreground transition-opacity duration-300 ease-in-out",
+									panelHidden ? "opacity-0" : "opacity-100",
+								)}
+							>
+								You have no presets yet.
+							</p>
+						)
+					) : (
 						<p
 							className={cn(
 								"text-center text-muted-foreground transition-opacity duration-300 ease-in-out",
 								panelHidden ? "opacity-0" : "opacity-100",
 							)}
 						>
-							You have no presets yet.
+							Sign in to use presets.
 						</p>
 					)}
 					<div
