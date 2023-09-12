@@ -22,11 +22,9 @@ export default function DragPanel() {
 	return (
 		<>
 			<Card
-				className={`w-52 md:w-96 lg:w-[30rem] text-right ${
-					panelHidden
-						? "transform translate-y-[calc(100%-3.5rem)]"
-						: "transform translate-x-0"
-				} transition-all duration-300 ease-in-out flex flex-col justify-center items-center`}
+				className={
+					"w-52 md:w-96 lg:w-[30rem] text-right  flex flex-col justify-center items-center"
+				}
 				ref={cardRef}
 			>
 				<Button

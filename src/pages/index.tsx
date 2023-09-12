@@ -37,28 +37,40 @@ export default () => {
 				</Panel>
 				<Panel
 					position="bottom-left"
-					className={cn({
+					className={cn("transition-all duration-300 ease-in-out", {
 						"z-[4]": canvasPanelHidden,
 						"z-[6]": !canvasPanelHidden,
+						"transform -translate-x-[calc(100%-3.5rem)] translate-y-[calc(100%-3.5rem)]":
+							canvasPanelHidden,
 					})}
+					onContextMenu={(e) => e.preventDefault()}
 				>
 					<CanvasPanel />
 				</Panel>
 				<Panel
 					position="bottom-right"
-					className={cn({
+					className={cn("transition-all duration-300 ease-in-out", {
 						"z-[4]": membersPanelHidden,
 						"z-[6]": !membersPanelHidden,
+						"transform translate-x-[calc(100%-3.5rem)] translate-y-[calc(100%-3.5rem)]":
+							membersPanelHidden,
 					})}
+					onContextMenu={(e) => e.preventDefault()}
 				>
 					<MembersPanel />
 				</Panel>
 				<Panel
 					position="bottom-center"
-					className={cn("mx-0", {
-						"z-[4]": dragPanelHidden,
-						"z-[6]": !dragPanelHidden,
-					})}
+					className={cn(
+						"mx-0 transition-all duration-300 ease-in-out -translate-x-1/2",
+						{
+							"z-[4]": dragPanelHidden,
+							"z-[6]": !dragPanelHidden,
+							"transform translate-y-[calc(100%-3.5rem)]": dragPanelHidden,
+							"transform translate-y-0": !dragPanelHidden,
+						},
+					)}
+					onContextMenu={(e) => e.preventDefault()}
 				>
 					<DragPanel />
 				</Panel>

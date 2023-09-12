@@ -51,6 +51,7 @@ import {
 	SelectValue,
 } from "../ui/select";
 import { Slider } from "../ui/slider";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useToast } from "../ui/use-toast";
 
 const { publicRuntimeConfig } = getConfig();
@@ -220,15 +221,7 @@ export default function MembersPanel() {
 					</div>
 				</DialogContent>
 			</Dialog>
-			<Card
-				className={cn(
-					"w-64 text-right transition-all duration-300 ease-in-out",
-					{
-						"transform translate-x-[calc(100%-3.5rem)] translate-y-[calc(100%-3.5rem)]":
-							panelHidden,
-					},
-				)}
-			>
+			<Card className={cn("w-64 text-right")}>
 				<Button
 					size="icon"
 					className="absolute top-4 left-4"
@@ -408,20 +401,51 @@ export default function MembersPanel() {
 																	</div>
 																	<div className="flex-grow" />
 
-																	<Button
-																		onClick={() => {
-																			addMember.mutate({
-																				canvasId: currentCanvasId,
-																				id: user.id,
-																				permission:
-																					addNewMemberState.permission as
-																						| "view"
-																						| "edit",
-																			});
-																		}}
-																	>
-																		Add
-																	</Button>
+																	<Tooltip>
+																		<TooltipTrigger>
+																			<Button
+																				onClick={() => {
+																					addMember.mutate({
+																						canvasId: currentCanvasId,
+																						id: user.id,
+																						permission:
+																							addNewMemberState.permission as
+																								| "view"
+																								| "edit",
+																					});
+																				}}
+																				disabled={
+																					addMember.isLoading ||
+																					user.id === session?.user.id ||
+																					currentCanvas.data?.members.some(
+																						(e) => e.user.id === user.id,
+																					) ||
+																					currentCanvas.data?.owner.id ===
+																						user.id
+																				}
+																			>
+																				Add
+																			</Button>
+																		</TooltipTrigger>
+																		<TooltipContent>
+																			{user.id === session?.user.id ? (
+																				<p className="text-sm">
+																					You can't add yourself.
+																				</p>
+																			) : currentCanvas.data?.members.some(
+																					(e) => e.user.id === user.id,
+																			  ) ? (
+																				<p className="text-sm">
+																					This user is already a member.
+																				</p>
+																			) : currentCanvas.data?.owner.id ===
+																			  user.id ? (
+																				<p className="text-sm">
+																					This user is the owner.
+																				</p>
+																			) : null}
+																		</TooltipContent>
+																	</Tooltip>
 																</div>
 															</CardHeader>
 														</Card>

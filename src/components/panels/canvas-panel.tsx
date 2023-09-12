@@ -95,13 +95,7 @@ export default function CanvasPanel() {
 	return (
 		<div className="relative">
 			{modal}
-			<Card
-				className={cn("w-64 transition-all duration-300 ease-in-out", {
-					"transform -translate-x-[calc(100%-3.5rem)] translate-y-[calc(100%-3.5rem)]":
-						panelHidden,
-					"transform translate-x-0": !panelHidden,
-				})}
-			>
+			<Card className={cn("w-64")}>
 				<Button
 					size="icon"
 					className="absolute top-4 right-4"

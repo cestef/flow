@@ -102,7 +102,7 @@ export default function Profile({
 							<div className="flex flex-wrap gap-4 justify-center items-center">
 								{user?.canvases.map((canvas) => (
 									<Link href={`/?canvasId=${canvas.id}`} key={canvas.id}>
-										<div className="bg-card rounded-lg border px-6 py-4 cursor-pointer hover:shadow-md transition-shadow duration-200">
+										<div className="bg-accent rounded-lg border dark:border-stone-700 px-6 py-4 cursor-pointer hover:shadow-md transition-shadow duration-200">
 											<p className="text-xl font-bold">{canvas.name}</p>
 											<Tooltip>
 												<TooltipTrigger>
@@ -208,6 +208,11 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 					.map((canvas) => ({
 						...canvas,
 						createdAt: canvas.createdAt.toString(),
+						members: canvas.members.map((member) => ({
+							...member,
+							createdAt: member.createdAt.toString(),
+							updatedAt: member.updatedAt.toString(),
+						})),
 					})),
 			},
 		},
