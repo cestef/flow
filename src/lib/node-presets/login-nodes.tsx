@@ -16,9 +16,10 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -500, y: 0 },
+		position: { x: -485, y: 0 },
 		style: {
-			width: 210,
+			width: 180,
+			height: 50,
 		},
 	},
 	{
@@ -38,9 +39,10 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -730, y: 150 },
+		position: { x: -700, y: 125 },
 		style: {
-			width: 210,
+			width: 150,
+			height: 50,
 		},
 	},
 	{
@@ -60,9 +62,10 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -500, y: 150 },
+		position: { x: -470, y: 125 },
 		style: {
-			width: 210,
+			width: 150,
+			height: 50,
 		},
 	},
 	{
@@ -82,9 +85,10 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -270, y: 150 },
+		position: { x: -240, y: 125 },
 		style: {
-			width: 210,
+			width: 150,
+			height: 50,
 		},
 	},
 	{
@@ -100,9 +104,10 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -270, y: 300 },
+		position: { x: -270, y: 250 },
 		style: {
 			width: 210,
+			height: 50,
 		},
 	},
 	{
@@ -122,9 +127,10 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -630, y: 300 },
+		position: { x: -630, y: 250 },
 		style: {
 			width: 240,
+			height: 50,
 		},
 	},
 	{
@@ -144,9 +150,10 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -845, y: 450 },
+		position: { x: -735, y: 375 },
 		style: {
-			width: 210,
+			width: 100,
+			height: 50,
 		},
 	},
 	{
@@ -166,9 +173,10 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -615, y: 450 },
+		position: { x: -585, y: 375 },
 		style: {
-			width: 210,
+			width: 150,
+			height: 50,
 		},
 	},
 	{
@@ -188,9 +196,10 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -385, y: 450 },
+		position: { x: -385, y: 375 },
 		style: {
-			width: 210,
+			width: 110,
+			height: 50,
 		},
 	},
 	{
@@ -198,6 +207,8 @@ export const loginNodes = [
 		data: {
 			label: "You need Flow.",
 			fontWeight: "bolder",
+			color: "linear-gradient(45deg, #E11D48 30%, #FF8E53 90%)",
+			borderColor: "transparent",
 			handles: [
 				{
 					position: "top",
@@ -209,10 +220,11 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -615, y: 600 },
+		position: { x: -615, y: 500 },
 		type: NODES_TYPES.DEFAULT,
 		style: {
 			width: 210,
+			height: 50,
 		},
 	},
 	{
@@ -231,10 +243,11 @@ export const loginNodes = [
 				},
 			],
 		},
-		position: { x: -270, y: 600 },
+		position: { x: -270, y: 500 },
 		type: NODES_TYPES.DEFAULT,
 		style: {
 			width: 210,
+			height: 50,
 		},
 	},
 	{
@@ -245,7 +258,7 @@ export const loginNodes = [
 				signIn();
 			},
 		},
-		position: { x: -430, y: 750 },
+		position: { x: -430, y: 625 },
 		type: NODES_TYPES.BUTTON,
 		style: {
 			width: 210,
