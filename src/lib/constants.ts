@@ -25,7 +25,7 @@ export const edgeTypes = {
 	[EDGES_TYPES.DEFAULT]: DefaultEdge,
 };
 
-export const UPDATE_THROTTLE = (1 / 30) * 1000; // 30Hz
+export const UPDATE_THROTTLE = (1 / 10) * 1000; // 10Hz
 
 export const flowSelector = (state: StoreState) => ({
 	nodes: state.nodes,
