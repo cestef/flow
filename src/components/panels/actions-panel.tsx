@@ -2,6 +2,7 @@ import { FIT_VIEW, NODES_TYPES, flowSelector } from "@/lib/constants";
 import { useStore, useTemporalStore } from "@/lib/store";
 import {
 	cn,
+	formatLocalEdges,
 	formatLocalNodes,
 	nodesEqual,
 	orderNodes,
@@ -233,37 +234,87 @@ export default function ActionsPanel() {
 		fitView(FIT_VIEW);
 	});
 	const { undo, redo } = useTemporalStore((s) => s);
+	const setManyEdges = trpc.edges.setMany.useMutation();
+	const setManyNodes = trpc.nodes.setMany.useMutation();
 	useHotkeys(["ctrl+z", "meta+z"], (e) => {
 		e.preventDefault();
 		const oldNodes = useStore.getState().nodes;
+		const oldEdges = useStore.getState().edges;
 		undo();
 		const newNodes = useStore.getState().nodes;
-		const differingNodes = newNodes.filter((node) => {
+		const createdNodes = newNodes.filter(
+			(node) => !oldNodes.find((n) => n.id === node.id),
+		);
+		const deletedNodes = oldNodes.filter(
+			(node) => !newNodes.find((n) => n.id === node.id),
+		);
+		const updatedNodes = newNodes.filter((node) => {
 			const oldNode = oldNodes.find((n) => n.id === node.id);
-			if (!oldNode) return true;
+			if (!oldNode) return false;
 			return !shallowEqual(node, oldNode);
 		});
-		// const newEdges = useStore.getState().edges;
-		if (differingNodes.length === 0) return console.log("nodes didn't change");
-		updateManyNodes.mutate({
-			nodes: formatLocalNodes(differingNodes),
+		const differingNodes = [...createdNodes, ...updatedNodes, ...deletedNodes];
+		const newEdges = useStore.getState().edges;
+		const createdEdges = newEdges.filter(
+			(edge) => !oldEdges.find((e) => e.id === edge.id),
+		);
+		const deletedEdges = oldEdges.filter(
+			(edge) => !newEdges.find((e) => e.id === edge.id),
+		);
+		const updatedEdges = newEdges.filter((edge) => {
+			const oldEdge = oldEdges.find((e) => e.id === edge.id);
+			if (!oldEdge) return false;
+			return !shallowEqual(edge, oldEdge);
 		});
+		const differingEdges = [...createdEdges, ...updatedEdges, ...deletedEdges];
+		console.log("differingNodes", differingNodes);
+		console.log("differingEdges", differingEdges);
+		if (differingNodes.length > 0)
+			setManyNodes.mutate({
+				nodes: formatLocalNodes(differingNodes),
+				canvasId,
+			});
+		if (differingEdges.length > 0)
+			setManyEdges.mutate({
+				edges: formatLocalEdges(differingEdges),
+				canvasId,
+			});
 	});
 	useHotkeys(["ctrl+shift+z", "meta+shift+z"], (e) => {
 		e.preventDefault();
 		const oldNodes = useStore.getState().nodes;
+		const oldEdges = useStore.getState().edges;
 		redo();
 		const newNodes = useStore.getState().nodes;
-		const differingNodes = newNodes.filter((node) => {
-			const oldNode = oldNodes.find((n) => n.id === node.id);
-			if (!oldNode) return true;
-			return !shallowEqual(node, oldNode);
-		});
-		// const newEdges = useStore.getState().edges;
-		if (differingNodes.length === 0) return console.log("nodes didn't change");
-		updateManyNodes.mutate({
-			nodes: formatLocalNodes(differingNodes),
-		});
+		const differingNodes = newNodes
+			.filter((node) => {
+				const oldNode = oldNodes.find((n) => n.id === node.id);
+				if (!oldNode) return true;
+				return !shallowEqual(node, oldNode);
+			})
+			.concat(
+				oldNodes.filter((node) => !newNodes.find((n) => n.id === node.id)),
+			);
+		const newEdges = useStore.getState().edges;
+		const differingEdges = newEdges
+			.filter((edge) => {
+				const oldEdge = oldEdges.find((e) => e.id === edge.id);
+				if (!oldEdge) return true;
+				return !shallowEqual(edge, oldEdge);
+			})
+			.concat(
+				oldEdges.filter((edge) => !newEdges.find((e) => e.id === edge.id)),
+			);
+		if (differingNodes.length > 0)
+			setManyNodes.mutate({
+				nodes: formatLocalNodes(differingNodes),
+				canvasId,
+			});
+		if (differingEdges.length > 0)
+			setManyEdges.mutate({
+				edges: formatLocalEdges(differingEdges),
+				canvasId,
+			});
 	});
 
 	const togglePresetsHidden = useStore((state) => state.toggleDragPanel);

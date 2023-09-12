@@ -1255,4 +1255,341 @@ export const nodesRouter = router({
 
 			return res;
 		}),
+	/*
+    setMany: protectedProcedure
+		.input(
+			z.object({
+				edges: z.array(
+					z.object({
+						id: z.string(),
+						from: z.string().nullish(),
+						to: z.string().nullish(),
+						animated: z.boolean().nullish(),
+						color: z.string().nullish(),
+						linkColor: z.boolean().nullish(),
+						name: z.string().nullish(),
+						type: z.string(),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const edges = await prisma.edge.findMany({
+				where: {
+					id: {
+						in: input.edges.map((edge) => edge.id),
+					},
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+				},
+			});
+			const canvasId = edges[0].canvasId;
+
+			const allowedEdges = edges.filter((edge) => {
+				return canAccessCanvas(edge.canvas, ctx, "edit");
+			});
+
+			const deletedEdges = allowedEdges.filter((edge) => {
+				return !input.edges.find((e) => e.id === edge.id);
+			});
+			const addedEdges = input.edges.filter((edge) => {
+				return !allowedEdges.find((e) => e.id === edge.id);
+			});
+
+			const updatedEdges = input.edges.filter((edge) => {
+				return allowedEdges.find((e) => e.id === edge.id);
+			});
+
+			const deletedRes = await prisma.$transaction(
+				deletedEdges.map((edge) => {
+					return prisma.edge.delete({
+						where: {
+							id: edge.id,
+						},
+					});
+				}),
+			);
+
+			const addedRes = await prisma.$transaction(
+				addedEdges.map((edge) => {
+					return prisma.edge.create({
+						data: {
+							from: {
+								connect: {
+									id: edge.from ?? undefined,
+								},
+							},
+							to: {
+								connect: {
+									id: edge.to ?? undefined,
+								},
+							},
+							name: edge.name ?? undefined,
+							animated: edge.animated ?? undefined,
+							color: edge.color ?? undefined,
+							linkColor: edge.linkColor ?? undefined,
+							canvas: {
+								connect: {
+									id: canvasId,
+								},
+							},
+							type: edge.type,
+						},
+					});
+				}),
+			);
+
+			const updatedRes = await prisma.$transaction(
+				updatedEdges.map((edge) => {
+					return prisma.edge.update({
+						where: {
+							id: edge.id,
+						},
+						data: {
+							...(edge.from && {
+								from: {
+									connect: {
+										id: edge.from,
+									},
+								},
+							}),
+							...(edge.to && {
+								to: {
+									connect: {
+										id: edge.to,
+									},
+								},
+							}),
+							name: edge.name ?? undefined,
+							animated: edge.animated ?? undefined,
+							color: edge.color ?? undefined,
+							linkColor: edge.linkColor ?? undefined,
+						},
+					});
+				}),
+			);
+
+			deletedRes.forEach((edge) => {
+				emitter(edge.canvasId).emit("delete", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			addedRes.forEach((edge) => {
+				emitter(edge.canvasId).emit("add", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			updatedRes.forEach((edge) => {
+				emitter(edge.canvasId).emit("update", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			return {
+				deleted: deletedRes,
+				updated: updatedRes,
+				added: addedRes,
+			};
+		}),
+    */
+	setMany: protectedProcedure
+		.input(
+			z.object({
+				nodes: z.array(
+					z.object({
+						id: z.string(),
+						x: z.number(),
+						y: z.number(),
+						type: z.string(),
+						fontSize: z.number().nullish(),
+						fontSizeAuto: z.boolean().nullish(),
+						fontWeight: z.string().nullish(),
+						fontColor: z.string().nullish(),
+						fontFamily: z.string().nullish(),
+						borderRadius: z.number().nullish(),
+						borderColor: z.string().nullish(),
+						borderWidth: z.number().nullish(),
+						borderStyle: z.string().nullish(),
+						verticalAlign: z.string().nullish(),
+						horizontalAlign: z.string().nullish(),
+						height: z.number().nullish(),
+						width: z.number().nullish(),
+						color: z.string().nullish(),
+						name: z.string(),
+						parentId: z.string().nullish().nullable(),
+						handles: z
+							.array(
+								z.object({
+									position: z.string(),
+									type: z.string(),
+								}),
+							)
+							.nullish(),
+					}),
+				),
+				canvasId: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const nodes = await prisma.node.findMany({
+				where: {
+					id: {
+						in: input.nodes.map((node) => node.id),
+					},
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+				},
+			});
+
+			const canvasId = input.canvasId;
+
+			if (!nodes) {
+				throw new Error("Nodes not found");
+			}
+
+			const allowedNodes = nodes.filter((node) => {
+				return canAccessCanvas(node.canvas, ctx, "edit");
+			});
+
+			const deletedNodes = allowedNodes.filter((node) => {
+				return !input.nodes.find((e) => e.id === node.id);
+			});
+			const addedNodes = input.nodes.filter((node) => {
+				return !allowedNodes.find((e) => e.id === node.id);
+			});
+
+			const updatedNodes = input.nodes.filter((node) => {
+				return allowedNodes.find((e) => e.id === node.id);
+			});
+
+			const deletedRes = await prisma.$transaction(
+				deletedNodes.map((node) => {
+					return prisma.node.delete({
+						where: {
+							id: node.id,
+						},
+					});
+				}),
+			);
+
+			const addedRes = await prisma.$transaction(
+				addedNodes.map((node) => {
+					return prisma.node.create({
+						data: {
+							canvasId: canvasId,
+							parentId: node.parentId ?? undefined,
+							x: node.x,
+							y: node.y,
+							type: node.type,
+							name: node.name,
+							fontSize: node.fontSize,
+							fontSizeAuto: node.fontSizeAuto,
+							fontWeight: node.fontWeight,
+							fontColor: node.fontColor,
+							fontFamily: node.fontFamily,
+							width: node.width,
+							height: node.height,
+							color: node.color,
+							borderRadius: node.borderRadius,
+							borderColor: node.borderColor,
+							borderWidth: node.borderWidth,
+							borderStyle: node.borderStyle,
+							verticalAlign: node.verticalAlign,
+							horizontalAlign: node.horizontalAlign,
+							handles: {
+								create:
+									node.handles?.map((handle) => ({
+										type: handle.type,
+										position: handle.position,
+									})) ?? [],
+							},
+						},
+						include: {
+							handles: true,
+						},
+					});
+				}),
+			);
+
+			const updatedRes = await prisma.$transaction(
+				updatedNodes.map((node) => {
+					return prisma.node.update({
+						where: {
+							id: node.id,
+						},
+						data: {
+							x: node.x ?? undefined,
+							y: node.y ?? undefined,
+							height: node.height,
+							width: node.width,
+							color: node.color,
+							name: node.name ?? undefined,
+							parent: {
+								...(node.parentId === null
+									? { disconnect: true }
+									: node.parentId === undefined
+									? {}
+									: { connect: { id: node.parentId } }),
+							},
+							fontSize: node.fontSize,
+							fontSizeAuto: node.fontSizeAuto,
+							fontWeight: node.fontWeight,
+							fontColor: node.fontColor,
+							fontFamily: node.fontFamily,
+							borderRadius: node.borderRadius,
+							borderColor: node.borderColor,
+							borderWidth: node.borderWidth,
+							borderStyle: node.borderStyle,
+							verticalAlign: node.verticalAlign,
+							horizontalAlign: node.horizontalAlign,
+							handles: {
+								create:
+									node.handles?.map((handle) => ({
+										type: handle.type,
+										position: handle.position,
+									})) ?? [],
+							},
+						},
+						include: {
+							handles: true,
+						},
+					});
+				}),
+			);
+
+			deletedRes.forEach((node) => {
+				emitter(node.canvasId).emit("delete", node);
+			});
+
+			addedRes.forEach((node) => {
+				emitter(node.canvasId).emit("add", node);
+			});
+
+			updatedRes.forEach((node) => {
+				emitter(node.canvasId).emit("update", node);
+			});
+
+			return {
+				deleted: deletedRes,
+				updated: updatedRes,
+				added: addedRes,
+			};
+		}),
 });

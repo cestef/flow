@@ -696,4 +696,232 @@ export const edgesRouter = router({
 				userId: ctx.user.id,
 			});
 		}),
+	updateMany: protectedProcedure
+		.input(
+			z.object({
+				edges: z.array(
+					z.object({
+						id: z.string(),
+						from: z.string().nullish(),
+						to: z.string().nullish(),
+						animated: z.boolean().nullish(),
+						color: z.string().nullish(),
+						linkColor: z.boolean().nullish(),
+						name: z.string().nullish(),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const edges = await prisma.edge.findMany({
+				where: {
+					id: {
+						in: input.edges.map((edge) => edge.id),
+					},
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+				},
+			});
+
+			const allowedEdges = edges.filter((edge) => {
+				return canAccessCanvas(edge.canvas, ctx, "edit");
+			});
+
+			const res = await prisma.$transaction(
+				allowedEdges.map((edge) => {
+					const data = input.edges.find((e) => e.id === edge.id);
+					if (!data) {
+						throw new Error("Edge not found");
+					}
+					return prisma.edge.update({
+						where: {
+							id: edge.id,
+						},
+						data: {
+							...(data.from && {
+								from: {
+									connect: {
+										id: data.from,
+									},
+								},
+							}),
+							...(data.to && {
+								to: {
+									connect: {
+										id: data.to,
+									},
+								},
+							}),
+							name: data.name ?? undefined,
+							animated: data.animated ?? undefined,
+							color: data.color ?? undefined,
+							linkColor: data.linkColor ?? undefined,
+						},
+					});
+				}),
+			);
+
+			allowedEdges.forEach((edge) => {
+				emitter(edge.canvas.id).emit("update", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			return res;
+		}),
+	setMany: protectedProcedure
+		.input(
+			z.object({
+				edges: z.array(
+					z.object({
+						id: z.string(),
+						from: z.string().nullish(),
+						to: z.string().nullish(),
+						animated: z.boolean().nullish(),
+						color: z.string().nullish(),
+						linkColor: z.boolean().nullish(),
+						name: z.string().nullish(),
+						type: z.string(),
+					}),
+				),
+				canvasId: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const edges = await prisma.edge.findMany({
+				where: {
+					id: {
+						in: input.edges.map((edge) => edge.id),
+					},
+				},
+				include: {
+					canvas: {
+						include: {
+							owner: true,
+							members: true,
+						},
+					},
+				},
+			});
+
+			const canvasId = input.canvasId;
+
+			const allowedEdges = edges.filter((edge) => {
+				return canAccessCanvas(edge.canvas, ctx, "edit");
+			});
+
+			const deletedEdges = allowedEdges.filter((edge) => {
+				return !input.edges.find((e) => e.id === edge.id);
+			});
+			const addedEdges = input.edges.filter((edge) => {
+				return !allowedEdges.find((e) => e.id === edge.id);
+			});
+
+			const updatedEdges = input.edges.filter((edge) => {
+				return allowedEdges.find((e) => e.id === edge.id);
+			});
+
+			const deletedRes = await prisma.$transaction(
+				deletedEdges.map((edge) => {
+					return prisma.edge.delete({
+						where: {
+							id: edge.id,
+						},
+					});
+				}),
+			);
+
+			const addedRes = await prisma.$transaction(
+				addedEdges.map((edge) => {
+					return prisma.edge.create({
+						data: {
+							from: {
+								connect: {
+									id: edge.from ?? undefined,
+								},
+							},
+							to: {
+								connect: {
+									id: edge.to ?? undefined,
+								},
+							},
+							name: edge.name ?? undefined,
+							animated: edge.animated ?? undefined,
+							color: edge.color ?? undefined,
+							linkColor: edge.linkColor ?? undefined,
+							canvas: {
+								connect: {
+									id: canvasId,
+								},
+							},
+							type: edge.type,
+						},
+					});
+				}),
+			);
+
+			const updatedRes = await prisma.$transaction(
+				updatedEdges.map((edge) => {
+					return prisma.edge.update({
+						where: {
+							id: edge.id,
+						},
+						data: {
+							...(edge.from && {
+								from: {
+									connect: {
+										id: edge.from,
+									},
+								},
+							}),
+							...(edge.to && {
+								to: {
+									connect: {
+										id: edge.to,
+									},
+								},
+							}),
+							name: edge.name ?? undefined,
+							animated: edge.animated ?? undefined,
+							color: edge.color ?? undefined,
+							linkColor: edge.linkColor ?? undefined,
+						},
+					});
+				}),
+			);
+
+			deletedRes.forEach((edge) => {
+				emitter(edge.canvasId).emit("delete", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			addedRes.forEach((edge) => {
+				emitter(edge.canvasId).emit("add", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			updatedRes.forEach((edge) => {
+				emitter(edge.canvasId).emit("update", {
+					edge,
+					userId: ctx.user.id,
+				});
+			});
+
+			return {
+				deleted: deletedRes,
+				updated: updatedRes,
+				added: addedRes,
+			};
+		}),
 });
