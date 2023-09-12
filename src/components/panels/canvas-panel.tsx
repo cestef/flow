@@ -67,13 +67,21 @@ export default function CanvasPanel() {
 	});
 
 	const { confirm, modal } = useConfirm();
-
+	const lastCanvasId = useRef<string | null>(null);
 	useEffect(() => {
 		if (canvases.data && !currentCanvasId && canvases.data.length > 0) {
 			setCurrentCanvasId(canvases.data[0].id);
 		} else if (canvases.data?.length === 0) {
 			setCurrentCanvasId("welcome");
 		}
+		if (currentCanvasId !== lastCanvasId.current) {
+			window.requestAnimationFrame(() => {
+				window.requestAnimationFrame(() => {
+					fitView();
+				});
+			});
+		}
+		lastCanvasId.current = currentCanvasId;
 	}, [canvases.data, currentCanvasId]);
 	const togglePanel = useStore((state) => state.toggleCanvasPanel);
 	const toggleMembersPanel = useStore((state) => state.toggleMembersPanel);
@@ -139,11 +147,6 @@ export default function CanvasPanel() {
 									onSelect={(e) => {
 										// console.log(e);
 										setCurrentCanvasId(e);
-										window.requestAnimationFrame(() => {
-											window.requestAnimationFrame(() => {
-												fitView();
-											});
-										});
 										toggleChooseCanvas(false);
 									}}
 									onRemove={async (e) => {
