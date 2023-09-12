@@ -534,3 +534,31 @@ export const getLatestTag = async (repo: string) => {
 export const canEdit = (permission: string) => {
 	return permission === "edit";
 };
+
+export const shallowEqual = (a: any, b: any) => {
+	if (a === b) return true;
+	if (
+		typeof a !== "object" ||
+		a === null ||
+		typeof b !== "object" ||
+		b === null
+	)
+		return false;
+	const traverseObject = (a: any, b: any = {}): boolean => {
+		const keys = Object.keys(a);
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+			const keyType = typeof a[key];
+			if (keyType === "object" && a[key] !== null) {
+				return traverseObject(a[key], b[key]);
+			}
+			if (keyType === "function") {
+				if (a[key].toString() !== b[key].toString()) return false;
+			}
+
+			if (keyType !== "function" && a[key] !== b[key]) return false;
+		}
+		return true;
+	};
+	return traverseObject(a, b) && traverseObject(b, a);
+};

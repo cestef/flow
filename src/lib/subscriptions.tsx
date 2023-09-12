@@ -56,7 +56,7 @@ export const subscribe = () => {
 		{
 			async onData(node) {
 				const [formatted] = formatRemoteNodes([node]);
-				console.log("formatted", formatted);
+				// console.log("formatted", formatted);
 				updateNode(formatted);
 				updateNodeInternal(node.id);
 			},

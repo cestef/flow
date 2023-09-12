@@ -1,6 +1,13 @@
 import { FIT_VIEW, NODES_TYPES, flowSelector } from "@/lib/constants";
 import { useStore, useTemporalStore } from "@/lib/store";
-import { cn, nodesEqual, orderNodes, trpc } from "@/lib/utils";
+import {
+	cn,
+	formatLocalNodes,
+	nodesEqual,
+	orderNodes,
+	shallowEqual,
+	trpc,
+} from "@/lib/utils";
 import {
 	ClipboardCopy,
 	ClipboardPaste,
@@ -231,19 +238,15 @@ export default function ActionsPanel() {
 		const oldNodes = useStore.getState().nodes;
 		undo();
 		const newNodes = useStore.getState().nodes;
+		const differingNodes = newNodes.filter((node) => {
+			const oldNode = oldNodes.find((n) => n.id === node.id);
+			if (!oldNode) return true;
+			return !shallowEqual(node, oldNode);
+		});
 		// const newEdges = useStore.getState().edges;
-		if (nodesEqual(oldNodes, newNodes)) return;
+		if (differingNodes.length === 0) return console.log("nodes didn't change");
 		updateManyNodes.mutate({
-			nodes: newNodes.map((node) => ({
-				id: node.id,
-				x: node.position.x,
-				y: node.position.y,
-				color: node.data.color || undefined,
-				width: +(node.style?.width || 0) || +(node.width || 0) || undefined,
-				height: +(node.style?.height || 0) || +(node.height || 0) || undefined,
-				name: node.data.label,
-				parentId: node.parentNode,
-			})),
+			nodes: formatLocalNodes(differingNodes),
 		});
 	});
 	useHotkeys(["ctrl+shift+z", "meta+shift+z"], (e) => {
@@ -251,19 +254,15 @@ export default function ActionsPanel() {
 		const oldNodes = useStore.getState().nodes;
 		redo();
 		const newNodes = useStore.getState().nodes;
+		const differingNodes = newNodes.filter((node) => {
+			const oldNode = oldNodes.find((n) => n.id === node.id);
+			if (!oldNode) return true;
+			return !shallowEqual(node, oldNode);
+		});
 		// const newEdges = useStore.getState().edges;
-		if (nodesEqual(oldNodes, newNodes)) return;
+		if (differingNodes.length === 0) return console.log("nodes didn't change");
 		updateManyNodes.mutate({
-			nodes: newNodes.map((node) => ({
-				id: node.id,
-				x: node.position.x,
-				y: node.position.y,
-				color: node.data.color || undefined,
-				width: +(node.style?.width || 0) || +(node.width || 0) || undefined,
-				height: +(node.style?.height || 0) || +(node.height || 0) || undefined,
-				name: node.data.label,
-				parentId: node.parentNode,
-			})),
+			nodes: formatLocalNodes(differingNodes),
 		});
 	});
 
