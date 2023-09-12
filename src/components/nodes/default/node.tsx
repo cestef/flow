@@ -552,7 +552,7 @@ function DefaultNode({
 					<Star className="mr-2 w-4 h-4" />
 					Make preset
 				</ContextMenuItem>
-				<ContextMenuItem
+				{/* <ContextMenuItem
 					onClick={() => {
 						createComment.mutate({
 							nodeId: id,
@@ -562,7 +562,7 @@ function DefaultNode({
 				>
 					<MessageSquare className="mr-2 w-4 h-4" />
 					Comment
-				</ContextMenuItem>
+				</ContextMenuItem> */}
 				<ContextMenuSeparator />
 				<ContextMenuLabel>Style</ContextMenuLabel>
 				<ContextMenuItem
