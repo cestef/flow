@@ -1,4 +1,4 @@
-import { NODES_TYPES, flowSelector } from "@/lib/constants";
+import { FIT_VIEW, NODES_TYPES, flowSelector } from "@/lib/constants";
 import { useStore, useTemporalStore } from "@/lib/store";
 import { cn, nodesEqual, orderNodes, trpc } from "@/lib/utils";
 import {
@@ -223,7 +223,7 @@ export default function ActionsPanel() {
 	});
 	useHotkeys(["ctrl+f", "meta+f"], (e) => {
 		e.preventDefault();
-		fitView();
+		fitView(FIT_VIEW);
 	});
 	const { undo, redo } = useTemporalStore((s) => s);
 	useHotkeys(["ctrl+z", "meta+z"], (e) => {
@@ -345,7 +345,7 @@ export default function ActionsPanel() {
 								<Button
 									size="icon"
 									onClick={() => {
-										fitView();
+										fitView(FIT_VIEW);
 										setSettingsOpen(false);
 									}}
 								>

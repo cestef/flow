@@ -8,6 +8,7 @@ import {
 } from "../ui/dialog";
 import { DialogFooter, DialogHeader } from "../ui/dialog";
 
+import { FIT_VIEW } from "@/lib/constants";
 import { useStore } from "@/lib/store";
 import useConfirm from "@/lib/useConfirm";
 import {
@@ -77,7 +78,7 @@ export default function CanvasPanel() {
 		if (currentCanvasId !== lastCanvasId.current) {
 			window.requestAnimationFrame(() => {
 				window.requestAnimationFrame(() => {
-					fitView();
+					fitView(FIT_VIEW);
 				});
 			});
 		}

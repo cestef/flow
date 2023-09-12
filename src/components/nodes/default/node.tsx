@@ -447,7 +447,7 @@ function DefaultNode({
 													handles: [
 														{
 															position,
-															type: "target",
+															type: "source",
 														},
 													],
 												});
@@ -460,7 +460,7 @@ function DefaultNode({
 													handles: [
 														{
 															position,
-															type: "source",
+															type: "target",
 														},
 													],
 												});

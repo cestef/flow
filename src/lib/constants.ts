@@ -2,6 +2,7 @@ import DefaultEdge from "@/components/edges/default-edge";
 import ButtonNode from "@/components/nodes/button-node";
 import DefaultNode from "@/components/nodes/default/node";
 import GroupNode from "@/components/nodes/group-node";
+import { FitViewOptions } from "reactflow";
 import { StoreState } from "./store";
 
 export const NODES_TYPES = {
@@ -56,4 +57,9 @@ export const DRAG_THRESHOLD = 100;
 export const DEEFAULT_NODE_DIMENSIONS = {
 	width: 100,
 	height: 50,
+};
+
+export const FIT_VIEW: FitViewOptions = {
+	padding: 0.35,
+	duration: 700,
 };

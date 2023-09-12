@@ -1,4 +1,4 @@
-import { edgeTypes, flowSelector, nodeTypes } from "@/lib/constants";
+import { FIT_VIEW, edgeTypes, nodeTypes } from "@/lib/constants";
 import { useKeyPress, useReactFlow } from "reactflow";
 import { BackgroundStyled, ReactFlowStyled } from "./themed-flow";
 
@@ -89,6 +89,7 @@ const Flow = ({
 					fitView
 					minZoom={0.1}
 					maxZoom={3}
+					fitViewOptions={FIT_VIEW}
 					proOptions={{
 						hideAttribution: true,
 					}}

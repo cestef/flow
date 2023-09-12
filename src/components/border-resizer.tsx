@@ -102,17 +102,19 @@ const BorderResizerControl = ({
 						break;
 				}
 
+				const clampDist = clamp(dist, 0, 100);
+
 				updateNode({
 					id,
 					data: {
 						...node.data,
-						borderRadius: dist,
+						borderRadius: clampDist,
 					},
 				});
 
 				MupdateNode.mutate({
 					id,
-					borderRadius: dist,
+					borderRadius: clampDist,
 				});
 
 				onResize?.(prevValues.current);

@@ -6,7 +6,7 @@ import { formatRemoteEdges, formatRemoteNodes, trpc } from "./utils";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useReactFlow } from "reactflow";
-import { flowSelector } from "./constants";
+import { FIT_VIEW, flowSelector } from "./constants";
 import { useStore } from "./store";
 
 export const registerHooks = () => {
@@ -87,7 +87,7 @@ export const registerHooks = () => {
 			setNodes(welcomeNodes);
 			window.requestAnimationFrame(() => {
 				window.requestAnimationFrame(() => {
-					fitView();
+					fitView(FIT_VIEW);
 				});
 			});
 		} else if (remoteNodes.data && canvasId) {
@@ -132,7 +132,7 @@ export const registerHooks = () => {
 			lastCanvasId.current = canvasId;
 			window.requestAnimationFrame(() => {
 				window.requestAnimationFrame(() => {
-					fitView();
+					fitView(FIT_VIEW);
 				});
 			});
 		}
