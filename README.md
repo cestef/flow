@@ -9,6 +9,9 @@
 > **Warning** 
 > This project is still in heavy development and is not ready for production use, expect data loss and breaking changes
 
+> **Info**
+> A complete rewrite using [pluv.io](https://pluv.io) is currently ongoing on the [`pluv`](https://github.com/cestef/flow/tree/pluv) branch.
+
 <p align="center">
     <img src="assets/banner_rounded.png" width="auto" height="250px">
 </p>
