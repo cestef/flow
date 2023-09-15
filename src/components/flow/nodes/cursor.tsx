@@ -3,7 +3,7 @@ import { memo } from "react";
 import { NodeProps } from "reactflow";
 const CursorNode = ({ data: { color, state } }: NodeProps) => {
 	return (
-		<div className="nodrag pointer-events-none">
+		<div className="nodrag pointer-events-none absolute -top-3 -left-3">
 			{state === "grab" ? (
 				<Grab color={color} className="w-6 h-6" />
 			) : state === "select" ? (
