@@ -42,7 +42,7 @@ export default function Profile({
 					<CardHeader>
 						<CardTitle>Wait a second...</CardTitle>
 						<CardDescription className="text-gray-500 text-lg pt-2">
-							You can't accept your own invite!
+							You can&apos;t accept your own invite!
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="flex flex-col gap-4 justify-center items-center" />

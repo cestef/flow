@@ -48,11 +48,9 @@ export default function ComboBox({
 	noItemsText?: string;
 	createButton?: React.ReactNode;
 }) {
-	const [isOpen, setIsOpen] =
-		typeof open === "undefined" ? React.useState(false) : [open, onOpenChange];
-
+	const [isOpen, setIsOpen] = React.useState(false);
 	return (
-		<Popover open={isOpen} onOpenChange={setIsOpen}>
+		<Popover open={open ?? isOpen} onOpenChange={onOpenChange ?? setIsOpen}>
 			<PopoverTrigger asChild>
 				<Button
 					variant="outline"

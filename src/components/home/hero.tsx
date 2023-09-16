@@ -45,8 +45,8 @@ export default function Hero() {
 				</h1>
 
 				<p className="text-xl md:text-2xl font-medium text-muted-foreground">
-					Flow is a real-time collaborative flowchart editor. It's free, open-source, and
-					easy to use. Why not give it a try?
+					Flow is a real-time collaborative flowchart editor. I&apos;s free, open-source,
+					and easy to use. Why not give it a try?
 				</p>
 				<div className="flex flex-wrap gap-4 w-full">
 					<Link
