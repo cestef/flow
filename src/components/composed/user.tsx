@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 import { LogOut, UserIcon } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	DropdownMenu,
@@ -20,6 +22,7 @@ export default function User({
 	side?: string;
 	className?: string;
 }) {
+	const router = useRouter();
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -34,11 +37,11 @@ export default function User({
 				</Avatar>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent side={side as any}>
-				<DropdownMenuItem>
+				<DropdownMenuItem onClick={() => router.push("/profile/me")}>
 					<UserIcon size={16} className="mr-2" />
 					Profile
 				</DropdownMenuItem>
-				<DropdownMenuItem>
+				<DropdownMenuItem onClick={() => signOut()}>
 					<LogOut size={16} className="mr-2" />
 					Log Out
 				</DropdownMenuItem>

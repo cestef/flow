@@ -9,6 +9,20 @@ import { Github } from "lucide-react";
 import { getServerSession } from "next-auth/next";
 import { useSearchParams } from "next/navigation";
 
+const NEXT_AUTH_ERRORS = {
+	OAuthSignin: "Error in constructing an authorization URL",
+	OAuthCallback: "Error in handling the response from an OAuth provider",
+	OAuthCreateAccount: "Could not create OAuth provider user in the database",
+	EmailCreateAccount: "Could not create email provider user in the database",
+	Callback: "Error in the OAuth callback handler route",
+	OAuthAccountNotLinked:
+		"The email on the account is already linked, but not with this OAuth account",
+	EmailSignin: "Sending the e-mail with the verification token failed",
+	CredentialsSignin: "The authorize callback returned null in the Credentials provider.",
+	SessionRequired: "The content of this page requires you to be signed in at all times.",
+	Default: "Unknown error",
+};
+
 const icons = {
 	github: <Github className="mr-2 h-6 w-6" />,
 	discord: (
@@ -29,7 +43,7 @@ export default function Login({
 	providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 	const search = useSearchParams();
-	const callbackUrl = search.get("callbackUrl") ?? "/";
+	const callbackUrl = search.get("callbackUrl") ?? "/dashboard";
 	const error = search.get("error") ?? undefined;
 
 	return (
@@ -54,6 +68,11 @@ export default function Login({
 							Sign in with {provider.name}
 						</Button>
 					))}
+					{error && (
+						<p className="text-red-500 mt-2">
+							{(NEXT_AUTH_ERRORS as any)[error] ?? error}
+						</p>
+					)}
 				</CardContent>
 			</Card>
 			<BackgroundStyled className="-z-10" />
