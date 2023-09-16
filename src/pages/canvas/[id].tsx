@@ -1,4 +1,6 @@
 "use-client";
+import { ModeToggle } from "@/components/composed/mode-toggle";
+import User from "@/components/composed/user";
 import { BackgroundStyled } from "@/components/flow/background";
 import { Button } from "@/components/ui/button";
 import { NODE_NAMES } from "@/lib/constants";
@@ -11,7 +13,7 @@ import { prisma } from "@/lib/prisma";
 import { useStore } from "@/lib/store";
 import { canAccessCanvas, getRandomHexColor } from "@/lib/utils";
 import { GetServerSidePropsContext } from "next";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import ReactFlow, { Panel, useStore as useStoreFlow } from "reactflow";
 
@@ -33,6 +35,7 @@ function Room({ id }: { id: string }) {
 }
 
 function Canvas() {
+	const { data: session } = useSession();
 	const others = usePluvOthers();
 	const [nodes, setNodes] = useStore((e) => [e.nodes, e.setNodes] as const);
 	const [edges, setEdges] = useStore((e) => [e.edges, e.setEdges] as const);
@@ -60,6 +63,12 @@ function Canvas() {
 		<div className="h-[100svh] w-full">
 			<ReactFlow nodes={formatNodesFlow(nodes, others)} edges={edges} {...flowProps}>
 				<BackgroundStyled />
+				<Panel position="top-right">
+					<User user={session?.user} className="mr-2 mt-2" />
+				</Panel>
+				<Panel position="top-left">
+					<ModeToggle className="ml-2 mt-2" />
+				</Panel>
 				<Panel position="bottom-center">
 					<Button
 						onClick={() => {

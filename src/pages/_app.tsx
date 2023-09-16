@@ -14,7 +14,7 @@ import "reactflow/dist/style.css";
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
 	return (
 		<SessionProvider session={session}>
-			<ThemeProvider attribute="classs" defaultTheme="system" enableSystem>
+			<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 				<ReactFlowProvider>
 					<PluvProvider>
 						<TooltipProvider>
