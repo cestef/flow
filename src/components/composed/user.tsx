@@ -1,4 +1,5 @@
-import { User } from "next-auth";
+import { cn } from "@/lib/utils";
+import { LogOut, UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	DropdownMenu,
@@ -6,7 +7,6 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { LogOut, UserIcon } from "lucide-react";
 
 export default function User({
 	user,
@@ -23,7 +23,12 @@ export default function User({
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Avatar className={className}>
+				<Avatar
+					className={cn(
+						"cursor-pointer hover:opacity-80 transition-opacity duration-200",
+						className
+					)}
+				>
 					<AvatarImage src={user?.image} />
 					<AvatarFallback>{user?.name?.slice(0, 2).toUpperCase() ?? "??"}</AvatarFallback>
 				</Avatar>
