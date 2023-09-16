@@ -7,7 +7,7 @@ import { NODE_NAMES } from "@/lib/constants";
 import { formatNodesFlow } from "@/lib/flow/format";
 import { useFlowProps } from "@/lib/flow/useProps";
 import { usePluvOthers, usePluvStorage } from "@/lib/pluv/bundle";
-import { RoomProvider } from "@/lib/pluv/provider";
+import { RoomProvider } from "@/components/providers/pluv";
 import { useMouseTrack } from "@/lib/pluv/useMouseTrack";
 import { prisma } from "@/lib/prisma";
 import { useStore } from "@/lib/store";

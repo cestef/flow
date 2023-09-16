@@ -2,7 +2,7 @@
 
 import { y } from "@pluv/react";
 import { FC, ReactNode } from "react";
-import { PluvRoomProvider } from "./bundle";
+import { PluvRoomProvider } from "../../lib/pluv/bundle";
 
 export interface RoomProviderProps {
 	children?: ReactNode;
@@ -12,6 +12,7 @@ export interface RoomProviderProps {
 		y: number;
 		grabbing: boolean;
 		currentSelected: string[];
+		state: "select" | "default" | "grab";
 	};
 	room: string;
 }
