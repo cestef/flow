@@ -30,6 +30,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				},
 			],
 		},
+		include: {
+			members: {
+				include: {
+					user: true,
+				},
+			},
+		},
 	});
 
 	res.status(200).json(canvases);

@@ -1,14 +1,5 @@
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import type {
-	GetServerSidePropsContext,
-	InferGetServerSidePropsType,
-} from "next";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { getProviders, signIn } from "next-auth/react";
 
 import { BackgroundStyled } from "@/components/flow/background";
@@ -45,16 +36,16 @@ export default function Login({
 		<div className="flex flex-col items-center justify-center w-screen h-[100svh] shadow-sm px-4">
 			<Card className="w-full p-2 md:w-[450px] lg:w-[600px]">
 				<CardHeader>
-					<CardTitle className="text-4xl font-bold">Login to Flow</CardTitle>
-					<CardDescription className="text-gray-500 text-lg pt-2">
+					<CardTitle className="text-5xl font-bold">Login to Flow</CardTitle>
+					<CardDescription className="text-gray-500 text-xl pt-4">
 						Collaborate with your team and get more done.
 					</CardDescription>
 				</CardHeader>
-				<CardContent className="flex flex-col gap-4 justify-center items-center">
+				<CardContent className="flex flex-col gap-2 justify-center items-center">
 					{Object.values(providers || {}).map((provider) => (
 						<Button
 							onClick={() => signIn(provider.id, { callbackUrl })}
-							size="lg"
+							size="xl"
 							variant="default"
 							className="w-full"
 							key={provider.name}

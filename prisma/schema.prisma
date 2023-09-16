@@ -50,6 +50,7 @@ model User {
     updatedAt     DateTime  @updatedAt
     canvases      Canvas[]
     members       Member[]
+    invites       Invite[]
 
     @@map("users")
 }
@@ -63,6 +64,7 @@ model Canvas {
     owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
     ownerId   String
     members   Member[]
+    invites   Invite[]
 
     @@map("canvases")
 }
@@ -78,4 +80,19 @@ model Member {
     permission String   @default("view")
 
     @@map("members")
+}
+
+model Invite {
+    id         String    @id @default(cuid())
+    canvasId   String
+    maxUses    Int       @default(1)
+    uses       Int       @default(0)
+    code       String    @unique
+    permission String    @default("view")
+    expires    DateTime?
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    canvas     Canvas    @relation(fields: [canvasId], references: [id], onDelete: Cascade)
+    creator    User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    creatorId  String
 }

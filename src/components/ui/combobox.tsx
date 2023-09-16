@@ -6,16 +6,14 @@ import {
 	CommandGroup,
 	CommandInput,
 	CommandItem,
+	CommandSeparator,
 } from "@/components/ui/command";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, ChevronsUpDown, Cross, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check, ChevronsUpDown, Cross, Plus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { DialogTrigger } from "./dialog";
 
 export default function ComboBox({
 	open,
@@ -23,11 +21,14 @@ export default function ComboBox({
 	onOpenChange,
 	onSelect,
 	data,
-	label,
 	onRemove,
 	popoverClassName,
 	getItemStyle,
 	className,
+	side,
+	placeholder,
+	noItemsText,
+	createButton,
 }: {
 	popoverClassName?: string;
 	className?: string;
@@ -42,7 +43,10 @@ export default function ComboBox({
 		label: string;
 		deletable?: boolean;
 	}[];
-	label?: string;
+	side?: "top" | "right" | "bottom" | "left";
+	placeholder?: string;
+	noItemsText?: string;
+	createButton?: React.ReactNode;
 }) {
 	const [isOpen, setIsOpen] =
 		typeof open === "undefined" ? React.useState(false) : [open, onOpenChange];
@@ -56,17 +60,15 @@ export default function ComboBox({
 					aria-expanded={open}
 					className={cn("w-full justify-between", className)}
 				>
-					{value
-						? data.find((e) => e.value === value)?.label
-						: label || "Select"}
+					{value ? data.find((e) => e.value === value)?.label : placeholder || "Select"}
 					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className={cn("w-full", popoverClassName)}>
+			<PopoverContent className={cn("w-full", popoverClassName)} side={side}>
 				<Command className="w-full h-60">
 					<CommandInput placeholder="Search..." />
-					<CommandGroup className="w-full max-h-full overflow-y-auto">
-						<div className="max-h-full ">
+					<CommandGroup className="w-full h-32 overflow-y-auto">
+						<div className="max-h-full">
 							{data.map((e) => (
 								<CommandItem
 									key={e.value}
@@ -77,7 +79,7 @@ export default function ComboBox({
 									<Check
 										className={cn(
 											"mx-2 h-4 w-4",
-											value === e.value ? "opacity-100" : "opacity-0",
+											value === e.value ? "opacity-100" : "opacity-0"
 										)}
 									/>
 									{e.label}
@@ -95,12 +97,18 @@ export default function ComboBox({
 								</CommandItem>
 							))}
 							{data.length === 0 && (
-								<CommandItem disabled className="py-6 text-center">
-									No item found.
+								<CommandItem disabled className="py-6 text-center h-32">
+									{noItemsText || "No item found."}
 								</CommandItem>
 							)}
 						</div>
 					</CommandGroup>
+					{createButton && (
+						<>
+							<CommandSeparator />
+							<CommandGroup>{createButton}</CommandGroup>
+						</>
+					)}
 				</Command>
 			</PopoverContent>
 		</Popover>

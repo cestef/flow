@@ -12,6 +12,9 @@ const nextConfig = {
 		GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID,
 		VERSION: pack.default.version,
 	},
+    images: {
+        domains: ["placehold.co"]
+    }
 };
 
 export default nextConfig;

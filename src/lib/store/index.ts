@@ -5,7 +5,12 @@ import { MembersSlice, createMembersSlice } from "./members";
 import { CmdKSlice, createCmdKSlice } from "./cmdk";
 import { PresetsSlice, createPresetsSlice } from "./presets";
 
-interface RootSlice extends CanvasSlice, AwarenessSlice, MembersSlice, CmdKSlice, PresetsSlice {
+export interface RootSlice
+	extends CanvasSlice,
+		AwarenessSlice,
+		MembersSlice,
+		CmdKSlice,
+		PresetsSlice {
 	cmdk: boolean;
 	setCmdk: (cmdk: boolean) => void;
 	isMobile: boolean;
