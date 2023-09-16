@@ -106,7 +106,7 @@ export default function Profile({
 								title: "Invite accepted",
 								description: `You have accepted the invite to ${invite.canvas?.name}`,
 							});
-							router.push(`/?canvasId=${invite.canvas?.id}`);
+							router.push(`/canvas/${invite.canvas?.id}`);
 						}}
 					>
 						Accept
