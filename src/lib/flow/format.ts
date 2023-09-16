@@ -25,6 +25,7 @@ export const formatNodesFlow = (nodes: Node[], others: ReturnType<typeof usePluv
 		data: {
 			state: other.presence.state,
 			color: other.presence.color,
+			name: other.user.name,
 		},
 	})),
 ];

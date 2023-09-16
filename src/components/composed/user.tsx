@@ -11,17 +11,19 @@ import { LogOut, UserIcon } from "lucide-react";
 export default function User({
 	user,
 	side,
+	className,
 }: {
 	user?: {
 		name?: string;
 		image?: string;
 	};
 	side?: string;
+	className?: string;
 }) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Avatar>
+				<Avatar className={className}>
 					<AvatarImage src={user?.image} />
 					<AvatarFallback>{user?.name?.slice(0, 2).toUpperCase() ?? "??"}</AvatarFallback>
 				</Avatar>

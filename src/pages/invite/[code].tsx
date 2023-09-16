@@ -18,6 +18,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { redeemInvite } from "@/lib/mutations/invite";
 import { BackgroundStyled } from "@/components/flow/background";
+import User from "@/components/composed/user";
 
 export default function Profile({
 	invite,
@@ -63,6 +64,7 @@ export default function Profile({
 
 	return (
 		<div className="flex flex-col items-center justify-center w-screen h-[100svh] shadow-sm px-4">
+			<User user={session?.user} className="absolute top-4 right-4" />
 			<Card className="w-full p-2 md:w-[450px] lg:w-[600px]">
 				<CardHeader>
 					<CardTitle>
@@ -98,7 +100,8 @@ export default function Profile({
 					<Button
 						className="w-full"
 						onClick={async () => {
-							if (!session) {
+							console.log(session?.user.id);
+							if (!session?.user.id) {
 								return router.push(`/auth/login?callbackUrl=${router.asPath}`);
 							}
 							await redeemInvite(router.query.code as string);

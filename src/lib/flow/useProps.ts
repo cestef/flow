@@ -157,7 +157,7 @@ export const useFlowProps = (
 			state: "select",
 		});
 	}, []);
-	const onSelectionStop = useCallback((e: React.MouseEvent) => {
+	const onSelectionEnd = useCallback((e: React.MouseEvent) => {
 		updateMyPresence({
 			state: "default",
 		});
@@ -165,6 +165,11 @@ export const useFlowProps = (
 
 	return {
 		onNodesChange,
+		onNodeDragStart,
+		onNodeDrag,
+		onNodeDragStop,
+		onSelectionStart,
+		onSelectionEnd,
 		fitView: true,
 		fitViewOptions: FIT_VIEW,
 		nodeTypes: NODE_TYPES,

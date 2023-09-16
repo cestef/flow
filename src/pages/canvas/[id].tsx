@@ -6,6 +6,7 @@ import { formatNodesFlow } from "@/lib/flow/format";
 import { useFlowProps } from "@/lib/flow/useProps";
 import { usePluvOthers, usePluvStorage } from "@/lib/pluv/bundle";
 import { RoomProvider } from "@/lib/pluv/provider";
+import { useMouseTrack } from "@/lib/pluv/useMouseTrack";
 import { prisma } from "@/lib/prisma";
 import { useStore } from "@/lib/store";
 import { canAccessCanvas, getRandomHexColor } from "@/lib/utils";
@@ -52,6 +53,7 @@ function Canvas() {
 	}, [remoteEdges, setEdges, edgesShared]);
 
 	const flowProps = useFlowProps(remoteNodes, nodesShared);
+	useMouseTrack();
 	const triggerNodeChanges = useStoreFlow((e) => e.triggerNodeChanges);
 
 	return (

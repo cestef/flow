@@ -65,8 +65,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 		},
 		data: {
 			members: {
-				connect: {
-					id: session.user.id,
+				create: {
+					userId: session.user.id,
 				},
 			},
 		},

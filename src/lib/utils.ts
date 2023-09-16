@@ -45,8 +45,23 @@ export const useForceUpdate = (): (() => void) => {
 	return useCallback(() => dispatch(Object.create(null)), [dispatch]);
 };
 
+const COLORS = [
+	"#0081a7",
+	"#00afb9",
+	"#f07167",
+	"#2a9d8f",
+	"#e9c46a",
+	"#f4a261",
+	"#c8b6ff",
+	"#e7c6ff",
+	"#bbd0ff",
+	"#e63946",
+	"#6a994e",
+	"#a7c957",
+];
+
 export const getRandomHexColor = () => {
-	return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+	return COLORS[Math.floor(Math.random() * COLORS.length)];
 };
 export const shallowMerge = <T extends Record<string, unknown>>(a: T, b: Partial<T>): T => {
 	return Object.entries(b).reduce((acc, [key, value]) => {
