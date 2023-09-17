@@ -36,17 +36,17 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { mutate } from "swr";
 import * as z from "zod";
+import * as Y from "yjs";
+import { Edge, Node } from "reactflow";
 
-const sfPro = localFont({
-	src: "../fonts/SfProRoundedSemibold.ttf",
-});
 const formSchema = z.object({
 	name: z.string().min(1).max(64),
 });
 
 function CreateDialogButton() {
 	const [open, setOpen] = useState(false);
-	const setCanvasId = useStore((state) => state.setCanvasId);
+	const [canvasId, setCanvasId] = useStore((state) => [state.canvasId, state.setCanvasId] as const);
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema as any),
 		defaultValues: {
@@ -101,13 +101,17 @@ function CreateDialogButton() {
 	);
 }
 
+type MembersWithUser = Member & { user: User };
+type CanvasWithMembersAndUsers = Canvas & { members: MembersWithUser[] };
+export type AugmentedCanvas = CanvasWithMembersAndUsers & { nodes: Node[]; edges: Edge[]}
+
 export default function Dashboard() {
 	const { data: session, status } = useSession();
 	const { data: canvases, isLoading } =
-		useGet<(Canvas & { members: (Member & { user: User })[] })[]>("/api/canvas");
+		useGet<AugmentedCanvas[]>("/api/canvas");
 	const [canvas, setCanvas] = useState<string | undefined>(undefined);
 	const router = useRouter();
-	const data = canvases?.find((e) => e.id === canvas);
+    const data = canvases?.find((e) => e.id === canvas);
 
 	if (status === "loading" || isLoading) return <Loader />;
 	return (

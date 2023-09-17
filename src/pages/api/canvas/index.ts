@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { prisma } from "@/lib/prisma";
 import * as Y from "yjs";
+import { Edge, Node } from "reactflow";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== "GET") {
@@ -39,5 +40,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		},
 	});
 
-	res.status(200).json(canvases);
+    const yDocs = canvases.map((canvas) => {
+        const yDoc = new Y.Doc();
+        console.log(canvas.state);
+        Y.applyUpdate(yDoc, Buffer.from(canvas.state, "base64"));
+        const storage = yDoc.getMap("storage");
+        const nodes = storage.get("nodes") as Node[];
+        const edges = storage.get("edges") as Edge[];
+        return {
+            ...canvas,
+            nodes: Array.from(nodes.values()),
+            edges: Array.from(edges.values()),
+        };
+    });
+
+	res.status(200).json(yDocs);
 }

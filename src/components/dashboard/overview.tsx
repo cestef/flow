@@ -1,5 +1,5 @@
-import { FIT_VIEW } from "@/lib/constants";
-import { Canvas, Member, User } from "@prisma/client";
+import { FIT_VIEW, NODE_NAMES, NODE_TYPES } from "@/lib/constants";
+import { AugmentedCanvas } from "@/pages/dashboard";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/router";
 import ReactFlow from "reactflow";
@@ -9,7 +9,7 @@ export default function DashboardOverview({
 	data,
 }: {
 	canvas?: string;
-	data?: Canvas & { members: (Member & { user: User })[] };
+	data?: AugmentedCanvas;
 }) {
 	const router = useRouter();
 	return (
@@ -26,14 +26,18 @@ export default function DashboardOverview({
 					>
 						<ReactFlow
 							proOptions={{ hideAttribution: true }}
-							nodes={[
-								{
-									id: "1",
-									type: "input",
-									data: { label: "Input Node" },
-									position: { x: 250, y: 5 },
-								},
-							]}
+							nodes={data?.nodes.length === 0 ? [{
+                                id: "1",
+                                type: "default",
+                                position: { x: 0, y: 0 },
+                                data: { label: "This canvas doesn't have any node !" },
+                            }] : data?.nodes ?? [{
+                                id: "1",
+                                type: "default",
+                                position: { x: 0, y: 0 },
+                                data: { label: "This canvas doesn't have any node !" },
+                            }]}
+                            edges={data?.edges ?? []}
 							fitView
 							fitViewOptions={FIT_VIEW}
 							panOnDrag={false}
