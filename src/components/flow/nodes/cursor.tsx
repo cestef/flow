@@ -1,6 +1,7 @@
-import { Grab, Hand, MousePointer2, Pointer } from "lucide-react";
+import { Grab, Hand, MousePointer2, Pointer, TextCursor } from "lucide-react";
 import { memo } from "react";
 import { NodeProps } from "reactflow";
+
 const CursorNode = ({ data: { color, state, name } }: NodeProps) => {
 	return (
 		<div className="nodrag pointer-events-none absolute -top-3 -left-3 w-6 h-6 visible">
@@ -8,6 +9,8 @@ const CursorNode = ({ data: { color, state, name } }: NodeProps) => {
 				<Grab color={color} className="w-6 h-6" />
 			) : state === "select" ? (
 				<MousePointer2 color={color} className="w-6 h-6" />
+			) : state === "text" ? (
+				<TextCursor color={color} className="w-6 h-6" />
 			) : (
 				<Hand color={color} className="w-6 h-6" />
 			)}

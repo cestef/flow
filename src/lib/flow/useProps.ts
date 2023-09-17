@@ -13,7 +13,7 @@ const updateSetSelector = (e: RootSlice) => ({
 
 export const useFlowProps = (
 	remoteNodes: Record<string, Node> | null,
-	nodesShared: Y.Map<Node> | null
+	nodesShared: Y.Map<Node> | null,
 ): ReactFlowProps => {
 	const [currentSelected, updateMyPresence] = usePluvMyPresence((e) => e.currentSelected);
 	const { updateNode, setNodes, updateNodes } = useStore(updateSetSelector);
@@ -119,14 +119,14 @@ export const useFlowProps = (
 					currentSelected.map((id) => ({
 						id,
 						selected: true,
-					}))
+					})),
 				);
 				updateMyPresence({
 					currentSelected,
 				});
 			}
 		},
-		[nodesShared, remoteNodes, currentSelected, updateMyPresence, setNodes, updateNode]
+		[nodesShared, remoteNodes, currentSelected, updateMyPresence, setNodes, updateNodes],
 	);
 	const onNodeDragStart = useCallback((e: React.MouseEvent, node: Node) => {
 		updateMyPresence({
@@ -144,7 +144,7 @@ export const useFlowProps = (
 				y: projected.y,
 			});
 		},
-		[project]
+		[project],
 	);
 	const onNodeDragStop = useCallback((e: React.MouseEvent, node: Node) => {
 		updateMyPresence({

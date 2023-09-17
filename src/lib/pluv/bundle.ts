@@ -57,7 +57,13 @@ export const {
 		color: z.string().refine((value) => /^#(?:[0-9a-fA-F]{3}){1,2}$/.test(value)),
 		x: z.number(),
 		y: z.number(),
-		state: z.enum(["grab", "select", "default"]),
+		state: z.enum(["grab", "select", "default", "text"]),
+		rect: z
+			.object({
+				x: z.number(),
+				y: z.number(),
+			})
+			.optional(),
 		currentSelected: z.array(z.string()),
 	}),
 	initialStorage: () => ({

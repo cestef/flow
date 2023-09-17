@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useGet } from "@/lib/swr";
 import { useSession } from "next-auth/react";
+import {useTheme} from "next-themes";
 
 const sfPro = localFont({
 	src: "../../fonts/SfProRoundedSemibold.ttf",
@@ -16,6 +17,8 @@ const sfPro = localFont({
 export default function Hero() {
 	const { status } = useSession();
 	const { data: github } = useGet("https://api.github.com/repos/cestef/flow");
+	const { theme} = useTheme();
+	const realTheme = theme === "system" ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light" : theme;
 	return (
 		<div className="flex flex-col lg:flex-row items-center space-y-24 lg:space-x-24 justify-center px-10 md:px-8 max-w-full lg:max-w-[1600px]">
 			<div className="flex flex-col space-y-8 max-w-full">
@@ -44,7 +47,7 @@ export default function Hero() {
 					</span>
 				</h1>
 
-				<p className="text-xl md:text-2xl font-medium text-muted-foreground">
+				<p className="text-xl md:text-2xl font-medium dark:text-gray-400 text-gray-600 max-w-full">
 					Flow is a real-time collaborative flowchart editor. I&apos;s free, open-source,
 					and easy to use. Why not give it a try?
 				</p>
@@ -72,7 +75,8 @@ export default function Hero() {
 				</div>
 			</div>
 			<Image
-				src="https://placehold.co/750x500/png?text=Super+Cool+Hero+Image"
+				// src="https://placehold.co/750x500/png?text=Super+Cool+Hero+Image"
+				src={`/banner_${realTheme}.png`}
 				width={750}
 				height={500}
 				alt="banner"

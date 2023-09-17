@@ -1,16 +1,18 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import React, { useCallback } from "react";
+import { nanoid } from "nanoid";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
+
 import { Canvas, Member } from "@prisma/client";
 
 export const canAccessCanvas = (
 	canvas: (Canvas & { members: Member[] }) | null,
 	userId: string,
-	permission?: "view" | "edit" | "owner"
+	permission?: "view" | "edit" | "owner",
 ) => {
 	if (!canvas) {
 		return false;
@@ -23,7 +25,7 @@ export const canAccessCanvas = (
 	return canvas.members.some(
 		(member) =>
 			member.userId === userId &&
-			(!permission || hasPermission(member.permission, permission))
+			(!permission || hasPermission(member.permission, permission)),
 	);
 };
 
@@ -81,3 +83,5 @@ export const shallowMerge = <T extends Record<string, unknown>>(a: T, b: Partial
 		};
 	}, a);
 };
+
+export const generateId = (length: number = 16) => nanoid(length);

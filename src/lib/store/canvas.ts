@@ -20,6 +20,7 @@ export interface CanvasSlice {
 	setNodes: (nodes: Node[]) => void;
 	updateNode: (node: Partial<Node> & Pick<Node, "id">) => void;
 	updateNodes: (nodes: (Partial<Node> & Pick<Node, "id">)[]) => void;
+	addNode: (node: Node) => void;
 	edges: Edge[];
 	setEdges: (edges: Edge[]) => void;
 }
@@ -52,6 +53,7 @@ export const createCanvasSlice: StateCreator<CanvasSlice> = (set) => ({
 				return node ? shallowMerge(n, node) : n;
 			}),
 		})),
+	addNode: (node) => set((state) => ({ nodes: [...state.nodes, node] })),
 	edges: [],
 	setEdges: (edges) => set({ edges }),
 });

@@ -5,6 +5,7 @@ import { FitViewOptions } from "reactflow";
 export const NODE_NAMES = {
 	DEFAULT: "customDefault",
 	CURSOR: "cursor",
+	GROUP: "group",
 };
 export const NODE_TYPES = {
 	[NODE_NAMES.DEFAULT]: DefaultNode,

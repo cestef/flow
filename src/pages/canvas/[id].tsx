@@ -16,6 +16,7 @@ import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import ReactFlow, { Panel, useStore as useStoreFlow } from "reactflow";
+import FlowContext from "@/components/flow/context";
 
 function Room({ id }: { id: string }) {
 	return (
@@ -27,6 +28,7 @@ function Room({ id }: { id: string }) {
 				y: 0,
 				grabbing: false,
 				currentSelected: [],
+				state: "default",
 			}}
 		>
 			<Canvas />
@@ -61,40 +63,42 @@ function Canvas() {
 
 	return (
 		<div className="h-[100svh] w-full">
-			<ReactFlow nodes={formatNodesFlow(nodes, others)} edges={edges} {...flowProps}>
-				<BackgroundStyled />
-				<Panel position="top-right">
-					<User user={session?.user} className="mr-2 mt-2" />
-				</Panel>
-				<Panel position="top-left">
-					<ModeToggle className="ml-2 mt-2" />
-				</Panel>
-				<Panel position="bottom-center">
-					<Button
-						onClick={() => {
-							const id = Math.random().toString(36).substring(7);
-							triggerNodeChanges([
-								{
-									type: "add",
-									item: {
-										id,
-										type: NODE_NAMES.DEFAULT,
-										position: {
-											x: Math.random() * 100,
-											y: Math.random() * 100,
-										},
-										data: {
-											label: id,
+			<FlowContext>
+				<ReactFlow nodes={formatNodesFlow(nodes, others)} edges={edges} {...flowProps}>
+					<BackgroundStyled />
+					<Panel position="top-right">
+						<User user={session?.user} className="mr-2 mt-2" />
+					</Panel>
+					<Panel position="top-left">
+						<ModeToggle className="ml-2 mt-2" />
+					</Panel>
+					<Panel position="bottom-center">
+						<Button
+							onClick={() => {
+								const id = Math.random().toString(36).substring(7);
+								triggerNodeChanges([
+									{
+										type: "add",
+										item: {
+											id,
+											type: NODE_NAMES.DEFAULT,
+											position: {
+												x: Math.random() * 100,
+												y: Math.random() * 100,
+											},
+											data: {
+												label: id,
+											},
 										},
 									},
-								},
-							]);
-						}}
-					>
-						Add Node
-					</Button>
-				</Panel>
-			</ReactFlow>
+								]);
+							}}
+						>
+							Add Node
+						</Button>
+					</Panel>
+				</ReactFlow>
+			</FlowContext>
 		</div>
 	);
 }
