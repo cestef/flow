@@ -8,6 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 import { Canvas, Member } from "@prisma/client";
+import { useStore } from "./store";
 
 export const canAccessCanvas = (
 	canvas: (Canvas & { members: Member[] }) | null,
@@ -65,15 +66,13 @@ const COLORS = [
 export const getRandomHexColor = () => {
 	return COLORS[Math.floor(Math.random() * COLORS.length)];
 };
+
 export const shallowMerge = <T extends Record<string, unknown>>(a: T, b: Partial<T>): T => {
 	return Object.entries(b).reduce((acc, [key, value]) => {
 		if (typeof value === "object" && value !== null) {
 			return {
 				...acc,
-				[key]: {
-					...(acc[key] ?? {}),
-					...value,
-				},
+				[key]: shallowMerge((acc[key] ?? {}) as T, value as Partial<T>),
 			};
 		}
 
@@ -85,3 +84,17 @@ export const shallowMerge = <T extends Record<string, unknown>>(a: T, b: Partial
 };
 
 export const generateId = (length: number = 16) => nanoid(length);
+export const useEditing = (id: string) => {
+	const setEditing = useStore((state) => state.setEditing);
+	const editing = useStore((state) => state.editing[id]) ?? { type: null };
+
+	const stop = () => setEditing(id, null);
+	const update = (data: any) => setEditing(id, editing.type, data);
+
+	return {
+		editing,
+		setEditing,
+		stop,
+		update,
+	};
+};

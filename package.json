@@ -70,6 +70,7 @@
 		"tailwind-merge": "^1.14.0",
 		"tailwindcss": "3.3.3",
 		"tailwindcss-animate": "^1.0.7",
+		"ts-pattern": "^5.0.5",
 		"typescript": "5.2.2",
 		"ws": "^8.14.1",
 		"y-presence": "^0.2.3",

@@ -44,7 +44,12 @@ export const createCanvasSlice: StateCreator<CanvasSlice> = (set) => ({
 	setNodes: (nodes) => set({ nodes }),
 	updateNode: (node) =>
 		set((state) => ({
-			nodes: state.nodes.map((n) => (n.id === node.id ? shallowMerge(n, node) : n)),
+			nodes: state.nodes.map((n) => {
+				if (n.id === node.id) {
+					return shallowMerge(n, node);
+				}
+				return n;
+			}),
 		})),
 	updateNodes: (nodes) =>
 		set((state) => ({

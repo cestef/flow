@@ -4,13 +4,15 @@ import { AwarenessSlice, createAwarenessSlice } from "./awareness";
 import { MembersSlice, createMembersSlice } from "./members";
 import { CmdKSlice, createCmdKSlice } from "./cmdk";
 import { PresetsSlice, createPresetsSlice } from "./presets";
+import { EditingSlice, createEditingSlice } from "./editing";
 
 export interface RootSlice
 	extends CanvasSlice,
 		AwarenessSlice,
 		MembersSlice,
 		CmdKSlice,
-		PresetsSlice {
+		PresetsSlice,
+		EditingSlice {
 	cmdk: boolean;
 	setCmdk: (cmdk: boolean) => void;
 	isMobile: boolean;
@@ -23,6 +25,7 @@ export const useStore = create<RootSlice>()((...a) => ({
 	...createMembersSlice(...a),
 	...createPresetsSlice(...a),
 	...createCmdKSlice(...a),
+	...createEditingSlice(...a),
 	isMobile: false,
 	setMobile: (isMobile) => a[0]((state) => ({ isMobile })),
 }));
