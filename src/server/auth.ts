@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import { canAccessCanvas } from "@/lib/utils";
+import { prisma } from "../lib/prisma";
+import { canAccessCanvas } from "../lib/utils";
 import { getSession } from "next-auth/react";
 
 export const authenticate = async (cookie: string | undefined, docName: string | undefined) => {
