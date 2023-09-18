@@ -5,7 +5,7 @@ import { NODE_NAMES } from "../constants";
 export const formatNodesFlow = (nodes: Node[], others: ReturnType<typeof usePluvOthers<any>>) => [
 	...nodes.map((node) => {
 		const otherSelected = others.find((other) =>
-			other.presence.currentSelected.includes(node.id)
+			other.presence.currentSelected.includes(node.id),
 		);
 		return {
 			...node,

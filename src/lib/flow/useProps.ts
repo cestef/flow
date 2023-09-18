@@ -176,5 +176,6 @@ export const useFlowProps = (
 		proOptions: {
 			hideAttribution: true,
 		},
+		selectNodesOnDrag: true,
 	};
 };

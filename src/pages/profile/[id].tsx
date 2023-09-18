@@ -175,7 +175,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 		.filter((canvas) => canvas.members.some((member) => member.userId === session.user.id))
 		.map((canvas) => ({
 			...canvas,
-			members: undefined,
+			members: null,
 		})) as any;
 
 	return {

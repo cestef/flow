@@ -67,6 +67,7 @@
 .react-flow__node-cursor {
 	z-index: 1001 !important;
 	pointer-events: none;
+	transition: transform 50ms linear !important;
 }
 
 .react-flow__minimap svg {

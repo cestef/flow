@@ -1,22 +1,22 @@
 "use-client";
 import { ModeToggle } from "@/components/composed/mode-toggle";
-import User from "@/components/composed/user";
+import UserStack from "@/components/composed/users-stack";
 import { BackgroundStyled } from "@/components/flow/background";
+import FlowContext from "@/components/flow/context";
+import { RoomProvider } from "@/components/providers/pluv";
 import { Button } from "@/components/ui/button";
-import { NODE_NAMES } from "@/lib/constants";
+import { Loader } from "@/components/ui/loader";
+import { DEEFAULT_NODE_DIMENSIONS, NODE_NAMES } from "@/lib/constants";
+import { useEdges, useNodes } from "@/lib/flow/elements";
 import { formatNodesFlow } from "@/lib/flow/format";
 import { useFlowProps } from "@/lib/flow/useProps";
-import { usePluvOthers, usePluvStorage } from "@/lib/pluv/bundle";
-import { RoomProvider } from "@/components/providers/pluv";
+import { usePluvOthers } from "@/lib/pluv/bundle";
 import { useMouseTrack } from "@/lib/pluv/useMouseTrack";
 import { prisma } from "@/lib/prisma";
-import { useStore } from "@/lib/store";
 import { canAccessCanvas, getRandomHexColor } from "@/lib/utils";
 import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
-import { useEffect } from "react";
 import ReactFlow, { Panel, useStore as useStoreFlow } from "reactflow";
-import FlowContext from "@/components/flow/context";
 
 function Room({ id }: { id: string }) {
 	return (
@@ -37,37 +37,29 @@ function Room({ id }: { id: string }) {
 }
 
 function Canvas() {
-	const { data: session } = useSession();
+	const { data: session, status } = useSession();
 	const others = usePluvOthers();
-	const [nodes, setNodes] = useStore((e) => [e.nodes, e.setNodes] as const);
-	const [edges, setEdges] = useStore((e) => [e.edges, e.setEdges] as const);
 
-	const [remoteNodes, nodesShared] = usePluvStorage("nodes");
-	const [remoteEdges, edgesShared] = usePluvStorage("edges");
-
-	useEffect(() => {
-		if (!nodesShared) return;
-		const nodes = Object.values(remoteNodes ?? {});
-		setNodes(nodes);
-	}, [remoteNodes, setNodes, nodesShared]);
-
-	useEffect(() => {
-		if (!edgesShared) return;
-		const edges = Object.values(remoteEdges ?? {});
-		setEdges(edges);
-	}, [remoteEdges, setEdges, edgesShared]);
+	const { nodes, remoteNodes, nodesShared } = useNodes();
+	const { edges } = useEdges();
 
 	const flowProps = useFlowProps(remoteNodes, nodesShared);
 	useMouseTrack();
 	const triggerNodeChanges = useStoreFlow((e) => e.triggerNodeChanges);
-
+	if (status === "loading") return <Loader />;
 	return (
 		<div className="h-[100svh] w-full">
 			<FlowContext>
 				<ReactFlow nodes={formatNodesFlow(nodes, others)} edges={edges} {...flowProps}>
 					<BackgroundStyled />
 					<Panel position="top-right">
-						<User user={session?.user} className="mr-2 mt-2" />
+						{/* <User user={session?.user} className="mr-2 mt-2 justify-self-end" /> */}
+						<UserStack
+							users={(others as any[])
+								.map((e) => e.user)
+								.concat([{ ...session?.user, me: true }])}
+							className="mr-2 mt-2"
+						/>
 					</Panel>
 					<Panel position="top-left">
 						<ModeToggle className="ml-2 mt-2" />
@@ -89,6 +81,7 @@ function Canvas() {
 											data: {
 												label: id,
 											},
+											...DEEFAULT_NODE_DIMENSIONS,
 										},
 									},
 								]);

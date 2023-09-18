@@ -83,6 +83,32 @@ export const shallowMerge = <T extends Record<string, unknown>>(a: T, b: Partial
 	}, a);
 };
 
+export const shallowEqual = <T extends Record<string, unknown>>(a: T, b: T): boolean => {
+	return Object.entries(a).every(([key, value]) => {
+		if (typeof value === "object" && value !== null) {
+			return shallowEqual(value as T, b[key] as T);
+		}
+
+		return value === b[key];
+	});
+};
+
+export const shallowDiff = <T extends Record<string, unknown>>(a: T, b: T): Partial<T> => {
+	return Object.entries(a).reduce((acc, [key, value]) => {
+		if (typeof value === "object" && value !== null) {
+			return {
+				...acc,
+				[key]: shallowDiff(value as T, b[key] as T),
+			};
+		}
+
+		return {
+			...acc,
+			[key]: value === b[key] ? undefined : value,
+		};
+	}, {} as Partial<T>);
+};
+
 export const generateId = (length: number = 16) => nanoid(length);
 export const useEditing = (id: string) => {
 	const setEditing = useStore((state) => state.setEditing);

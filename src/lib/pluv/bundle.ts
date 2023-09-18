@@ -7,6 +7,7 @@ import getConfig from "next/config";
 import { InferIORoom } from "@pluv/io";
 import { z } from "zod";
 import { Edge, Node } from "reactflow";
+import { shallowMerge } from "../utils";
 
 export type Room = InferIORoom<AppPluvIO>;
 
@@ -38,6 +39,8 @@ export const {
 	usePluvClient,
 } = createBundle(client);
 
+export const PresenceState = z.enum(["grab", "select", "default", "text", "color"]);
+
 export const {
 	// components
 	PluvRoomProvider,
@@ -57,7 +60,7 @@ export const {
 		color: z.string().refine((value) => /^#(?:[0-9a-fA-F]{3}){1,2}$/.test(value)),
 		x: z.number(),
 		y: z.number(),
-		state: z.enum(["grab", "select", "default", "text"]),
+		state: PresenceState,
 		rect: z
 			.object({
 				x: z.number(),
@@ -71,3 +74,15 @@ export const {
 		edges: y.map<Edge>([]),
 	}),
 });
+
+export const usePluvNode = (id: string) => {
+	const [_, remoteNodes] = usePluvStorage("nodes");
+	const node = remoteNodes?.get(id);
+	const update = (node: Partial<Node>) => {
+		const current = remoteNodes?.get(id);
+		if (!current) return;
+		remoteNodes?.set(id, shallowMerge(current, node));
+	};
+
+	return [node, update] as const;
+};

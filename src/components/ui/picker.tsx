@@ -1,8 +1,4 @@
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMemo } from "react";
 
@@ -70,7 +66,7 @@ export function GradientPicker({
 	const defaultTab = useMemo(() => {
 		if (gradient && background?.includes("gradient")) return "gradient";
 		return "solid";
-	}, [background]);
+	}, [background, gradient]);
 
 	return (
 		<div className="w-64 bg-card rounded-md p-4 border border-border flex flex-col gap-4">
@@ -93,13 +89,10 @@ export function GradientPicker({
 							style={{
 								background: s,
 							}}
-							className={cn(
-								"rounded-md h-6 w-6 cursor-pointer active:scale-105",
-								{
-									"border-2 border-primary": background === s,
-									"border border-muted-foreground": s === "transparent",
-								},
-							)}
+							className={cn("rounded-md h-6 w-6 cursor-pointer active:scale-105", {
+								"border-2 border-primary": background === s,
+								"border border-muted-foreground": s === "transparent",
+							})}
 							onClick={() => setBackground(s)}
 						/>
 					))}
@@ -161,9 +154,7 @@ const GradientButton = ({
 			className="p-0.5 rounded-md relative !bg-cover !bg-center transition-all"
 			style={{ background }}
 		>
-			<div className="bg-popover/80 rounded-md p-1 text-xs text-center">
-				{children}
-			</div>
+			<div className="bg-popover/80 rounded-md p-1 text-xs text-center">{children}</div>
 		</div>
 	);
 };

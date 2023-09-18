@@ -4,7 +4,7 @@ import { useStore } from "../store";
 import { useEffect } from "react";
 
 export const useMouseTrack = () => {
-	const [_, updateMyPresence] = usePluvMyPresence();
+	const [state, updateMyPresence] = usePluvMyPresence((e) => e.state);
 	const { project } = useReactFlow();
 	const canvasId = useStore((e) => e.canvasId);
 
@@ -14,10 +14,11 @@ export const useMouseTrack = () => {
 				x: e.clientX,
 				y: e.clientY,
 			});
-			updateMyPresence({
-				x: projected.x,
-				y: projected.y,
-			});
+			if (!["color"].includes(state))
+				updateMyPresence({
+					x: projected.x,
+					y: projected.y,
+				});
 		};
 
 		window.addEventListener("mousemove", onMouseMove);
@@ -25,5 +26,5 @@ export const useMouseTrack = () => {
 		return () => {
 			window.removeEventListener("mousemove", onMouseMove);
 		};
-	}, [project, canvasId]);
+	}, [project, canvasId, state]);
 };

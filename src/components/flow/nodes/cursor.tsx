@@ -1,19 +1,22 @@
-import { Grab, Hand, MousePointer2, Pointer, TextCursor } from "lucide-react";
+import { PresenceState } from "@/lib/pluv/bundle";
+import { Grab, Hand, MousePointer2, Pipette, Pointer, TextCursor } from "lucide-react";
 import { memo } from "react";
 import { NodeProps } from "reactflow";
+import { match } from "ts-pattern";
+import { z } from "zod";
 
-const CursorNode = ({ data: { color, state, name } }: NodeProps) => {
+const CursorNode = ({ data: { color, state, name }, xPos, yPos }: NodeProps) => {
+	const x = xPos;
+	const y = yPos;
 	return (
 		<div className="nodrag pointer-events-none absolute -top-3 -left-3 w-6 h-6 visible">
-			{state === "grab" ? (
-				<Grab color={color} className="w-6 h-6" />
-			) : state === "select" ? (
-				<MousePointer2 color={color} className="w-6 h-6" />
-			) : state === "text" ? (
-				<TextCursor color={color} className="w-6 h-6" />
-			) : (
-				<Hand color={color} className="w-6 h-6" />
-			)}
+			{match(state as z.infer<typeof PresenceState>)
+				.with("default", () => <Hand color={color} className="w-6 h-6" />)
+				.with("grab", () => <Grab color={color} className="w-6 h-6" />)
+				.with("select", () => <MousePointer2 color={color} className="w-6 h-6" />)
+				.with("text", () => <TextCursor color={color} className="w-6 h-6" />)
+				.with("color", () => <Pipette color={color} className="w-6 h-6" />)
+				.exhaustive()}
 			<p
 				className="text-center bg-accent/50 px-2 py-1 rounded-sm w-fit absolute -bottom-6 left-1/2 transform -translate-x-1/2"
 				style={{ fontSize: "0.5rem", color }}
