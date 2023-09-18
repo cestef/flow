@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import User from "./user";
+import User from "./user-room";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const MAX_USERS = 3;

@@ -199,14 +199,14 @@ const DefaultNode = ({ data: { label, borderColor, color }, selected, id }: Node
 						onOpenChange={(e) => (e ? start(id, "color", color) : stop(id))}
 					>
 						<PopoverTrigger asChild>
-							<Button size="smallIcon" variant="ghost">
+							<Button size="smallIcon" variant="ghost" className="border">
 								<div
 									className="w-4 h-4 rounded-[0.25rem]"
 									style={{ backgroundColor: color }}
 								/>
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent>
+						<PopoverContent side="top">
 							<HexColorPicker
 								className="w-full"
 								color={color}

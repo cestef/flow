@@ -32,7 +32,7 @@ import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
 import localFont from "next/font/local";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { mutate } from "swr";
 import * as z from "zod";
@@ -45,7 +45,9 @@ const formSchema = z.object({
 
 function CreateDialogButton() {
 	const [open, setOpen] = useState(false);
-	const [canvasId, setCanvasId] = useStore((state) => [state.canvasId, state.setCanvasId] as const);
+	const [canvasId, setCanvasId] = useStore(
+		(state) => [state.canvasId, state.setCanvasId] as const,
+	);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema as any),
@@ -103,28 +105,38 @@ function CreateDialogButton() {
 
 type MembersWithUser = Member & { user: User };
 type CanvasWithMembersAndUsers = Canvas & { members: MembersWithUser[] };
-export type AugmentedCanvas = CanvasWithMembersAndUsers & { nodes: Node[]; edges: Edge[]}
+export type AugmentedCanvas = CanvasWithMembersAndUsers & { nodes: Node[]; edges: Edge[] };
 
-export default function Dashboard() {
+export default function Dashboard({ id }: { id: string | null }) {
 	const { data: session, status } = useSession();
-	const { data: canvases, isLoading } =
-		useGet<AugmentedCanvas[]>("/api/canvas");
+	const { data: canvases, isLoading } = useGet<AugmentedCanvas[]>("/api/canvas");
 	const [canvas, setCanvas] = useState<string | undefined>(undefined);
 	const router = useRouter();
-    const data = canvases?.find((e) => e.id === canvas);
+	useEffect(() => {
+		if (canvas) {
+			router.replace(`/dashboard/${canvas}`);
+		}
+	}, [canvas]);
+	useEffect(() => {
+		if (id) {
+			setCanvas(id);
+		}
+	}, [id]);
+	const canvasId = canvas ?? canvases?.[0]?.id;
+	const data = canvases?.find((e) => e.id === canvasId);
 
 	if (status === "loading" || isLoading) return <Loader />;
 	return (
 		<>
 			<Tabs defaultValue="overview">
-				<header className="flex justify-between items-center px-4 sm:px-8 py-4 border-b">
+				<header className="flex justify-center sm:justify-between items-center px-4 sm:px-8 py-4 border-b">
 					<ComboBox
 						data={canvases?.map((e) => ({ value: e.id, label: e.name })) ?? []}
-						className="w-48 hidden sm:inline-flex"
+						className="w-40 hidden sm:inline-flex"
 						popoverClassName="ml-4"
 						placeholder="Select a Canvas"
 						noItemsText="No canvases found."
-						value={canvas}
+						value={canvasId}
 						onSelect={setCanvas}
 						createButton={<CreateDialogButton />}
 					/>
@@ -133,22 +145,22 @@ export default function Dashboard() {
 							Select
 						</TabsTrigger>
 						<TabsTrigger value="overview">Overview</TabsTrigger>
-						<TabsTrigger value="members" disabled={!canvas}>
+						<TabsTrigger value="members" disabled={!canvasId}>
 							Members
 						</TabsTrigger>
 						<TabsTrigger
 							value="settings"
-							disabled={!canvas || data?.ownerId !== session?.user?.id}
+							disabled={!canvasId || data?.ownerId !== session?.user?.id}
 						>
 							Settings
 						</TabsTrigger>
 					</TabsList>
 
 					<div className="flex items-center space-x-4">
-						<UserComponent user={session?.user} />
+						<UserComponent user={session?.user} className="hidden sm:block" />
 					</div>
 				</header>
-				<main>
+				<main className="sm:px-8 px-4">
 					<TabsContent value="select">
 						<div className="flex flex-col gap-6 items-center justify-center h-[calc(100svh-100px)]">
 							<h1 className="text-4xl font-bold">Select a Canvas</h1>
@@ -161,17 +173,17 @@ export default function Dashboard() {
 								popoverClassName="ml-4"
 								placeholder="Select a Canvas"
 								noItemsText="No canvases found."
-								value={canvas}
+								value={canvasId}
 								onSelect={setCanvas}
 								createButton={<CreateDialogButton />}
 							/>
 						</div>
 					</TabsContent>
 					<TabsContent value="overview">
-						<DashboardOverview canvas={canvas} data={data} />
+						<DashboardOverview canvas={canvasId} data={data} />
 					</TabsContent>
 					<TabsContent value="members">
-						<DashboardMembers canvas={canvas} data={data} />
+						<DashboardMembers canvas={canvasId} data={data} />
 					</TabsContent>
 					<TabsContent value="settings">
 						<div className="flex flex-col gap-6 items-center justify-center h-[calc(100svh-100px)]">
@@ -197,7 +209,13 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 			},
 		};
 	}
+	let id = ctx.query.id;
+	if (Array.isArray(id)) {
+		id = id[0];
+	}
 	return {
-		props: {},
+		props: {
+			id: id ?? null,
+		},
 	};
 }

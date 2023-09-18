@@ -61,7 +61,7 @@ export default function DashboardMembers({
 			canvas,
 			values.expires,
 			values.uses,
-			values.permission
+			values.permission,
 		);
 		setInvite(code);
 		setOpen(false);
@@ -70,7 +70,10 @@ export default function DashboardMembers({
 		<div className="flex flex-col gap-6 items-center justify-center h-[calc(100svh-100px)]">
 			<h1 className="text-4xl font-bold">Members</h1>
 			<p className="text-xl text-muted-foreground">View and manage members of this canvas.</p>
-			<MembersTable members={data?.members ?? []} className="w-full md:w-[calc(70%-4rem)]" />
+			<MembersTable
+				members={data?.members ?? []}
+				className="w-full md:w-[calc(70%-4rem)] min-h-[calc(70%-4rem)]"
+			/>
 			<Dialog open={open} onOpenChange={setOpen}>
 				<DialogTrigger asChild>
 					<Button size="lg">

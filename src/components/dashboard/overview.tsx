@@ -1,5 +1,5 @@
 import { FIT_VIEW, NODE_NAMES, NODE_TYPES } from "@/lib/constants";
-import { AugmentedCanvas } from "@/pages/dashboard";
+import { AugmentedCanvas } from "@/pages/dashboard/[[...id]]";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/router";
 import ReactFlow from "reactflow";
@@ -26,23 +26,40 @@ export default function DashboardOverview({
 					>
 						<ReactFlow
 							proOptions={{ hideAttribution: true }}
-							nodes={data?.nodes.length === 0 ? [{
-                                id: "1",
-                                type: "default",
-                                position: { x: 0, y: 0 },
-                                data: { label: "This canvas doesn't have any node !" },
-                            }] : data?.nodes ?? [{
-                                id: "1",
-                                type: "default",
-                                position: { x: 0, y: 0 },
-                                data: { label: "This canvas doesn't have any node !" },
-                            }]}
-                            edges={data?.edges ?? []}
+							nodes={
+								data?.nodes.length === 0
+									? [
+											{
+												id: "1",
+												type: "preview",
+												position: { x: 0, y: 0 },
+												data: {
+													label: "This canvas doesn't have any node !",
+												},
+											},
+									  ]
+									: data?.nodes.map((e) => ({
+											...e,
+											type:
+												e.type === NODE_NAMES.DEFAULT ? "preview" : e.type,
+									  })) ?? [
+											{
+												id: "1",
+												type: "preview",
+												position: { x: 0, y: 0 },
+												data: {
+													label: "This canvas doesn't have any node !",
+												},
+											},
+									  ]
+							}
+							edges={data?.edges ?? []}
 							fitView
 							fitViewOptions={FIT_VIEW}
 							panOnDrag={false}
 							zoomOnPinch={false}
 							zoomOnScroll={false}
+							nodeTypes={NODE_TYPES}
 						/>
 						<ArrowRight
 							size={24}

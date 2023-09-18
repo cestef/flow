@@ -40,19 +40,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		},
 	});
 
-    const yDocs = canvases.map((canvas) => {
-        const yDoc = new Y.Doc();
-        console.log(canvas.state);
-        Y.applyUpdate(yDoc, Buffer.from(canvas.state, "base64"));
-        const storage = yDoc.getMap("storage");
-        const nodes = storage.get("nodes") as Node[];
-        const edges = storage.get("edges") as Edge[];
-        return {
-            ...canvas,
-            nodes: Array.from(nodes.values()),
-            edges: Array.from(edges.values()),
-        };
-    });
+	const yDocs = canvases.map((canvas) => {
+		const yDoc = new Y.Doc();
+		console.log(canvas.state);
+		Y.applyUpdate(yDoc, Buffer.from(canvas.state, "base64"));
+		const storage = yDoc.getMap("storage");
+		const nodes = storage.get("nodes") as Record<string, Node>;
+		const edges = storage.get("edges") as Record<string, Edge>;
+		return {
+			...canvas,
+			nodes: Object.values(nodes ?? {}),
+			edges: Object.values(edges ?? {}),
+		};
+	});
 
 	res.status(200).json(yDocs);
 }

@@ -6,12 +6,12 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { DEEFAULT_NODE_DIMENSIONS, NODE_NAMES } from "@/lib/constants";
 import { useStore } from "@/lib/store";
-import { Bomb, BoxSelect, Trash2, Workflow } from "lucide-react";
+import { generateId } from "@/lib/utils";
+import { Bomb, BoxSelect, Workflow } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useReactFlow, useStore as useStoreFlow } from "reactflow";
-import { generateId } from "@/lib/utils";
-import { NODE_NAMES } from "@/lib/constants";
 
 export default function FlowContext({ children }: { children: React.ReactNode }) {
 	const [nodes, edges] = useStore((e) => [e.nodes, e.edges] as const);
@@ -32,6 +32,7 @@ export default function FlowContext({ children }: { children: React.ReactNode })
 							label: "New node",
 							editing: "label",
 						},
+						...DEEFAULT_NODE_DIMENSIONS,
 					},
 				},
 			]);

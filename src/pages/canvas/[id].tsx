@@ -6,7 +6,8 @@ import FlowContext from "@/components/flow/context";
 import { RoomProvider } from "@/components/providers/pluv";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
-import { DEEFAULT_NODE_DIMENSIONS, NODE_NAMES } from "@/lib/constants";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { DEEFAULT_NODE_DIMENSIONS, FIT_VIEW, NODE_NAMES } from "@/lib/constants";
 import { useEdges, useNodes } from "@/lib/flow/elements";
 import { formatNodesFlow } from "@/lib/flow/format";
 import { useFlowProps } from "@/lib/flow/useProps";
@@ -14,9 +15,10 @@ import { usePluvOthers } from "@/lib/pluv/bundle";
 import { useMouseTrack } from "@/lib/pluv/useMouseTrack";
 import { prisma } from "@/lib/prisma";
 import { canAccessCanvas, getRandomHexColor } from "@/lib/utils";
+import { Focus, Minus, Plus } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
-import ReactFlow, { Panel, useStore as useStoreFlow } from "reactflow";
+import ReactFlow, { Panel, useReactFlow, useStore as useStoreFlow } from "reactflow";
 
 function Room({ id }: { id: string }) {
 	return (
@@ -44,8 +46,8 @@ function Canvas() {
 	const { edges } = useEdges();
 
 	const flowProps = useFlowProps(remoteNodes, nodesShared);
+	const { fitView, zoomIn, zoomOut } = useReactFlow();
 	useMouseTrack();
-	const triggerNodeChanges = useStoreFlow((e) => e.triggerNodeChanges);
 	if (status === "loading") return <Loader />;
 	return (
 		<div className="h-[100svh] w-full">
@@ -64,31 +66,33 @@ function Canvas() {
 					<Panel position="top-left">
 						<ModeToggle className="ml-2 mt-2" />
 					</Panel>
-					<Panel position="bottom-center">
-						<Button
-							onClick={() => {
-								const id = Math.random().toString(36).substring(7);
-								triggerNodeChanges([
-									{
-										type: "add",
-										item: {
-											id,
-											type: NODE_NAMES.DEFAULT,
-											position: {
-												x: Math.random() * 100,
-												y: Math.random() * 100,
-											},
-											data: {
-												label: id,
-											},
-											...DEEFAULT_NODE_DIMENSIONS,
-										},
-									},
-								]);
-							}}
-						>
-							Add Node
-						</Button>
+					<Panel position="bottom-right">
+						<div className="flex flex-col items-center justify-center gap-2 mb-2 mr-2 bg-accent shadow-sm py-2 px-2 rounded-md">
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button size="icon" onClick={() => fitView(FIT_VIEW)}>
+										<Focus className="w-6 h-6" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="top">Fit to screen</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button size="icon" onClick={() => zoomIn({ duration: 300 })}>
+										<Plus className="w-6 h-6" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="top">Zoom in</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button size="icon" onClick={() => zoomOut({ duration: 300 })}>
+										<Minus className="w-6 h-6" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="top">Zoom out</TooltipContent>
+							</Tooltip>
+						</div>
 					</Panel>
 				</ReactFlow>
 			</FlowContext>
