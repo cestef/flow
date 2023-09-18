@@ -177,7 +177,9 @@ const DefaultNode = ({ data: { label, borderColor, color }, selected, id }: Node
 					background: color,
 				}}
 				onDoubleClick={() => {
-					start(id, "label", label);
+					if (!editingState) {
+						start(id, "label", label);
+					}
 				}}
 			>
 				<NodeResizer

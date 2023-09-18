@@ -81,7 +81,11 @@ export const usePluvNode = (id: string) => {
 	const update = (node: Partial<Node>) => {
 		const current = remoteNodes?.get(id);
 		if (!current) return;
-		remoteNodes?.set(id, shallowMerge(current, node));
+		const merged = shallowMerge(current, node);
+		console.log("[merged]", merged);
+		console.log("[current]", current);
+		console.log("[node]", node);
+		remoteNodes?.set(id, merged);
 	};
 
 	return [node, update] as const;

@@ -1,5 +1,5 @@
 import { FIT_VIEW } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { usePluvOthers } from "@/lib/pluv/bundle";
 import { cn } from "@/lib/utils";
 import { Eye, LogOut, UserIcon } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -14,7 +14,6 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { usePluvOther, usePluvOthers } from "@/lib/pluv/bundle";
 
 export default function User({
 	user,

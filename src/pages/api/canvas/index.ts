@@ -45,12 +45,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		console.log(canvas.state);
 		Y.applyUpdate(yDoc, Buffer.from(canvas.state, "base64"));
 		const storage = yDoc.getMap("storage");
-		const nodes = storage.get("nodes") as Record<string, Node>;
-		const edges = storage.get("edges") as Record<string, Edge>;
+		const nodes = storage.get("nodes") as Y.Map<Node> | undefined;
+		const edges = storage.get("edges") as Y.Map<Edge> | undefined;
 		return {
 			...canvas,
-			nodes: Object.values(nodes ?? {}),
-			edges: Object.values(edges ?? {}),
+			nodes: nodes ? Object.values(nodes.toJSON()) : [],
+			edges: edges ? Object.values(edges.toJSON()) : [],
 		};
 	});
 

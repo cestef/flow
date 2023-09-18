@@ -20,6 +20,7 @@ export const useFlowProps = (
 	const { project } = useReactFlow();
 	const onNodesChange = useCallback(
 		(changes: NodeChange[]) => {
+			console.log("onNodesChange", changes);
 			if (!nodesShared) {
 				console.log("No nodes shared");
 				return;
@@ -91,13 +92,6 @@ export const useFlowProps = (
 						const nodeId = change.id;
 						const isSelected = change.selected;
 
-						// const node = nodesShared.get(nodeId);
-						// if (!node) {
-						// 	console.log("Node not found", nodeId);
-						// 	break;
-						// }
-						// node.selected = isSelected;
-						// nodesShared.set(nodeId, node);
 						if (isSelected) {
 							currentSelected.push(nodeId);
 						} else {

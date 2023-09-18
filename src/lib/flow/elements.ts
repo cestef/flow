@@ -1,15 +1,21 @@
 import { useEffect } from "react";
-import { usePluvStorage } from "../pluv/bundle";
+import { usePluvMyPresence, usePluvStorage } from "../pluv/bundle";
 import { useStore } from "../store";
 
 export const useNodes = () => {
 	const [nodes, setNodes] = useStore((e) => [e.nodes, e.setNodes] as const);
 	const [remoteNodes, nodesShared] = usePluvStorage("nodes");
+	const [currentSelected] = usePluvMyPresence((e) => e.currentSelected);
 	useEffect(() => {
 		if (!nodesShared) return;
 		const nodes = Object.values(remoteNodes ?? {});
-		setNodes(nodes);
-	}, [remoteNodes, setNodes, nodesShared]);
+		setNodes(
+			nodes.map((e) => ({
+				...e,
+				selected: currentSelected.includes(e.id),
+			})),
+		);
+	}, [remoteNodes, setNodes, nodesShared, currentSelected]);
 
 	return { nodes, remoteNodes, nodesShared };
 };
