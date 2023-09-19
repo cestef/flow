@@ -10,17 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { usePluvMyPresence, usePluvNode } from "@/lib/pluv/bundle";
 import { cn } from "@/lib/utils";
-import { Copy, TextCursor, Trash2 } from "lucide-react";
-import { memo, useCallback, useState } from "react";
+import { AlignCenter, AlignLeft, AlignRight, Copy, TextCursor, Trash2, Type } from "lucide-react";
+import { memo, useCallback, useRef, useState } from "react";
 import { HexColorPicker } from "react-colorful";
-import { NodeProps, NodeResizer, useStore as useStoreFlow } from "reactflow";
+import { NodeProps, NodeResizer, useKeyPress, useStore as useStoreFlow } from "reactflow";
 import { match } from "ts-pattern";
 import TextareaAutosize from "react-textarea-autosize";
 
-type EditingType = "label" | "color";
+type EditingType = "label" | "color" | "align";
 interface EditingDataTypes {
 	label: string;
 	color: string;
+	align: "left" | "center" | "right";
 }
 
 const useEditing = (props?: {
@@ -114,9 +115,14 @@ const useEditing = (props?: {
 	};
 };
 
-const DefaultNode = ({ data: { label, borderColor, color }, selected, id }: NodeProps) => {
+const DefaultNode = ({
+	data: { label, borderColor, color, textAlign },
+	selected,
+	id,
+}: NodeProps) => {
 	const [node, updateNode] = usePluvNode(id);
 	const [_, updatePresence] = usePluvMyPresence();
+	const alt = useKeyPress("Alt");
 	const size = useStoreFlow((s) => {
 		const node = s.nodeInternals.get(id);
 		if (!node) {
@@ -150,7 +156,6 @@ const DefaultNode = ({ data: { label, borderColor, color }, selected, id }: Node
 				});
 			},
 			color: () => {
-				console.log("color stop");
 				updatePresence({
 					state: "default",
 				});
@@ -161,22 +166,22 @@ const DefaultNode = ({ data: { label, borderColor, color }, selected, id }: Node
 	return (
 		<NodeContext>
 			<div
-				className={cn(
-					"outline outline-1 rounded-md p-4 text-center flex items-center justify-center",
-					{
-						"outline-primary": selected,
-						"outline-2": selected || borderColor,
-						"outline-stone-500": !selected && !borderColor,
-						"bg-accent": !color,
-					},
-				)}
+				className={cn("rounded-md p-4 flex items-center text-center", {
+					"outline outline-2": borderColor,
+					// "outline-stone-500": !selected && !borderColor,
+					"bg-accent": !color,
+				})}
+				id={id}
 				style={{
 					outlineColor: borderColor ?? undefined,
 					width: size.width,
 					height: size.height,
 					background: color,
+					justifyContent: textAlign ?? "center",
+					textAlign: textAlign ?? "center",
 				}}
-				onDoubleClick={() => {
+				onDoubleClick={(e) => {
+					if ((e.target as HTMLElement).id !== id) return;
 					if (!editingState) {
 						start(id, "label", label);
 					}
@@ -184,8 +189,12 @@ const DefaultNode = ({ data: { label, borderColor, color }, selected, id }: Node
 			>
 				<NodeResizer
 					isVisible={selected}
-					handleClassName="w-3 h-3 bg-primary rounded-sm"
+					handleClassName="w-2 h-2 bg-primary"
+					handleStyle={{
+						borderRadius: 2.5,
+					}}
 					lineClassName="border-accent border border-dashed"
+					keepAspectRatio={alt}
 				/>
 				<div
 					className={cn(
@@ -241,11 +250,75 @@ const DefaultNode = ({ data: { label, borderColor, color }, selected, id }: Node
 					>
 						<TextCursor className="w-4 h-4" />
 					</Button>
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button
+								size="smallIcon"
+								variant="ghost"
+								onClick={() => toggle(id, "align", textAlign)}
+							>
+								{match(textAlign)
+									.with("left", () => <AlignLeft className="w-4 h-4" />)
+									.with("center", () => <AlignCenter className="w-4 h-4" />)
+									.with("right", () => <AlignRight className="w-4 h-4" />)
+									.otherwise(() => (
+										<Type className="w-4 h-4" />
+									))}
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent
+							side="top"
+							className="mb-2 rounded-2xl flex flex-row items-center justify-center p-2 w-fit"
+						>
+							<Button
+								size="icon"
+								variant="ghost"
+								onClick={() => {
+									updateNode({
+										data: {
+											textAlign: "left",
+										},
+									});
+								}}
+							>
+								<AlignLeft className="w-4 h-4" />
+							</Button>
+							<Button
+								size="icon"
+								variant="ghost"
+								onClick={() => {
+									updateNode({
+										data: {
+											textAlign: "center",
+										},
+									});
+								}}
+							>
+								<AlignCenter className="w-4 h-4" />
+							</Button>
+							<Button
+								size="icon"
+								variant="ghost"
+								onClick={() => {
+									updateNode({
+										data: {
+											textAlign: "right",
+										},
+									});
+								}}
+							>
+								<AlignRight className="w-4 h-4" />
+							</Button>
+						</PopoverContent>
+					</Popover>
 				</div>
 				{match(editingState.type)
 					.with("label", () => (
 						<TextareaAutosize
-							className="resize-none bg-transparent outline-none nodrag w-full text-center overflow-hidden h-min"
+							className="resize-none bg-transparent outline-none nodrag w-full overflow-hidden h-min"
+							style={{
+								textAlign: textAlign ?? "center",
+							}}
 							value={editingState.data}
 							onChange={(e) => {
 								update(id, e.target.value);
@@ -262,6 +335,10 @@ const DefaultNode = ({ data: { label, borderColor, color }, selected, id }: Node
 										label: editingState.data,
 									},
 								});
+							}}
+							autoFocus
+							onFocus={(e) => {
+								e.target.select();
 							}}
 						/>
 					))

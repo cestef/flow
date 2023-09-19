@@ -20,7 +20,7 @@ export const useFlowProps = (
 	const { project } = useReactFlow();
 	const onNodesChange = useCallback(
 		(changes: NodeChange[]) => {
-			console.log("onNodesChange", changes);
+			// console.log("onNodesChange", changes);
 			if (!nodesShared) {
 				console.log("No nodes shared");
 				return;
