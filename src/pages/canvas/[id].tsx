@@ -32,6 +32,8 @@ function Room({ id }: { id: string }) {
 				grabbing: false,
 				currentSelected: [],
 				state: "default",
+				startX: 0,
+				startY: 0,
 			}}
 		>
 			<Canvas />
