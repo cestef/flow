@@ -187,14 +187,14 @@ const NodeContext = ({ children }: { children: React.ReactNode }) => {
 
 export const getLabel = (
 	text: string,
-	fontStyles: string,
+	fontStyles?: string,
 	textColor?: string,
 	className?: string,
 ) => {
-	const bold = fontStyles.includes("bold") ? "font-bold" : "";
-	const italic = fontStyles.includes("italic") ? "italic" : "";
-	const underline = fontStyles.includes("underline") ? "underline" : "";
-	const strike = fontStyles.includes("strike") ? "line-through" : "";
+	const bold = fontStyles?.includes("bold") ? "font-bold" : "";
+	const italic = fontStyles?.includes("italic") ? "italic" : "";
+	const underline = fontStyles?.includes("underline") ? "underline" : "";
+	const strike = fontStyles?.includes("strike") ? "line-through" : "";
 
 	return (
 		<p
