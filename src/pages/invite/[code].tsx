@@ -100,7 +100,7 @@ export default function Profile({
 					<Button
 						className="w-full"
 						onClick={async () => {
-							console.log(session?.user.id);
+							// console.log(session?.user.id);
 							if (!session?.user.id) {
 								return router.push(`/auth/login?callbackUrl=${router.asPath}`);
 							}

@@ -74,7 +74,7 @@ function Canvas() {
 										<Focus className="w-6 h-6" />
 									</Button>
 								</TooltipTrigger>
-								<TooltipContent side="top">Fit to screen</TooltipContent>
+								<TooltipContent side="left">Fit to screen</TooltipContent>
 							</Tooltip>
 							<Tooltip>
 								<TooltipTrigger asChild>
@@ -82,7 +82,7 @@ function Canvas() {
 										<Plus className="w-6 h-6" />
 									</Button>
 								</TooltipTrigger>
-								<TooltipContent side="top">Zoom in</TooltipContent>
+								<TooltipContent side="left">Zoom in</TooltipContent>
 							</Tooltip>
 							<Tooltip>
 								<TooltipTrigger asChild>
@@ -90,7 +90,7 @@ function Canvas() {
 										<Minus className="w-6 h-6" />
 									</Button>
 								</TooltipTrigger>
-								<TooltipContent side="top">Zoom out</TooltipContent>
+								<TooltipContent side="left">Zoom out</TooltipContent>
 							</Tooltip>
 						</div>
 					</Panel>

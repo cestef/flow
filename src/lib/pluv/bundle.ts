@@ -39,8 +39,22 @@ export const {
 	usePluvClient,
 } = createBundle(client);
 
-export const PresenceState = z.enum(["grab", "select", "default", "text", "color"]);
-
+export const PresenceState = z.enum(["grab", "select", "default", "text", "color", "resize"]);
+export const Presence = z.object({
+	color: z.string().refine((value) => /^#(?:[0-9a-fA-F]{3}){1,2}$/.test(value)),
+	startX: z.number(),
+	startY: z.number(),
+	x: z.number(),
+	y: z.number(),
+	state: PresenceState,
+	rect: z
+		.object({
+			x: z.number(),
+			y: z.number(),
+		})
+		.optional(),
+	currentSelected: z.array(z.string()),
+});
 export const {
 	// components
 	PluvRoomProvider,
@@ -56,19 +70,7 @@ export const {
 	usePluvRoom,
 	usePluvStorage,
 } = createRoomBundle({
-	presence: z.object({
-		color: z.string().refine((value) => /^#(?:[0-9a-fA-F]{3}){1,2}$/.test(value)),
-		x: z.number(),
-		y: z.number(),
-		state: PresenceState,
-		rect: z
-			.object({
-				x: z.number(),
-				y: z.number(),
-			})
-			.optional(),
-		currentSelected: z.array(z.string()),
-	}),
+	presence: Presence,
 	initialStorage: () => ({
 		nodes: y.map<Node>([]),
 		edges: y.map<Edge>([]),
@@ -82,9 +84,9 @@ export const usePluvNode = (id: string) => {
 		const current = remoteNodes?.get(id);
 		if (!current) return;
 		const merged = shallowMerge(current, node);
-		console.log("[merged]", merged);
-		console.log("[current]", current);
-		console.log("[node]", node);
+		// console.log("[merged]", merged);
+		// console.log("[current]", current);
+		// console.log("[node]", node);
 		remoteNodes?.set(id, merged);
 	};
 

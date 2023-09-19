@@ -168,16 +168,16 @@ export default function DashboardMembers({
 															</SelectValue>
 														</SelectTrigger>
 														<SelectContent>
-															<SelectItem value="read">
+															<SelectItem value="view">
 																<div className="flex items-center space-x-2">
 																	<Eye className="mr-2 h-4 w-4" />
-																	Read
+																	View
 																</div>
 															</SelectItem>
-															<SelectItem value="write">
+															<SelectItem value="edit">
 																<div className="flex items-center space-x-2">
 																	<Pencil className="mr-2 h-4 w-4" />
-																	Write
+																	Edit
 																</div>
 															</SelectItem>
 														</SelectContent>

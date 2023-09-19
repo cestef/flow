@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	const yDocs = canvases.map((canvas) => {
 		const yDoc = new Y.Doc();
-		console.log(canvas.state);
+		// console.log(canvas.state);
 		Y.applyUpdate(yDoc, Buffer.from(canvas.state, "base64"));
 		const storage = yDoc.getMap("storage");
 		const nodes = storage.get("nodes") as Y.Map<Node> | undefined;

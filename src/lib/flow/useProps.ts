@@ -122,20 +122,16 @@ export const useFlowProps = (
 		},
 		[nodesShared, remoteNodes, currentSelected, updateMyPresence, setNodes, updateNodes],
 	);
-	const onNodeDragStart = useCallback((e: React.MouseEvent, node: Node) => {
-		updateMyPresence({
-			state: "grab",
-		});
-	}, []);
-	const onNodeDrag = useCallback(
+	const onNodeDragStart = useCallback(
 		(e: React.MouseEvent, node: Node) => {
 			const projected = project({
 				x: e.clientX,
 				y: e.clientY,
 			});
 			updateMyPresence({
-				x: projected.x,
-				y: projected.y,
+				state: "grab",
+				startX: projected.x - node.position.x,
+				startY: projected.y - node.position.y,
 			});
 		},
 		[project],
@@ -160,7 +156,6 @@ export const useFlowProps = (
 	return {
 		onNodesChange,
 		onNodeDragStart,
-		onNodeDrag,
 		onNodeDragStop,
 		onSelectionStart,
 		onSelectionEnd,
