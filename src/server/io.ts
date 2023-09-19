@@ -45,13 +45,6 @@ export const io = createIO({
 			},
 		});
 	},
-}).event("EMIT_EMOJI", {
-	input: z.object({
-		emoji: z.string(),
-	}),
-	resolver: ({ emoji }) => ({
-		EMOJI_EMITTED: { emoji },
-	}),
 });
 
 // Export the websocket client io type, instead of the client itself

@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { usePluvMyPresence, usePluvStorage } from "../pluv/bundle";
 import { useStore } from "../store";
+import { Node } from "reactflow";
 
 export const useNodes = () => {
 	const [nodes, setNodes] = useStore((e) => [e.nodes, e.setNodes] as const);
@@ -17,7 +18,14 @@ export const useNodes = () => {
 		);
 	}, [remoteNodes, setNodes, nodesShared, currentSelected]);
 
-	return { nodes, remoteNodes, nodesShared };
+	const addNode = useCallback(
+		(node: Node) => {
+			setNodes([...nodes, node]);
+		},
+		[setNodes, nodes],
+	);
+
+	return { nodes, remoteNodes, nodesShared, addNode };
 };
 
 export const useEdges = () => {

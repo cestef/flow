@@ -7,7 +7,7 @@ import { RoomProvider } from "@/components/providers/pluv";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { DEEFAULT_NODE_DIMENSIONS, FIT_VIEW, NODE_NAMES } from "@/lib/constants";
+import { FIT_VIEW } from "@/lib/constants";
 import { useEdges, useNodes } from "@/lib/flow/elements";
 import { formatNodesFlow } from "@/lib/flow/format";
 import { useFlowProps } from "@/lib/flow/useProps";
@@ -18,7 +18,8 @@ import { canAccessCanvas, getRandomHexColor } from "@/lib/utils";
 import { Focus, Minus, Plus } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
-import ReactFlow, { Panel, useReactFlow, useStore as useStoreFlow } from "reactflow";
+import { useHotkeys } from "react-hotkeys-hook";
+import ReactFlow, { Panel, useReactFlow } from "reactflow";
 
 function Room({ id }: { id: string }) {
 	return (
@@ -42,11 +43,23 @@ function Canvas() {
 	const { data: session, status } = useSession();
 	const others = usePluvOthers();
 
-	const { nodes, remoteNodes, nodesShared } = useNodes();
+	const { nodes, remoteNodes, nodesShared, addNode } = useNodes();
 	const { edges } = useEdges();
 
 	const flowProps = useFlowProps(remoteNodes, nodesShared);
 	const { fitView, zoomIn, zoomOut } = useReactFlow();
+	useHotkeys(["meta+-", "ctrl+-"], (e) => {
+		e.preventDefault();
+		zoomOut({ duration: 300 });
+	});
+	useHotkeys(
+		["meta$+", "ctrl$+", "meta$shift$1", "ctrl$shift$1"],
+		(e) => {
+			e.preventDefault();
+			zoomIn({ duration: 300 });
+		},
+		{ combinationKey: "$" },
+	);
 	useMouseTrack();
 	if (status === "loading") return <Loader />;
 	return (
@@ -55,7 +68,6 @@ function Canvas() {
 				<ReactFlow nodes={formatNodesFlow(nodes, others)} edges={edges} {...flowProps}>
 					<BackgroundStyled />
 					<Panel position="top-right">
-						{/* <User user={session?.user} className="mr-2 mt-2 justify-self-end" /> */}
 						<UserStack
 							users={(others as any[])
 								.map((e) => e.user)

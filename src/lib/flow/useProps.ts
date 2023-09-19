@@ -166,5 +166,7 @@ export const useFlowProps = (
 			hideAttribution: true,
 		},
 		selectNodesOnDrag: true,
+		maxZoom: 3,
+		minZoom: 0.4,
 	};
 };
