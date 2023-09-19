@@ -13,6 +13,8 @@ export interface RoomProviderProps {
 		grabbing: boolean;
 		currentSelected: string[];
 		state: "select" | "default" | "grab";
+		startX: number;
+		startY: number;
 	};
 	room: string;
 }

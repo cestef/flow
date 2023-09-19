@@ -47,12 +47,6 @@ export const Presence = z.object({
 	x: z.number(),
 	y: z.number(),
 	state: PresenceState,
-	rect: z
-		.object({
-			x: z.number(),
-			y: z.number(),
-		})
-		.optional(),
 	currentSelected: z.array(z.string()),
 });
 export const {
