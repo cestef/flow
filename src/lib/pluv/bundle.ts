@@ -26,7 +26,7 @@ const client = createClient<AppPluvIO>({
 		},
 	}),
 	wsEndpoint: (room) => `${PLUV_WS_URL}/room/${room}`,
-	// debug: true,
+	debug: true,
 });
 
 export const {
