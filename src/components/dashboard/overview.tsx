@@ -40,8 +40,7 @@ export default function DashboardOverview({
 									  ]
 									: data?.nodes.map((e) => ({
 											...e,
-											type:
-												e.type === NODE_NAMES.DEFAULT ? "preview" : e.type,
+											type: NODE_NAMES.PREVIEW,
 									  })) ?? [
 											{
 												id: "1",

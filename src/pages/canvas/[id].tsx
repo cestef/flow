@@ -11,13 +11,16 @@ import { FIT_VIEW } from "@/lib/constants";
 import { useEdges, useNodes } from "@/lib/flow/elements";
 import { formatNodesFlow } from "@/lib/flow/format";
 import { useFlowProps } from "@/lib/flow/useProps";
-import { usePluvOthers } from "@/lib/pluv/bundle";
+import { usePluvClient, usePluvConnection, usePluvOthers, usePluvRoom } from "@/lib/pluv/bundle";
 import { useMouseTrack } from "@/lib/pluv/useMouseTrack";
 import { prisma } from "@/lib/prisma";
 import { canAccessCanvas, getRandomHexColor } from "@/lib/utils";
-import { Focus, Minus, Plus } from "lucide-react";
+import { Focus, Home, Minus, Plus } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import ReactFlow, { Panel, useReactFlow } from "reactflow";
 
@@ -43,9 +46,11 @@ function Room({ id }: { id: string }) {
 
 function Canvas() {
 	const { data: session, status } = useSession();
+	const router = useRouter();
 	const others = usePluvOthers();
+	const [leaving, setLeaving] = useState(false);
 
-	const { nodes, remoteNodes, nodesShared, addNode } = useNodes();
+	const { nodes, remoteNodes, nodesShared } = useNodes();
 	const { edges } = useEdges();
 
 	const flowProps = useFlowProps(remoteNodes, nodesShared);
@@ -67,7 +72,11 @@ function Canvas() {
 	return (
 		<div className="h-[100svh] w-full">
 			<FlowContext>
-				<ReactFlow nodes={formatNodesFlow(nodes, others)} edges={edges} {...flowProps}>
+				<ReactFlow
+					nodes={leaving ? [] : formatNodesFlow(nodes, others)}
+					edges={edges}
+					{...flowProps}
+				>
 					<BackgroundStyled />
 					<Panel position="top-right">
 						<UserStack
@@ -78,7 +87,17 @@ function Canvas() {
 						/>
 					</Panel>
 					<Panel position="top-left">
-						<ModeToggle className="ml-2 mt-2" />
+						{/* <ModeToggle className="ml-2 mt-2" /> */}
+						<Button
+							size="icon"
+							className="ml-2 mt-2"
+							onClick={() => {
+								setLeaving(true);
+								router.push("/dashboard");
+							}}
+						>
+							<Home className="w-6 h-6" />
+						</Button>
 					</Panel>
 					<Panel position="bottom-right">
 						<div className="flex flex-col items-center justify-center gap-2 mb-2 mr-2 bg-accent shadow-sm py-2 px-2 rounded-md">

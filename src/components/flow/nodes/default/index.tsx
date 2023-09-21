@@ -19,8 +19,8 @@ const DefaultNode = ({
 	selected,
 	id,
 }: NodeProps) => {
-	const [node, updateNode] = usePluvNode(id);
-	const [_, updatePresence] = usePluvMyPresence();
+	const [_, updateNode] = usePluvNode(id);
+	const [__, updatePresence] = usePluvMyPresence();
 	const alt = useKeyPress("Alt");
 	const size = useStoreFlow((s) => {
 		const node = s.nodeInternals.get(id);

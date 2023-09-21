@@ -1,13 +1,13 @@
 import { PresenceState } from "@/lib/pluv/bundle";
-import { Grab, Hand, MousePointer2, Pipette, Pointer, Scaling, TextCursor } from "lucide-react";
+import { Grab, Hand, MousePointer2, Pipette, Scaling, TextCursor } from "lucide-react";
 import { memo } from "react";
 import { NodeProps } from "reactflow";
 import { match } from "ts-pattern";
 import { z } from "zod";
 
-const CursorNode = ({ data: { color, state, name }, xPos, yPos }: NodeProps) => {
+const CursorNode = ({ data: { color, state, name, startX, startY }, xPos, yPos }: NodeProps) => {
 	return (
-		<div className="nodrag pointer-events-none absolute -top-3 -left-3 w-6 h-6 visible">
+		<div className="nodrag pointer-events-none absolute w-6 h-6 visible">
 			{match(state as z.infer<typeof PresenceState>)
 				.with("default", () => <Hand color={color} className="w-6 h-6" />)
 				.with("grab", () => <Grab color={color} className="w-6 h-6" />)

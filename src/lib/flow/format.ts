@@ -15,6 +15,8 @@ export const formatNodesFlow = (
 		}>
 	>,
 ) => {
+	const selectingOthers = others.filter((other) => other.presence.state === "select");
+
 	return [
 		...nodes.map((node) => {
 			const otherSelected = others.find((other) =>
@@ -53,6 +55,27 @@ export const formatNodesFlow = (
 					state: other.presence.state,
 					color: other.presence.color,
 					name: other.user.name,
+					startX: other.presence.startX,
+					startY: other.presence.startY,
+				},
+			};
+		}),
+		...selectingOthers.map((other) => {
+			const width = other.presence.x - other.presence.startX;
+			const height = other.presence.y - other.presence.startY;
+			const top = other.presence.startY;
+			const left = other.presence.startX;
+			return {
+				id: `${other.user.id}-rect`,
+				type: NODE_NAMES.RECT,
+				position: {
+					x: width < 0 ? other.presence.x : left,
+					y: height < 0 ? other.presence.y : top,
+				},
+				data: {
+					width: Math.abs(width),
+					height: Math.abs(height),
+					color: other.presence.color,
 				},
 			};
 		}),

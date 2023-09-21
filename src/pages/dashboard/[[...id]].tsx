@@ -30,14 +30,12 @@ import { Canvas, Member, User } from "@prisma/client";
 import { Plus } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
-import localFont from "next/font/local";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Edge, Node } from "reactflow";
 import { mutate } from "swr";
 import * as z from "zod";
-import * as Y from "yjs";
-import { Edge, Node } from "reactflow";
 
 const formSchema = z.object({
 	name: z.string().min(1).max(64),

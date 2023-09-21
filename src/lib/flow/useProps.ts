@@ -142,11 +142,20 @@ export const useFlowProps = (
 		});
 	}, []);
 
-	const onSelectionStart = useCallback((e: React.MouseEvent) => {
-		updateMyPresence({
-			state: "select",
-		});
-	}, []);
+	const onSelectionStart = useCallback(
+		(e: React.MouseEvent) => {
+			const projected = project({
+				x: e.clientX,
+				y: e.clientY,
+			});
+			updateMyPresence({
+				state: "select",
+				startX: projected.x,
+				startY: projected.y,
+			});
+		},
+		[project],
+	);
 	const onSelectionEnd = useCallback((e: React.MouseEvent) => {
 		updateMyPresence({
 			state: "default",
