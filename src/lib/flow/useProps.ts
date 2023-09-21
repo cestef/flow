@@ -137,8 +137,14 @@ export const useFlowProps = (
 		[project],
 	);
 	const onNodeDragStop = useCallback((e: React.MouseEvent, node: Node) => {
+		const projected = project({
+			x: e.clientX,
+			y: e.clientY,
+		});
 		updateMyPresence({
 			state: "default",
+			x: projected.x,
+			y: projected.y,
 		});
 	}, []);
 
