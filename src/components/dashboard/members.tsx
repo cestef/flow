@@ -24,6 +24,8 @@ import { useState } from "react";
 import { createInvite } from "@/lib/mutations/invite";
 import getConfig from "next/config";
 import { useToast } from "../ui/use-toast";
+import { AugmentedCanvas } from "@/pages/dashboard/[[...id]]";
+import { useSession } from "next-auth/react";
 
 const { publicRuntimeConfig } = getConfig();
 const { APP_URL } = publicRuntimeConfig;
@@ -44,8 +46,9 @@ export default function DashboardMembers({
 	data,
 }: {
 	canvas?: string;
-	data?: Canvas & { members: (Member & { user: User })[] };
+	data?: AugmentedCanvas;
 }) {
+	const { data: session } = useSession();
 	const [open, setOpen] = useState(false);
 	const { toast } = useToast();
 	const [invite, setInvite] = useState<string | null>(null);
@@ -57,15 +60,31 @@ export default function DashboardMembers({
 	});
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		if (!canvas) return;
-		const { id, code } = await createInvite(
-			canvas,
-			values.expires,
-			values.uses,
-			values.permission,
-		);
-		setInvite(code);
-		setOpen(false);
+		try {
+			const { code } = await createInvite(
+				canvas,
+				values.expires,
+				values.uses,
+				values.permission,
+			);
+			setInvite(code);
+			setOpen(false);
+		} catch (e: any) {
+			toast({
+				title: "Error",
+				description: e.message,
+				duration: 3000,
+				variant: "destructive",
+			});
+		}
 	};
+	let canInvite = false;
+	if ((data?.settings as any).members.canInvite) {
+		canInvite = true;
+	} else if (data?.ownerId === session?.user.id) {
+		canInvite = true;
+	}
+
 	return (
 		<div className="flex flex-col gap-6 items-center justify-center h-[calc(100svh-100px)]">
 			<h1 className="text-4xl font-bold">Members</h1>
@@ -76,7 +95,7 @@ export default function DashboardMembers({
 			/>
 			<Dialog open={open} onOpenChange={setOpen}>
 				<DialogTrigger asChild>
-					<Button size="lg">
+					<Button size="lg" disabled={!canInvite}>
 						<Plus className="mr-2 h-4 w-4" />
 						Invite
 					</Button>

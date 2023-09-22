@@ -23,6 +23,14 @@ export interface CanvasSlice {
 	addNode: (node: Node) => void;
 	edges: Edge[];
 	setEdges: (edges: Edge[]) => void;
+	helperLines: {
+		horizontal: number | undefined;
+		vertical: number | undefined;
+	};
+	setHelperLines: (lines: {
+		horizontal?: number | undefined;
+		vertical?: number | undefined;
+	}) => void;
 }
 
 export const createCanvasSlice: StateCreator<CanvasSlice> = (set) => ({
@@ -61,4 +69,10 @@ export const createCanvasSlice: StateCreator<CanvasSlice> = (set) => ({
 	addNode: (node) => set((state) => ({ nodes: [...state.nodes, node] })),
 	edges: [],
 	setEdges: (edges) => set({ edges }),
+	helperLines: {
+		horizontal: undefined,
+		vertical: undefined,
+	},
+	setHelperLines: (lines) =>
+		set((state) => ({ helperLines: { ...state.helperLines, ...lines } })),
 });

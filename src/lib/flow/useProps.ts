@@ -1,9 +1,11 @@
 import { useCallback } from "react";
-import { Node, NodeChange, ReactFlowProps, useReactFlow } from "reactflow";
+import { Node, NodeChange, ReactFlowProps, useKeyPress, useReactFlow } from "reactflow";
 import * as Y from "yjs";
 import { usePluvMyPresence } from "../pluv/bundle";
 import { RootSlice, useStore } from "../store";
 import { FIT_VIEW, NODE_TYPES } from "../constants";
+import { getHelperLines } from "@/components/flow/helper-lines";
+import { useNodes } from "./elements";
 
 const updateSetSelector = (e: RootSlice) => ({
 	updateNode: e.updateNode,
@@ -18,14 +20,39 @@ export const useFlowProps = (
 	const [currentSelected, updateMyPresence] = usePluvMyPresence((e) => e.currentSelected);
 	const { updateNode, setNodes, updateNodes } = useStore(updateSetSelector);
 	const { project } = useReactFlow();
+	const { nodes } = useNodes();
+	const ctrl = useKeyPress("Control");
+	const setHelperLines = useStore((e) => e.setHelperLines);
 	const onNodesChange = useCallback(
 		(changes: NodeChange[]) => {
 			// console.log("onNodesChange", changes);
+			setHelperLines({
+				horizontal: undefined,
+				vertical: undefined,
+			});
+			if (
+				changes.length === 1 &&
+				changes[0].type === "position" &&
+				changes[0].dragging &&
+				changes[0].position &&
+				ctrl
+			) {
+				const helperLines = getHelperLines(changes[0], nodes);
+
+				// if we have a helper line, we snap the node to the helper line position
+				// this is being done by manipulating the node position inside the change object
+				changes[0].position.x = helperLines.snapPosition.x ?? changes[0].position.x;
+				changes[0].position.y = helperLines.snapPosition.y ?? changes[0].position.y;
+
+				// if helper lines are returned, we set them so that they can be displayed
+				if (helperLines.horizontal || helperLines.vertical) {
+					setHelperLines(helperLines);
+				}
+			}
 			if (!nodesShared) {
 				console.log("No nodes shared");
 				return;
 			}
-			const ids = [];
 			for (let i = 0; i < changes.length; i++) {
 				const change = changes[i];
 				switch (change.type) {
@@ -120,7 +147,16 @@ export const useFlowProps = (
 				});
 			}
 		},
-		[nodesShared, remoteNodes, currentSelected, updateMyPresence, setNodes, updateNodes],
+		[
+			nodesShared,
+			remoteNodes,
+			currentSelected,
+			updateMyPresence,
+			setNodes,
+			updateNodes,
+			ctrl,
+			nodes,
+		],
 	);
 	const onNodeDragStart = useCallback(
 		(e: React.MouseEvent, node: Node) => {

@@ -6,7 +6,7 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { DEEFAULT_NODE_DIMENSIONS, NODE_NAMES } from "@/lib/constants";
+import { DEEFAULT_NODE_DIMENSIONS, DEFAULT_GROUP_DIMENSIONS, NODE_NAMES } from "@/lib/constants";
 import { useStore } from "@/lib/store";
 import { generateId } from "@/lib/utils";
 import { Bomb, BoxSelect, Workflow } from "lucide-react";
@@ -32,7 +32,9 @@ export default function FlowContext({ children }: { children: React.ReactNode })
 							label: "New node",
 							editing: "label",
 						},
-						...DEEFAULT_NODE_DIMENSIONS,
+						...(type === NODE_NAMES.GROUP
+							? DEFAULT_GROUP_DIMENSIONS
+							: DEEFAULT_NODE_DIMENSIONS),
 					},
 				},
 			]);

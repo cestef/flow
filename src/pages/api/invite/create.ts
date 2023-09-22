@@ -21,6 +21,27 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 		return;
 	}
 
+	const canvas = await prisma.canvas.findUnique({
+		where: {
+			id: canvasId,
+		},
+		include: {
+			owner: true,
+		},
+	});
+
+	if (!canvas) {
+		res.status(404).json({ error: "Canvas not found" });
+		return;
+	}
+
+	const canInvite = (canvas.settings as any)?.members?.canInvite ?? false;
+
+	if (!canInvite && canvas.ownerId !== session.user.id) {
+		res.status(403).json({ error: "Forbidden" });
+		return;
+	}
+
 	const expiresDate = expires ? new Date(expires) : null;
 	if (
 		(expires && expiresDate?.toString() === "Invalid Date") ||

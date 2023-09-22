@@ -5,6 +5,7 @@ import {
 	ContextMenuLabel,
 	ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { DEEFAULT_NODE_DIMENSIONS } from "@/lib/constants";
 import { usePluvMyPresence, usePluvNode } from "@/lib/pluv/bundle";
 import { cn } from "@/lib/utils";
 import { Copy, Trash2 } from "lucide-react";
@@ -102,7 +103,9 @@ const DefaultNode = ({
 					handleStyle={{
 						borderRadius: 2.5,
 					}}
-					lineClassName="border-accent border border-dashed"
+					minWidth={DEEFAULT_NODE_DIMENSIONS.width}
+					minHeight={DEEFAULT_NODE_DIMENSIONS.height}
+					lineClassName="border-foreground border border-dashed"
 					keepAspectRatio={alt}
 					onResizeStart={() => {
 						updatePresence({
@@ -133,9 +136,18 @@ const DefaultNode = ({
 				{match(editingState.type)
 					.with("label", () => (
 						<TextareaAutosize
-							className="resize-none bg-transparent outline-none nodrag w-full overflow-hidden h-min"
+							className={cn(
+								"resize-none bg-transparent outline-none nodrag w-full overflow-hidden h-min",
+								{
+									"font-bold": fontStyles?.includes("bold"),
+									italic: fontStyles?.includes("italic"),
+									underline: fontStyles?.includes("underline"),
+									"line-through": fontStyles?.includes("strike"),
+								},
+							)}
 							style={{
 								textAlign: textAlign ?? "center",
+								color: textColor,
 							}}
 							value={editingState.data as string}
 							onChange={(e) => {
@@ -161,6 +173,25 @@ const DefaultNode = ({
 						/>
 					))
 					.otherwise(() => getLabel(label, fontStyles, textColor))}
+				{/* {[Position.Left, Position.Right, Position.Top, Position.Bottom].map((position) => (
+					<Handle
+						key={position}
+						id={position}
+						position={position}
+						type="source"
+						className={cn(
+							"absolute border rounded-[0.125rem] bg-accent border-foreground opacity-0 transition-opacity duration-200",
+							{
+								"w-2 h-4":
+									position === Position.Left || position === Position.Right,
+								"w-4 h-2":
+									position === Position.Top || position === Position.Bottom,
+								"opacity-100": selected,
+								"pointer-events-none": !selected,
+							},
+						)}
+					/>
+				))} */}
 			</div>
 		</NodeContext>
 	);

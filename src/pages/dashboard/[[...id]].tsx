@@ -1,6 +1,7 @@
 import UserComponent from "@/components/composed/user";
 import DashboardMembers from "@/components/dashboard/members";
 import DashboardOverview from "@/components/dashboard/overview";
+import DashboardSettings from "@/components/dashboard/settings";
 import { Button } from "@/components/ui/button";
 import ComboBox from "@/components/ui/combobox";
 import {
@@ -22,18 +23,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/loader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FIT_VIEW } from "@/lib/constants";
 import { createCanvas } from "@/lib/mutations/canvas";
+import { prisma } from "@/lib/prisma";
 import { useStore } from "@/lib/store";
 import { useGet } from "@/lib/swr";
+import { canAccessCanvas } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Canvas, Member, User } from "@prisma/client";
 import { Plus } from "lucide-react";
-import { GetServerSidePropsContext } from "next";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Edge, Node } from "reactflow";
+import { Edge, Node, useReactFlow } from "reactflow";
 import { mutate } from "swr";
 import * as z from "zod";
 
@@ -105,16 +109,28 @@ type MembersWithUser = Member & { user: User };
 type CanvasWithMembersAndUsers = Canvas & { members: MembersWithUser[] };
 export type AugmentedCanvas = CanvasWithMembersAndUsers & { nodes: Node[]; edges: Edge[] };
 
-export default function Dashboard({ id }: { id: string | null }) {
+export default function Dashboard({
+	id,
+	tab: defaultTab,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+	const [tab, setTab] = useState<"select" | "overview" | "members" | "settings">(
+		defaultTab ?? "overview",
+	);
 	const { data: session, status } = useSession();
 	const { data: canvases, isLoading } = useGet<AugmentedCanvas[]>("/api/canvas");
 	const [canvas, setCanvas] = useState<string | undefined>(undefined);
 	const router = useRouter();
+	const { fitView } = useReactFlow();
 	useEffect(() => {
 		if (canvas) {
-			router.replace(`/dashboard/${canvas}`);
+			router.replace(`/dashboard/${canvas}/${tab}`, undefined, { shallow: true });
+			window.requestAnimationFrame(() => {
+				window.requestAnimationFrame(() => {
+					fitView(FIT_VIEW);
+				});
+			});
 		}
-	}, [canvas]);
+	}, [canvas, tab]);
 	useEffect(() => {
 		if (id) {
 			setCanvas(id);
@@ -126,7 +142,7 @@ export default function Dashboard({ id }: { id: string | null }) {
 	if (status === "loading" || isLoading) return <Loader />;
 	return (
 		<>
-			<Tabs defaultValue="overview">
+			<Tabs value={tab} onValueChange={(e) => setTab(e as any)}>
 				<header className="flex justify-center sm:justify-between items-center px-4 sm:px-8 py-4 border-b">
 					<ComboBox
 						data={canvases?.map((e) => ({ value: e.id, label: e.name })) ?? []}
@@ -189,6 +205,9 @@ export default function Dashboard({ id }: { id: string | null }) {
 							<p className="text-xl text-muted-foreground">
 								You can view and manage settings of this canvas.
 							</p>
+							<div className="w-full md:w-[calc(50%-4rem)]">
+								<DashboardSettings canvas={canvasId} data={data} />
+							</div>
 						</div>
 					</TabsContent>
 				</main>
@@ -207,13 +226,43 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 			},
 		};
 	}
-	let id = ctx.query.id;
-	if (Array.isArray(id)) {
-		id = id[0];
+	let id: string | null = null;
+	let tab: "overview" | "members" | "settings" | null = null;
+	const idAndTab = ctx.query.id;
+	if (Array.isArray(idAndTab)) {
+		id = idAndTab[0];
+		tab = (idAndTab[1] as "overview" | "members" | "settings" | null) ?? null;
+	}
+	if (!id || typeof id !== "string") {
+		return {
+			notFound: true,
+		};
+	}
+	const canvas = await prisma.canvas.findUnique({
+		where: {
+			id,
+		},
+		include: {
+			members: true,
+		},
+	});
+	if (!canvas) {
+		return {
+			notFound: true,
+		};
+	}
+	if (!canAccessCanvas(canvas, session.user.id)) {
+		return {
+			notFound: true,
+		};
+	}
+	if (tab === "settings" && canvas.ownerId !== session.user.id) {
+		tab = "overview";
 	}
 	return {
 		props: {
-			id: id ?? null,
+			id,
+			tab,
 		},
 	};
 }

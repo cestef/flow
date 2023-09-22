@@ -3,6 +3,7 @@ import { ModeToggle } from "@/components/composed/mode-toggle";
 import UserStack from "@/components/composed/users-stack";
 import { BackgroundStyled } from "@/components/flow/background";
 import FlowContext from "@/components/flow/context";
+import HelperLinesRenderer from "@/components/flow/helper-lines";
 import { RoomProvider } from "@/components/providers/pluv";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
@@ -14,6 +15,7 @@ import { useFlowProps } from "@/lib/flow/useProps";
 import { usePluvClient, usePluvConnection, usePluvOthers, usePluvRoom } from "@/lib/pluv/bundle";
 import { useMouseTrack } from "@/lib/pluv/useMouseTrack";
 import { prisma } from "@/lib/prisma";
+import { useStore } from "@/lib/store";
 import { canAccessCanvas, getRandomHexColor } from "@/lib/utils";
 import { Focus, Home, Minus, Plus } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
@@ -68,6 +70,10 @@ function Canvas() {
 		{ combinationKey: "$" },
 	);
 	useMouseTrack();
+	const [vertical, horizontal] = useStore((e) => [
+		e.helperLines.vertical,
+		e.helperLines.horizontal,
+	]);
 	if (status === "loading") return <Loader />;
 	return (
 		<div className="h-[100svh] w-full">
@@ -77,6 +83,7 @@ function Canvas() {
 					edges={edges}
 					{...flowProps}
 				>
+					<HelperLinesRenderer horizontal={horizontal} vertical={vertical} />
 					<BackgroundStyled />
 					<Panel position="top-right">
 						<UserStack
