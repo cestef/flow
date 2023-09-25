@@ -77,6 +77,6 @@ export const createCanvasSlice: StateCreator<CanvasSlice> = (set) => ({
 	},
 	setHelperLines: (lines) =>
 		set((state) => ({ helperLines: { ...state.helperLines, ...lines } })),
-	tool: "select",
+	tool: "drag",
 	setTool: (tool) => set({ tool }),
 });

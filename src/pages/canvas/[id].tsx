@@ -73,11 +73,11 @@ function Canvas() {
 		e.preventDefault();
 		fitView(FIT_VIEW);
 	});
-	useHotkeys(["meta+s", "ctrl+s"], (e) => {
+	useHotkeys(["s"], (e) => {
 		e.preventDefault();
 		setTool("select");
 	});
-	useHotkeys(["meta+h", "ctrl+h"], (e) => {
+	useHotkeys(["v"], (e) => {
 		e.preventDefault();
 		setTool("drag");
 	});
@@ -129,22 +129,22 @@ function Canvas() {
 						>
 							<Tooltip>
 								<TooltipTrigger>
-									<ButtonGroupItem value="select" className="p-2">
-										<BoxSelect className="w-4 h-4" />
-									</ButtonGroupItem>
-								</TooltipTrigger>
-								<TooltipContent className="bg-transparent border-none shadow-none mb-2">
-									<Keyboard keys={["S"]} modifiers={["⌘"]} />
-								</TooltipContent>
-							</Tooltip>
-							<Tooltip>
-								<TooltipTrigger>
 									<ButtonGroupItem value="drag" className="p-2">
 										<Hand className="w-4 h-4" />
 									</ButtonGroupItem>
 								</TooltipTrigger>
 								<TooltipContent className="bg-transparent border-none shadow-none mb-2">
-									<Keyboard keys={["H"]} modifiers={["⌘"]} />
+									<Keyboard keys={["V"]} modifiers={[]} />
+								</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger>
+									<ButtonGroupItem value="select" className="p-2">
+										<BoxSelect className="w-4 h-4" />
+									</ButtonGroupItem>
+								</TooltipTrigger>
+								<TooltipContent className="bg-transparent border-none shadow-none mb-2">
+									<Keyboard keys={["S"]} modifiers={[]} />
 								</TooltipContent>
 							</Tooltip>
 						</ButtonGroup>
