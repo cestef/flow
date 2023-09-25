@@ -30,7 +30,7 @@ export const RoomProvider: FC<RoomProviderProps> = ({ children, initialPresence,
 			})}
 			room={room}
 		>
-			{children}
+			{children as any}
 		</PluvRoomProvider>
 	);
 };
