@@ -233,31 +233,28 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 		id = idAndTab[0];
 		tab = (idAndTab[1] as "overview" | "members" | "settings" | null) ?? null;
 	}
-	if (!id || typeof id !== "string") {
-		return {
-			notFound: true,
-		};
-	}
-	const canvas = await prisma.canvas.findUnique({
-		where: {
-			id,
-		},
-		include: {
-			members: true,
-		},
-	});
-	if (!canvas) {
-		return {
-			notFound: true,
-		};
-	}
-	if (!canAccessCanvas(canvas, session.user.id)) {
-		return {
-			notFound: true,
-		};
-	}
-	if (tab === "settings" && canvas.ownerId !== session.user.id) {
-		tab = "overview";
+	if (id) {
+		const canvas = await prisma.canvas.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				members: true,
+			},
+		});
+		if (!canvas) {
+			return {
+				notFound: true,
+			};
+		}
+		if (!canAccessCanvas(canvas, session.user.id)) {
+			return {
+				notFound: true,
+			};
+		}
+		if (tab === "settings" && canvas.ownerId !== session.user.id) {
+			tab = "overview";
+		}
 	}
 	return {
 		props: {
