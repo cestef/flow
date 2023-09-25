@@ -31,6 +31,8 @@ export interface CanvasSlice {
 		horizontal?: number | undefined;
 		vertical?: number | undefined;
 	}) => void;
+	tool: string;
+	setTool: (tool: string) => void;
 }
 
 export const createCanvasSlice: StateCreator<CanvasSlice> = (set) => ({
@@ -75,4 +77,6 @@ export const createCanvasSlice: StateCreator<CanvasSlice> = (set) => ({
 	},
 	setHelperLines: (lines) =>
 		set((state) => ({ helperLines: { ...state.helperLines, ...lines } })),
+	tool: "select",
+	setTool: (tool) => set({ tool }),
 });

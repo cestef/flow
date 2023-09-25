@@ -6,6 +6,8 @@ import FlowContext from "@/components/flow/context";
 import HelperLinesRenderer from "@/components/flow/helper-lines";
 import { RoomProvider } from "@/components/providers/pluv";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup, ButtonGroupItem } from "@/components/ui/button-group";
+import Keyboard from "@/components/ui/keyboard";
 import { Loader } from "@/components/ui/loader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { FIT_VIEW } from "@/lib/constants";
@@ -17,7 +19,7 @@ import { useMouseTrack } from "@/lib/pluv/useMouseTrack";
 import { prisma } from "@/lib/prisma";
 import { useStore } from "@/lib/store";
 import { canAccessCanvas, getRandomHexColor } from "@/lib/utils";
-import { Focus, Home, Minus, Plus } from "lucide-react";
+import { BoxSelect, Focus, Hand, Home, Minus, Plus } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -51,7 +53,7 @@ function Canvas() {
 	const router = useRouter();
 	const others = usePluvOthers();
 	const [leaving, setLeaving] = useState(false);
-
+	const [tool, setTool] = useStore((e) => [e.tool, e.setTool] as const);
 	const { nodes, remoteNodes, nodesShared } = useNodes();
 	const { edges } = useEdges();
 
@@ -69,6 +71,19 @@ function Canvas() {
 		},
 		{ combinationKey: "$" },
 	);
+	useHotkeys(["meta+0", "ctrl+0"], (e) => {
+		e.preventDefault();
+		fitView(FIT_VIEW);
+	});
+	useHotkeys(["meta+s", "ctrl+s"], (e) => {
+		e.preventDefault();
+		setTool("select");
+	});
+	useHotkeys(["meta+h", "ctrl+h"], (e) => {
+		e.preventDefault();
+		setTool("drag");
+	});
+
 	useMouseTrack();
 	const [vertical, horizontal] = useStore((e) => [
 		e.helperLines.vertical,
@@ -81,6 +96,8 @@ function Canvas() {
 				<ReactFlow
 					nodes={leaving ? [] : formatNodesFlow(nodes, others)}
 					edges={edges}
+					selectionOnDrag={tool === "select"}
+					panOnDrag={!leaving && tool === "drag"}
 					{...flowProps}
 				>
 					<HelperLinesRenderer horizontal={horizontal} vertical={vertical} />
@@ -105,6 +122,34 @@ function Canvas() {
 						>
 							<Home className="w-6 h-6" />
 						</Button>
+					</Panel>
+					<Panel position="bottom-center">
+						<ButtonGroup
+							className="gap-1 px-2 py-6"
+							value={tool}
+							onValueChange={setTool}
+						>
+							<Tooltip>
+								<TooltipTrigger>
+									<ButtonGroupItem value="select" className="p-2">
+										<BoxSelect className="w-4 h-4" />
+									</ButtonGroupItem>
+								</TooltipTrigger>
+								<TooltipContent className="bg-transparent border-none shadow-none mb-2">
+									<Keyboard keys={["S"]} modifiers={["⌘"]} />
+								</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger>
+									<ButtonGroupItem value="drag" className="p-2">
+										<Hand className="w-4 h-4" />
+									</ButtonGroupItem>
+								</TooltipTrigger>
+								<TooltipContent className="bg-transparent border-none shadow-none mb-2">
+									<Keyboard keys={["H"]} modifiers={["⌘"]} />
+								</TooltipContent>
+							</Tooltip>
+						</ButtonGroup>
 					</Panel>
 					<Panel position="bottom-right">
 						<div className="flex flex-col items-center justify-center gap-2 mb-2 mr-2 bg-accent shadow-sm py-2 px-2 rounded-md">
