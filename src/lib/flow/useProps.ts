@@ -18,7 +18,7 @@ export const useFlowProps = (
 	nodesShared: Y.Map<Node> | null,
 ): ReactFlowProps => {
 	const [currentSelected, updateMyPresence] = usePluvMyPresence((e) => e.currentSelected);
-	const { updateNode, setNodes, updateNodes } = useStore(updateSetSelector);
+	const { setNodes, updateNodes } = useStore(updateSetSelector);
 	const transact = usePluvTransact();
 	const { project } = useReactFlow();
 	const { nodes } = useNodes();
