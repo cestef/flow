@@ -63,9 +63,9 @@ export const useFlowProps = (
 							console.log("Invalid node addition change", change);
 							break;
 						}
-						transact(() => {
-							nodesShared.set(node.id, node);
-						});
+						// transact(() => {
+						nodesShared.set(node.id, node);
+						// });
 						break;
 					}
 					case "remove": {
@@ -92,7 +92,10 @@ export const useFlowProps = (
 							break;
 						}
 						node.position = position;
+						// transact(() => {
 						nodesShared.set(nodeId, node);
+						// });
+
 						break;
 					}
 					case "dimensions": {
@@ -117,9 +120,9 @@ export const useFlowProps = (
 								height: dimensions.height,
 							};
 						}
-						transact(() => {
-							nodesShared.set(nodeId, node);
-						});
+						// transact(() => {
+						nodesShared.set(nodeId, node);
+						// });
 						break;
 					}
 					case "select": {
@@ -187,7 +190,7 @@ export const useFlowProps = (
 				startY: projected.y - node.position.y,
 			});
 		},
-		[project],
+		[project, transact],
 	);
 	const onNodeDragStop = useCallback(
 		(e: React.MouseEvent, node: Node) => {
@@ -200,11 +203,17 @@ export const useFlowProps = (
 				x: projected.x,
 				y: projected.y,
 			});
-			transact(() => {
-				nodesShared?.set(node.id, node);
-			});
+			// transact((storage) => {
+			// 	storage.nodes?.set(node.id, {
+			// 		...node,
+			// 		position: {
+			// 			x: node.position.x - 1,
+			// 			y: node.position.y - 1,
+			// 		},
+			// 	});
+			// });
 		},
-		[nodesShared],
+		[nodesShared, transact],
 	);
 
 	const onSelectionStart = useCallback(
