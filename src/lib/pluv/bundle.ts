@@ -63,6 +63,11 @@ export const {
 	usePluvOthers,
 	usePluvRoom,
 	usePluvStorage,
+	usePluvCanRedo,
+	usePluvCanUndo,
+	usePluvUndo,
+	usePluvRedo,
+	usePluvTransact,
 } = createRoomBundle({
 	presence: Presence,
 	initialStorage: () => ({
@@ -74,6 +79,7 @@ export const {
 export const usePluvNode = (id: string) => {
 	const [_, remoteNodes] = usePluvStorage("nodes");
 	const node = remoteNodes?.get(id);
+	const transact = usePluvTransact();
 	const update = (node: Partial<Node>) => {
 		const current = remoteNodes?.get(id);
 		if (!current) return;
@@ -81,7 +87,9 @@ export const usePluvNode = (id: string) => {
 		// console.log("[merged]", merged);
 		// console.log("[current]", current);
 		// console.log("[node]", node);
-		remoteNodes?.set(id, merged);
+		transact(() => {
+			remoteNodes?.set(id, merged);
+		});
 	};
 
 	return [node, update] as const;

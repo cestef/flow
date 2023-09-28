@@ -13,12 +13,18 @@ import { FIT_VIEW } from "@/lib/constants";
 import { useEdges, useNodes } from "@/lib/flow/elements";
 import { formatNodesFlow } from "@/lib/flow/format";
 import { useFlowProps } from "@/lib/flow/useProps";
-import { usePluvOthers } from "@/lib/pluv/bundle";
+import {
+	usePluvCanRedo,
+	usePluvCanUndo,
+	usePluvOthers,
+	usePluvRedo,
+	usePluvUndo,
+} from "@/lib/pluv/bundle";
 import { useMouseTrack } from "@/lib/pluv/useMouseTrack";
 import { prisma } from "@/lib/prisma";
 import { useStore } from "@/lib/store";
 import { canAccessCanvas, getRandomHexColor } from "@/lib/utils";
-import { BoxSelect, Focus, Hand, Home, Minus, Plus } from "lucide-react";
+import { BoxSelect, Focus, Hand, Home, Minus, Plus, Redo2, Undo2 } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -54,6 +60,10 @@ function Canvas() {
 	const [tool, setTool] = useStore((e) => [e.tool, e.setTool] as const);
 	const { nodes, remoteNodes, nodesShared } = useNodes();
 	const { edges } = useEdges();
+	const canRedo = usePluvCanRedo();
+	const canUndo = usePluvCanUndo();
+	const redo = usePluvRedo();
+	const undo = usePluvUndo();
 
 	const flowProps = useFlowProps(remoteNodes, nodesShared);
 	const { fitView, zoomIn, zoomOut } = useReactFlow();
@@ -80,6 +90,14 @@ function Canvas() {
 	useHotkeys(["v"], (e) => {
 		e.preventDefault();
 		setTool("drag");
+	});
+	useHotkeys(["meta+z", "ctrl+z"], (e) => {
+		e.preventDefault();
+		undo();
+	});
+	useHotkeys(["meta+shift+z", "ctrl+shift+z"], (e) => {
+		e.preventDefault();
+		redo();
 	});
 
 	useMouseTrack();
@@ -174,6 +192,26 @@ function Canvas() {
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent side="left">Zoom out</TooltipContent>
+							</Tooltip>
+						</div>
+					</Panel>
+					<Panel position="bottom-left">
+						<div className="flex flex-col items-center justify-center gap-2 mb-2 mr-2 bg-accent shadow-sm py-2 px-2 rounded-md">
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button size="icon" onClick={() => undo()} disabled={!canUndo}>
+										<Undo2 className="w-6 h-6" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="left">Undo</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button size="icon" onClick={() => redo()} disabled={!canRedo}>
+										<Redo2 className="w-6 h-6" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="left">Redo</TooltipContent>
 							</Tooltip>
 						</div>
 					</Panel>

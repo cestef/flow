@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { Node, NodeChange, ReactFlowProps, useKeyPress, useReactFlow } from "reactflow";
 import * as Y from "yjs";
-import { usePluvMyPresence } from "../pluv/bundle";
+import { usePluvMyPresence, usePluvTransact } from "../pluv/bundle";
 import { RootSlice, useStore } from "../store";
 import { FIT_VIEW, NODE_TYPES } from "../constants";
 import { getHelperLines } from "@/components/flow/helper-lines";
@@ -19,13 +19,14 @@ export const useFlowProps = (
 ): ReactFlowProps => {
 	const [currentSelected, updateMyPresence] = usePluvMyPresence((e) => e.currentSelected);
 	const { updateNode, setNodes, updateNodes } = useStore(updateSetSelector);
+	const transact = usePluvTransact();
 	const { project } = useReactFlow();
 	const { nodes } = useNodes();
 	const ctrl = useKeyPress("Control");
 	const setHelperLines = useStore((e) => e.setHelperLines);
 	const onNodesChange = useCallback(
 		(changes: NodeChange[]) => {
-			// console.log("onNodesChange", changes);
+			console.log("onNodesChange", changes);
 			setHelperLines({
 				horizontal: undefined,
 				vertical: undefined,
@@ -62,7 +63,9 @@ export const useFlowProps = (
 							console.log("Invalid node addition change", change);
 							break;
 						}
-						nodesShared.set(node.id, node);
+						transact(() => {
+							nodesShared.set(node.id, node);
+						});
 						break;
 					}
 					case "remove": {
@@ -71,7 +74,9 @@ export const useFlowProps = (
 							console.log("Invalid node removal change", change);
 							break;
 						}
-						nodesShared.delete(nodeId);
+						transact(() => {
+							nodesShared.delete(nodeId);
+						});
 						break;
 					}
 					case "position": {
@@ -112,7 +117,9 @@ export const useFlowProps = (
 								height: dimensions.height,
 							};
 						}
-						nodesShared.set(nodeId, node);
+						transact(() => {
+							nodesShared.set(nodeId, node);
+						});
 						break;
 					}
 					case "select": {
@@ -137,10 +144,19 @@ export const useFlowProps = (
 				}
 				setNodes(Object.values(nodesShared.toJSON()));
 				updateNodes(
-					currentSelected.map((id) => ({
-						id,
-						selected: true,
-					})),
+					currentSelected
+						.map((id) => ({
+							id,
+							selected: true,
+						}))
+						.concat(
+							nodes
+								.filter((node) => !currentSelected.includes(node.id))
+								.map((node) => ({
+									id: node.id,
+									selected: false,
+								})),
+						),
 				);
 				updateMyPresence({
 					currentSelected,
@@ -156,6 +172,7 @@ export const useFlowProps = (
 			updateNodes,
 			ctrl,
 			nodes,
+			transact,
 		],
 	);
 	const onNodeDragStart = useCallback(
@@ -172,17 +189,23 @@ export const useFlowProps = (
 		},
 		[project],
 	);
-	const onNodeDragStop = useCallback((e: React.MouseEvent, node: Node) => {
-		const projected = project({
-			x: e.clientX,
-			y: e.clientY,
-		});
-		updateMyPresence({
-			state: "default",
-			x: projected.x,
-			y: projected.y,
-		});
-	}, []);
+	const onNodeDragStop = useCallback(
+		(e: React.MouseEvent, node: Node) => {
+			const projected = project({
+				x: e.clientX,
+				y: e.clientY,
+			});
+			updateMyPresence({
+				state: "default",
+				x: projected.x,
+				y: projected.y,
+			});
+			transact(() => {
+				nodesShared?.set(node.id, node);
+			});
+		},
+		[nodesShared],
+	);
 
 	const onSelectionStart = useCallback(
 		(e: React.MouseEvent) => {
