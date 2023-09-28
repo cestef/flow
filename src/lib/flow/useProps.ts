@@ -26,7 +26,7 @@ export const useFlowProps = (
 	const setHelperLines = useStore((e) => e.setHelperLines);
 	const onNodesChange = useCallback(
 		(changes: NodeChange[]) => {
-			console.log("onNodesChange", changes);
+			// console.log("onNodesChange", changes);
 			setHelperLines({
 				horizontal: undefined,
 				vertical: undefined,
