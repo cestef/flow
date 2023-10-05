@@ -15,9 +15,15 @@ import {
 	Underline,
 } from "lucide-react";
 import { useCallback, useState } from "react";
-import { HexColorPicker } from "react-colorful";
+import {
+	HexColorPicker,
+	HslaStringColorPicker,
+	HsvaColorPicker,
+	HsvaStringColorPicker,
+} from "react-colorful";
 import { match } from "ts-pattern";
 import { getLabel } from ".";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type EditingType = "label" | "color" | "align" | "textColor" | "fontStyles";
 interface EditingDataTypes {
@@ -27,6 +33,43 @@ interface EditingDataTypes {
 	textColor: string;
 	fontStyles: string;
 }
+const solids = [
+	"#ff75c3",
+	"#ff4500",
+	"#ffa647",
+	"#ffbb55",
+	"#ffe83f",
+	"#bada55",
+	"#9fff5b",
+	"#70e2ff",
+	"#accbee",
+	"#0088cc",
+	"#cd93ff",
+	"#09203f",
+	"#537895",
+	"#d5d4d0",
+	"#e7f0fd",
+	"transparent",
+];
+
+const gradients = [
+	"linear-gradient(to top left,#accbee,#e7f0fd)",
+	"linear-gradient(to top left,#d5d4d0,#d5d4d0,#eeeeec)",
+	"linear-gradient(to top left,#000000,#434343)",
+	"linear-gradient(to top left,#09203f,#537895)",
+	"linear-gradient(to top left,#AC32E4,#7918F2,#4801FF)",
+	"linear-gradient(to top left,#f953c6,#b91d73)",
+	"linear-gradient(to top left,#ee0979,#ff6a00)",
+	"linear-gradient(to top left,#F00000,#DC281E)",
+	"linear-gradient(to top left,#00c6ff,#0072ff)",
+	"linear-gradient(to top left,#4facfe,#00f2fe)",
+	"linear-gradient(to top left,#0ba360,#3cba92)",
+	"linear-gradient(to top left,#FDFC47,#24FE41)",
+	"linear-gradient(to top left,#8a2be2,#0000cd,#228b22,#ccff00)",
+	"linear-gradient(to top left,#40E0D0,#FF8C00,#FF0080)",
+	"linear-gradient(to top left,#fcc5e4,#fda34b,#ff7882,#c8699e,#7046aa,#0c1db8,#020f75)",
+	"linear-gradient(to top left,#ff75c3,#ffa647,#ffe83f,#9fff5b,#70e2ff,#cd93ff)",
+];
 
 export const useEditing = (props?: {
 	onStarts?: {
@@ -162,17 +205,63 @@ export default function DefaultNodeEditor({
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent side="top">
-					<HexColorPicker
-						className="w-full"
-						color={color}
-						onChange={(e) =>
-							updateNode({
-								data: {
-									color: e,
-								},
-							})
-						}
-					/>
+					<Tabs defaultValue="solid">
+						<TabsList>
+							<TabsTrigger value="hsl">HSL</TabsTrigger>
+							<TabsTrigger value="solid">Solid</TabsTrigger>
+							<TabsTrigger value="gradient">Gradient</TabsTrigger>
+						</TabsList>
+						<TabsContent value="solid">
+							<div className="flex flex-row flex-wrap gap-2 w-full items-center justify-center">
+								{solids.map((color) => (
+									<div
+										key={color}
+										className="w-7 h-7 rounded-full border border-muted-foreground cursor-pointer"
+										style={{ backgroundColor: color }}
+										onClick={() => {
+											updateNode({
+												data: {
+													color,
+												},
+											});
+										}}
+									/>
+								))}
+							</div>
+						</TabsContent>
+						<TabsContent value="gradient">
+							<div className="flex flex-row flex-wrap gap-2 w-full items-center justify-center">
+								{gradients.map((color) => (
+									<div
+										key={color}
+										className="w-7 h-7 rounded-full border border-muted-foreground cursor-pointer"
+										style={{ backgroundImage: color }}
+										onClick={() => {
+											updateNode({
+												data: {
+													color,
+												},
+											});
+										}}
+									/>
+								))}
+							</div>
+						</TabsContent>
+
+						<TabsContent value="hsl">
+							<HslaStringColorPicker
+								className="w-full"
+								color={color}
+								onChange={(e) =>
+									updateNode({
+										data: {
+											color: e,
+										},
+									})
+								}
+							/>
+						</TabsContent>
+					</Tabs>
 					<Input
 						type="text"
 						className="w-full mt-2"
@@ -281,17 +370,44 @@ export default function DefaultNodeEditor({
 							</Button>
 						</PopoverTrigger>
 						<PopoverContent side="top">
-							<HexColorPicker
-								className="w-full"
-								color={textColor}
-								onChange={(e) =>
-									updateNode({
-										data: {
-											textColor: e,
-										},
-									})
-								}
-							/>
+							<Tabs defaultValue="solid">
+								<TabsList>
+									<TabsTrigger value="hsl">HSL</TabsTrigger>
+									<TabsTrigger value="solid">Solid</TabsTrigger>
+								</TabsList>
+								<TabsContent value="solid">
+									<div className="flex flex-row flex-wrap gap-2 w-full items-center justify-center">
+										{solids.map((color) => (
+											<div
+												key={color}
+												className="w-7 h-7 rounded-full border border-muted-foreground cursor-pointer"
+												style={{ backgroundColor: color }}
+												onClick={() => {
+													updateNode({
+														data: {
+															textColor: color,
+														},
+													});
+												}}
+											/>
+										))}
+									</div>
+								</TabsContent>
+
+								<TabsContent value="hsl">
+									<HslaStringColorPicker
+										className="w-full"
+										color={color}
+										onChange={(e) =>
+											updateNode({
+												data: {
+													textColor: e,
+												},
+											})
+										}
+									/>
+								</TabsContent>
+							</Tabs>
 							<Input
 								type="text"
 								className="w-full mt-2"
