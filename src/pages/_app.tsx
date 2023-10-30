@@ -1,5 +1,6 @@
 "use-client";
 
+import ConnectionStatus from "@/components/composed/connection-status";
 import { ThemeProvider } from "@/components/providers/theme";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +23,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
 								<title>Flow</title>
 							</Head>
 							<Toaster />
+							<ConnectionStatus />
 							<Component {...pageProps} />
 						</TooltipProvider>
 					</PluvProvider>

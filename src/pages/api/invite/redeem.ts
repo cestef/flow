@@ -54,7 +54,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 		return;
 	}
 
-	if (invite.canvas.members.some((member) => member.id === session.user.id)) {
+	if (invite.canvas.members?.some((member) => member.id === session.user.id)) {
 		res.status(400).json({ error: "You are already a member of this canvas" });
 		return;
 	}

@@ -33,6 +33,11 @@ export interface CanvasSlice {
 	}) => void;
 	tool: string;
 	setTool: (tool: string) => void;
+	clipboard: {
+		nodes: Node[];
+		edges: Edge[];
+	};
+	setClipboard: (clipboard: { nodes: Node[]; edges: Edge[] }) => void;
 }
 
 export const createCanvasSlice: StateCreator<CanvasSlice> = (set) => ({
@@ -79,4 +84,9 @@ export const createCanvasSlice: StateCreator<CanvasSlice> = (set) => ({
 		set((state) => ({ helperLines: { ...state.helperLines, ...lines } })),
 	tool: "drag",
 	setTool: (tool) => set({ tool }),
+	clipboard: {
+		nodes: [],
+		edges: [],
+	},
+	setClipboard: (clipboard) => set({ clipboard }),
 });

@@ -79,7 +79,7 @@ export default function DashboardMembers({
 		}
 	};
 	let canInvite = false;
-	if ((data?.settings as any).members.canInvite) {
+	if ((data?.settings as any)?.members.canInvite) {
 		canInvite = true;
 	} else if (data?.ownerId === session?.user.id) {
 		canInvite = true;

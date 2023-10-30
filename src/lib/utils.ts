@@ -23,10 +23,12 @@ export const canAccessCanvas = (
 		return true;
 	}
 
-	return canvas.members.some(
-		(member) =>
-			member.userId === userId &&
-			(!permission || hasPermission(member.permission, permission)),
+	return (
+		canvas.members?.some(
+			(member) =>
+				member.userId === userId &&
+				(!permission || hasPermission(member.permission, permission)),
+		) ?? false
 	);
 };
 
