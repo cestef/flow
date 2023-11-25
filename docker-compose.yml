@@ -16,7 +16,7 @@ services:
             - flow-network
 
     app:
-        build: .
+        image: ghcr.io/cestef/flow:latest
         ports:
             - "3000:3000"
             - "3001:3001"
