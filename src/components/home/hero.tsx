@@ -8,7 +8,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useGet } from "@/lib/swr";
 import { useSession } from "next-auth/react";
-import {useTheme} from "next-themes";
+import { useTheme } from "next-themes";
+import { useState } from "react";
+import { Skeleton } from "../ui/skeleton";
 
 const sfPro = localFont({
 	src: "../../fonts/SfProRoundedSemibold.ttf",
@@ -17,8 +19,14 @@ const sfPro = localFont({
 export default function Hero() {
 	const { status } = useSession();
 	const { data: github } = useGet("https://api.github.com/repos/cestef/flow");
-	const { theme} = useTheme();
-	const realTheme = theme === "system" ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light" : theme;
+	const { theme } = useTheme();
+	const realTheme =
+		theme === "system"
+			? window.matchMedia("(prefers-color-scheme: dark)").matches
+				? "dark"
+				: "light"
+			: theme;
+	const [imageLoaded, setImageLoaded] = useState(false);
 	return (
 		<div className="flex flex-col lg:flex-row items-center space-y-24 lg:space-x-24 justify-center px-10 md:px-8 max-w-full lg:max-w-[1600px]">
 			<div className="flex flex-col space-y-8 max-w-full">
@@ -80,7 +88,21 @@ export default function Hero() {
 				width={750}
 				height={500}
 				alt="banner"
-				className="hidden md:block rounded-xl"
+				// className="hidden md:block rounded-xl"
+				className={cn(
+					"md:block hidden rounded-xl transition-opacity duration-500",
+					imageLoaded ? "opacity-100" : "opacity-0 w-0 h-0",
+				)}
+				onLoad={() => {
+					setImageLoaded(true);
+					console.log("loaded");
+				}}
+			/>
+			<Skeleton
+				className={cn(
+					"rounded-3xl w-[750px] h-[500px]",
+					imageLoaded ? "hidden" : "md:block",
+				)}
 			/>
 		</div>
 	);
